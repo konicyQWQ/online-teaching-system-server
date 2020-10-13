@@ -1,0 +1,40 @@
+C:\Users\Stefan Chao\source\repos\OTS_API\OTS_API\bin\Debug\netcoreapp3.1\appsettings.Development.json
+C:\Users\Stefan Chao\source\repos\OTS_API\OTS_API\bin\Debug\netcoreapp3.1\appsettings.json
+C:\Users\Stefan Chao\source\repos\OTS_API\OTS_API\bin\Debug\netcoreapp3.1\Properties\launchSettings.json
+C:\Users\Stefan Chao\source\repos\OTS_API\OTS_API\bin\Debug\netcoreapp3.1\OTS_API.exe
+C:\Users\Stefan Chao\source\repos\OTS_API\OTS_API\bin\Debug\netcoreapp3.1\OTS_API.deps.json
+C:\Users\Stefan Chao\source\repos\OTS_API\OTS_API\bin\Debug\netcoreapp3.1\OTS_API.runtimeconfig.json
+C:\Users\Stefan Chao\source\repos\OTS_API\OTS_API\bin\Debug\netcoreapp3.1\OTS_API.runtimeconfig.dev.json
+C:\Users\Stefan Chao\source\repos\OTS_API\OTS_API\bin\Debug\netcoreapp3.1\OTS_API.dll
+C:\Users\Stefan Chao\source\repos\OTS_API\OTS_API\bin\Debug\netcoreapp3.1\OTS_API.pdb
+C:\Users\Stefan Chao\source\repos\OTS_API\OTS_API\obj\Debug\netcoreapp3.1\OTS_API.csprojAssemblyReference.cache
+C:\Users\Stefan Chao\source\repos\OTS_API\OTS_API\obj\Debug\netcoreapp3.1\OTS_API.AssemblyInfoInputs.cache
+C:\Users\Stefan Chao\source\repos\OTS_API\OTS_API\obj\Debug\netcoreapp3.1\OTS_API.AssemblyInfo.cs
+C:\Users\Stefan Chao\source\repos\OTS_API\OTS_API\obj\Debug\netcoreapp3.1\OTS_API.csproj.CoreCompileInputs.cache
+C:\Users\Stefan Chao\source\repos\OTS_API\OTS_API\obj\Debug\netcoreapp3.1\OTS_API.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\Stefan Chao\source\repos\OTS_API\OTS_API\obj\Debug\netcoreapp3.1\OTS_API.RazorTargetAssemblyInfo.cache
+C:\Users\Stefan Chao\source\repos\OTS_API\OTS_API\obj\Debug\netcoreapp3.1\staticwebassets\OTS_API.StaticWebAssets.Manifest.cache
+C:\Users\Stefan Chao\source\repos\OTS_API\OTS_API\obj\Debug\netcoreapp3.1\staticwebassets\OTS_API.StaticWebAssets.xml
+C:\Users\Stefan Chao\source\repos\OTS_API\OTS_API\obj\Debug\netcoreapp3.1\OTS_API.dll
+C:\Users\Stefan Chao\source\repos\OTS_API\OTS_API\obj\Debug\netcoreapp3.1\OTS_API.pdb
+C:\Users\Stefan Chao\source\repos\OTS_API\OTS_API\obj\Debug\netcoreapp3.1\OTS_API.genruntimeconfig.cache
+C:\Users\44641\Desktop\OTS_API\OTS_API\bin\Debug\netcoreapp3.1\appsettings.Development.json
+C:\Users\44641\Desktop\OTS_API\OTS_API\bin\Debug\netcoreapp3.1\appsettings.json
+C:\Users\44641\Desktop\OTS_API\OTS_API\bin\Debug\netcoreapp3.1\Properties\launchSettings.json
+C:\Users\44641\Desktop\OTS_API\OTS_API\bin\Debug\netcoreapp3.1\OTS_API.exe
+C:\Users\44641\Desktop\OTS_API\OTS_API\bin\Debug\netcoreapp3.1\OTS_API.deps.json
+C:\Users\44641\Desktop\OTS_API\OTS_API\bin\Debug\netcoreapp3.1\OTS_API.runtimeconfig.json
+C:\Users\44641\Desktop\OTS_API\OTS_API\bin\Debug\netcoreapp3.1\OTS_API.runtimeconfig.dev.json
+C:\Users\44641\Desktop\OTS_API\OTS_API\bin\Debug\netcoreapp3.1\OTS_API.dll
+C:\Users\44641\Desktop\OTS_API\OTS_API\bin\Debug\netcoreapp3.1\OTS_API.pdb
+C:\Users\44641\Desktop\OTS_API\OTS_API\obj\Debug\netcoreapp3.1\OTS_API.csprojAssemblyReference.cache
+C:\Users\44641\Desktop\OTS_API\OTS_API\obj\Debug\netcoreapp3.1\OTS_API.AssemblyInfoInputs.cache
+C:\Users\44641\Desktop\OTS_API\OTS_API\obj\Debug\netcoreapp3.1\OTS_API.AssemblyInfo.cs
+C:\Users\44641\Desktop\OTS_API\OTS_API\obj\Debug\netcoreapp3.1\OTS_API.csproj.CoreCompileInputs.cache
+C:\Users\44641\Desktop\OTS_API\OTS_API\obj\Debug\netcoreapp3.1\OTS_API.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\44641\Desktop\OTS_API\OTS_API\obj\Debug\netcoreapp3.1\OTS_API.RazorTargetAssemblyInfo.cache
+C:\Users\44641\Desktop\OTS_API\OTS_API\obj\Debug\netcoreapp3.1\staticwebassets\OTS_API.StaticWebAssets.Manifest.cache
+C:\Users\44641\Desktop\OTS_API\OTS_API\obj\Debug\netcoreapp3.1\staticwebassets\OTS_API.StaticWebAssets.xml
+C:\Users\44641\Desktop\OTS_API\OTS_API\obj\Debug\netcoreapp3.1\OTS_API.dll
+C:\Users\44641\Desktop\OTS_API\OTS_API\obj\Debug\netcoreapp3.1\OTS_API.pdb
+C:\Users\44641\Desktop\OTS_API\OTS_API\obj\Debug\netcoreapp3.1\OTS_API.genruntimeconfig.cache
