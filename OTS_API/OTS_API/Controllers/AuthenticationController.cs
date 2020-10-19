@@ -19,37 +19,49 @@ namespace OTS_API.Controllers
     [EnableCors("AllowCors")]
     public class AuthenticationController : ControllerBase
     {
-        private readonly AuthenticateService authenticateService;
-        private readonly ILogger<AuthenticateService> logger;
+        private readonly UserService userService;
+        private readonly TokenService tokenService;
+        private readonly ILogger<UserService> logger;
 
-        public AuthenticationController(AuthenticateService authenticateService, ILogger<AuthenticateService> logger)
+        public AuthenticationController(UserService authenticateService, TokenService tokenService, ILogger<UserService> logger)
         {
-            this.authenticateService = authenticateService;
+            this.userService = authenticateService;
+            this.tokenService = tokenService;
             this.logger = logger;
         }
 
         //传入用户名密码（已加密），返回登录结果（身份）、token
         //
         [HttpPost]
-        public async Task<UserRole> OnPostAsync([FromForm]string name, [FromForm]string password)
+        public async Task<dynamic> OnPostAsync([FromForm]string name, [FromForm]string password)
         {
-            this.logger.LogInformation("Request Recived");
-            return await this.authenticateService.AuthenticateAsync(name, password);
+            var token = "ERROR";
+            var user = await this.userService.AuthenticateAsync(name, password);
+            if(user.Role != UserRole.Unknown)
+            {
+                token = await tokenService.SetToken(user.ID);
+            }
+
+            return new { Role = user.Role, Token = token };
         }
 
         [HttpPost]
         [Route("Regist")]
-        public bool OnRegistAysnc([FromForm] User user)
+        public async Task<dynamic> OnRegistAysnc([FromForm] User user)
         {
-            if (user.Name == "Jack")
-                return true;
-            return false;
+            var res = await userService.RegistAsync(user);
+            var token = "Error";
+            if (res)
+            {
+                token = await tokenService.SetToken(user.ID);
+            }
+            return new { Res = res, Token = token };
         }
 
         [HttpGet]
-        public List<User> OnGet()
+        public async Task<List<User>> OnGetAsync()
         {
-            return this.authenticateService.Users;
+            return await userService.GetAllUserAsync();
         }
     }
 }

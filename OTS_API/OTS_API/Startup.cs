@@ -26,7 +26,7 @@ namespace OTS_API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<AuthenticateService>();
+            services.AddSingleton<UserService>();
             services.AddControllers();
             services.AddCors(options => options.AddPolicy("AllowCors", builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
         }

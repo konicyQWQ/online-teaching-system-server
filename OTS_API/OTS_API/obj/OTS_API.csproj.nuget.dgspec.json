@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\44641\\Desktop\\OTS_API\\OTS_API\\OTS_API.csproj": {}
+    "E:\\Git\\online-teaching-system-server\\OTS_API\\OTS_API\\OTS_API.csproj": {}
   },
   "projects": {
-    "C:\\Users\\44641\\Desktop\\OTS_API\\OTS_API\\OTS_API.csproj": {
+    "E:\\Git\\online-teaching-system-server\\OTS_API\\OTS_API\\OTS_API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\44641\\Desktop\\OTS_API\\OTS_API\\OTS_API.csproj",
+        "projectUniqueName": "E:\\Git\\online-teaching-system-server\\OTS_API\\OTS_API\\OTS_API.csproj",
         "projectName": "OTS_API",
-        "projectPath": "C:\\Users\\44641\\Desktop\\OTS_API\\OTS_API\\OTS_API.csproj",
+        "projectPath": "E:\\Git\\online-teaching-system-server\\OTS_API\\OTS_API\\OTS_API.csproj",
         "packagesPath": "C:\\Users\\44641\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\44641\\Desktop\\OTS_API\\OTS_API\\obj\\",
+        "outputPath": "E:\\Git\\online-teaching-system-server\\OTS_API\\OTS_API\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\44641\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -37,6 +37,12 @@
       },
       "frameworks": {
         "netcoreapp3.1": {
+          "dependencies": {
+            "MySql.Data": {
+              "target": "Package",
+              "version": "[8.0.21, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",

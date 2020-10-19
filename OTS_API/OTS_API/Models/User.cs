@@ -10,7 +10,7 @@ namespace OTS_API.Models
         Teacher,
         Student,
         Admin,
-        Unkown,
+        Unknown,
     }
     public class User
     {
