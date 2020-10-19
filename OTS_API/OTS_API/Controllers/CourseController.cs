@@ -18,9 +18,14 @@ namespace OTS_API.Controllers
             return null;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("Bulletin")]
-        public Task<List<Bulletin>> GetBulletinAsync([FromForm]string id)
+        public Task<List<Bulletin>> GetBulletinAsync([FromForm] string id)
         {
             return Task.Run(() =>
             {
@@ -38,6 +43,11 @@ namespace OTS_API.Controllers
             
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("Courseware")]
         public Task<List<Courseware>> GetCoursewareAsync([FromForm] string id)
@@ -45,6 +55,11 @@ namespace OTS_API.Controllers
             return null;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("Homework")]
         public Task<List<Homework>> GetHomeworkAsync([FromForm] string id)
