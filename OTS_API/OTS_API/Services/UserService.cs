@@ -30,7 +30,7 @@ namespace OTS_API.Services
         {
             return Task.Run(() =>
             {
-                return null;
+                return new User();
             });
         }
 
@@ -46,7 +46,7 @@ namespace OTS_API.Services
         {
             return Task.Run(() =>
             {
-                return null;
+                return new List<User>();
             });
         }
     }

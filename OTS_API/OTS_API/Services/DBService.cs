@@ -10,7 +10,7 @@ namespace OTS_API.Services
 {
     abstract public class DBService
     {
-        protected readonly ILogger<DBService> logger;
+        private readonly ILogger<DBService> logger;
         protected MySqlConnection sqlConnection;
 
         public DBService(ILogger<DBService> logger)

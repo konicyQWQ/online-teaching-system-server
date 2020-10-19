@@ -30,8 +30,12 @@ namespace OTS_API.Controllers
             this.logger = logger;
         }
 
-        //传入用户名密码（已加密），返回登录结果（身份）、token
-        //
+        /// <summary>
+        /// 用户身份验证接口
+        /// </summary>
+        /// <param name="name">用户名</param>
+        /// <param name="password">密码，已加密（MD5）</param>
+        /// <returns>用户角色，token；若用户不存在或密码错误，角色返回Unknown</returns>
         [HttpPost]
         public async Task<dynamic> OnPostAsync([FromForm]string name, [FromForm]string password)
         {
@@ -45,6 +49,11 @@ namespace OTS_API.Controllers
             return new { Role = user.Role, Token = token };
         }
 
+        /// <summary>
+        /// 用户注册接口
+        /// </summary>
+        /// <param name="user">用户信息</param>
+        /// <returns>注册结果，token；若注册失败（用户名已存在），res返回false</returns>
         [HttpPost]
         [Route("Regist")]
         public async Task<dynamic> OnRegistAysnc([FromForm] User user)
@@ -58,6 +67,10 @@ namespace OTS_API.Controllers
             return new { Res = res, Token = token };
         }
 
+        /// <summary>
+        /// 获取所有用户列表
+        /// </summary>
+        /// <returns>用户列表</returns>
         [HttpGet]
         public async Task<List<User>> OnGetAsync()
         {
