@@ -27,13 +27,13 @@ namespace OTS_API.Services
         /// <param name="name">用户名</param> 
         /// <param name="password">密码，已加密（MD5）</param> 
         /// <returns>用户角色</returns> 
-        public Task<User> AuthenticateAsync(string name, string password)
+        public Task<User> AuthenticateAsync(string id, string password)
         {
             return Task.Run(async () =>
             {
                 try
                 {
-                    var cmd = new MySqlCommand("select * from user where name = " + name, this.sqlConnection);
+                    var cmd = new MySqlCommand("select * from user where id = \"" + id + "\"", this.sqlConnection);
                     using var reader = await cmd.ExecuteReaderAsync();
                     if(!await reader.ReadAsync())
                     {
@@ -45,7 +45,8 @@ namespace OTS_API.Services
                     }
                     return new User {
                         ID = reader.GetString(0),
-                        Name = reader.GetString(2)
+                        Name = reader.GetString(2),
+                        Role = (UserRole)reader.GetInt16(7)
                     };
                 }
                 catch (Exception e)

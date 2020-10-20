@@ -37,10 +37,10 @@ namespace OTS_API.Controllers
         /// <param name="password">密码，已加密（MD5）</param>
         /// <returns>用户角色，token；若用户不存在或密码错误，角色返回Unknown</returns>
         [HttpPost]
-        public async Task<dynamic> OnPostAsync([FromForm]string name, [FromForm]string password)
+        public async Task<dynamic> OnPostAsync([FromForm]string id, [FromForm]string password)
         {
             var token = "ERROR";
-            var user = await this.userService.AuthenticateAsync(name, password);
+            var user = await this.userService.AuthenticateAsync(id, password);
             if(user.Role != UserRole.Unknown)
             {
                 token = await tokenService.SetToken(new Token(user.ID, user.Role, 24));
