@@ -33,7 +33,7 @@ namespace OTS_API.Controllers
         /// <summary>
         /// 用户身份验证接口
         /// </summary>
-        /// <param name="name">用户名</param>
+        /// <param name="id">学号</param>
         /// <param name="password">密码，已加密（MD5）</param>
         /// <returns>用户角色，token；若用户不存在或密码错误，角色返回Unknown</returns>
         [HttpPost]
