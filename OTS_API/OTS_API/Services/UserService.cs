@@ -66,7 +66,7 @@ namespace OTS_API.Services
             {
                 try
                 {
-                    var cmd = new MySqlCommand("insert into user values(" + user.ID + "," + user.Password + "," + user.Name + "," + (int)user.Gender + "," + user.Grade + "," + user.Phone + "," + user.Email + "," + (int)user.Role + ")", this.sqlConnection);
+                    var cmd = new MySqlCommand("insert into user values(\"" + user.ID + "\",\"" + user.Password + "\",\"" + user.Name + "\"," + (int)user.Gender + "," + user.Grade + ",\"" + user.Phone + "\",\"" + user.Email + "\"," + (int)user.Role + ")", this.sqlConnection);
                     await cmd.ExecuteNonQueryAsync();
                     return true;
                 }
