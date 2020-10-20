@@ -75,6 +75,14 @@ namespace OTS_API.Controllers
             return new { Res = res, Token = token };
         }
 
+        [HttpGet]
+        [Route("User")]
+        public async Task<User> GetUserAsync(string token)
+        {
+            
+            return null;
+        }
+
         /// <summary>
         /// 获取所有用户列表
         /// </summary>
