@@ -68,6 +68,10 @@ namespace OTS_API.Controllers
             {
                 token = await tokenService.SetToken(new Token(user.ID, user.Role, 24));
             }
+            else
+            {
+                token = "学号已存在";
+            }
             return new { Res = res, Token = token };
         }
 
