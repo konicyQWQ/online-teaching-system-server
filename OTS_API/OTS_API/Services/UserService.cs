@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using MySql.Data;
 using MySql.Data.MySqlClient;
 using OTS_API.Models;
+using OTS_API.Common;
 
 namespace OTS_API.Services
 {
@@ -28,17 +29,52 @@ namespace OTS_API.Services
         /// <returns>用户角色</returns> 
         public Task<User> AuthenticateAsync(string name, string password)
         {
-            return Task.Run(() =>
+            return Task.Run(async () =>
             {
-                return new User();
+                try
+                {
+                    var cmd = new MySqlCommand("select * from user where name = " + name, this.sqlConnection);
+                    using var reader = await cmd.ExecuteReaderAsync();
+                    if(!await reader.ReadAsync())
+                    {
+                        throw new Exception("User Not Found!");
+                    }
+                    if (!password.Equals(reader.GetString(1)))
+                    {
+                        throw new Exception("Incorrect Password");
+                    }
+                    return new User {
+                        ID = reader.GetString(0),
+                        Name = reader.GetString(2)
+                    };
+                }
+                catch (Exception e)
+                {
+                    logger.LogError(e.Message);
+                    return new User
+                    {
+                        Role = UserRole.Unknown,
+                        ID = e.Message
+                    };
+                }
             });
         }
 
         public Task<bool> RegistAsync(User user)
         {
-            return Task.Run(() =>
+            return Task.Run(async () =>
             {
-                return true;
+                try
+                {
+                    var cmd = new MySqlCommand("insert into user values(" + user.ID + "," + user.Password + "," + user.Name + "," + (int)user.Gender + "," + user.Grade + "," + user.Phone + "," + user.Email + "," + (int)user.Role + ")", this.sqlConnection);
+                    await cmd.ExecuteNonQueryAsync();
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    logger.LogError(e.Message);
+                    return false;
+                }
             });
         }
 

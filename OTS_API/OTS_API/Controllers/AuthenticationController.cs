@@ -43,7 +43,11 @@ namespace OTS_API.Controllers
             var user = await this.userService.AuthenticateAsync(name, password);
             if(user.Role != UserRole.Unknown)
             {
-                token = await tokenService.SetToken(user.ID);
+                token = await tokenService.SetToken(new Token(user.ID, user.Role, 24));
+            }
+            else
+            {
+                token = user.ID;
             }
 
             return new { Role = user.Role, Token = token };
@@ -62,7 +66,7 @@ namespace OTS_API.Controllers
             var token = "Error";
             if (res)
             {
-                token = await tokenService.SetToken(user.ID);
+                token = await tokenService.SetToken(new Token(user.ID, user.Role, 24));
             }
             return new { Res = res, Token = token };
         }

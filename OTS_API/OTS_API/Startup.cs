@@ -27,6 +27,7 @@ namespace OTS_API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<UserService>();
+            services.AddSingleton<TokenService>();
             services.AddControllers();
             services.AddCors(options => options.AddPolicy("AllowCors", builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
         }
