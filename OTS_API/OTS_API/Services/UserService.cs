@@ -182,7 +182,8 @@ namespace OTS_API.Services
                     cmd.CommandText = "select * from user";
 
                     using var reader = await cmd.ExecuteReaderAsync();
-                    while (reader.HasRows)
+                    
+                    while (reader.Read())
                     {
                         list.Add(new User
                         {
@@ -195,14 +196,13 @@ namespace OTS_API.Services
                             Role = (UserRole)reader.GetInt16(7),
                             AvatarID = reader.GetInt32(8)
                         });
-                        reader.NextResult();
                     }
                 }
                 catch (Exception e)
                 {
                     logger.LogError(e.Message);
                 }
-                return new List<User>();
+                return list;
             });
         }
     }
