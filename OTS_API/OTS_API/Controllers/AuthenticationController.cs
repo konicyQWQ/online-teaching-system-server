@@ -11,9 +11,9 @@ using OTS_API.Services;
 
 namespace OTS_API.Controllers
 {
-    /*
-     * 登录验证
-     */
+    /// <summary>
+    /// 用户验证、带token请求等
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [EnableCors("AllowCors")]
@@ -43,7 +43,7 @@ namespace OTS_API.Controllers
             var user = await this.userService.AuthenticateAsync(id, password);
             if(user.Role != UserRole.Unknown)
             {
-                token = await tokenService.SetToken(new Token(user.ID, user.Role, 24));
+                token = await tokenService.AddTokenAsync(new Token(user.ID, user.Role, 24));
             }
             else
             {
@@ -66,7 +66,7 @@ namespace OTS_API.Controllers
             var token = "Error";
             if (res)
             {
-                token = await tokenService.SetToken(new Token(user.ID, user.Role, 24));
+                token = await tokenService.AddTokenAsync(new Token(user.ID, user.Role, 24));
             }
             else
             {
@@ -75,12 +75,20 @@ namespace OTS_API.Controllers
             return new { Res = res, Token = token };
         }
 
+        /// <summary>
+        /// 获取用户信息
+        /// </summary>
+        /// <param name="token">token</param>
+        /// <returns>用户信息（去密码）,若token失效，返回？</returns>
         [HttpGet]
         [Route("User")]
         public async Task<User> GetUserAsync(string token)
         {
-            
-            return null;
+            var t = await tokenService.GetTokenAsync(token);
+            if (t == null)
+                return null;//TBD
+            var user = await userService.GetUserInfoAsync(t.UserID);
+            return user;
         }
 
         /// <summary>

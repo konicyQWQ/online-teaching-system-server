@@ -20,7 +20,12 @@ namespace OTS_API.Services
             tokenMap = new Dictionary<string, Token>();
         }
 
-        public Task<string> SetToken(Token token)
+        /// <summary>
+        /// 添加一个token，返回tokenID
+        /// </summary>
+        /// <param name="token">要添加的token</param>
+        /// <returns>tokenID</returns>
+        public Task<string> AddTokenAsync(Token token)
         {
             return Task.Run(() =>
             {
@@ -33,6 +38,31 @@ namespace OTS_API.Services
                 this.tokenMap.Add(code, token);
 
                 return code;
+            });
+        }
+
+        /// <summary>
+        /// 返回ID对应的token，同时检查是否过期
+        /// </summary>
+        /// <param name="id">id</param>
+        /// <returns>返回对应token，若过期或不存在返回null</returns>
+        public Task<Token> GetTokenAsync(string id)
+        {
+            return Task.Run(() =>
+            {
+                if (tokenMap.ContainsKey(id))
+                {
+                    var token = tokenMap[id];
+                    if (token.IsValid())
+                    {
+                        return token;
+                    }
+                    else
+                    {
+                        tokenMap.Remove(id);
+                    }
+                }
+                return null;
             });
         }
     }

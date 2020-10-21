@@ -24,7 +24,7 @@ namespace OTS_API.Services
         /// <summary> 
         /// 验证用户名与密码，若用户不存在或密码错误，请返回Unknown(3)
         /// </summary> 
-        /// <param name="name">用户名</param> 
+        /// <param name="id">用户名</param> 
         /// <param name="password">密码，已加密（MD5）</param> 
         /// <returns>用户角色</returns> 
         public Task<User> AuthenticateAsync(string id, string password)
@@ -76,6 +76,14 @@ namespace OTS_API.Services
                     logger.LogError(e.Message);
                     return false;
                 }
+            });
+        }
+
+        public Task<User> GetUserInfoAsync(string id)
+        {
+            return Task.Run(() =>
+            {
+                return new User();
             });
         }
 
