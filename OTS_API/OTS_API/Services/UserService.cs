@@ -61,13 +61,42 @@ namespace OTS_API.Services
             });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public Task<bool> RegistAsync(User user)
         {
             return Task.Run(async () =>
             {
                 try
                 {
-                    var cmd = new MySqlCommand("insert into user values(\"" + user.ID + "\",\"" + user.Password + "\",\"" + user.Name + "\"," + (int)user.Gender + "," + user.Grade + ",\"" + user.Phone + "\",\"" + user.Email + "\"," + (int)user.Role + ")", this.sqlConnection);
+                    var cmd = this.sqlConnection.CreateCommand();
+                    
+                    cmd.CommandType = System.Data.CommandType.Text;
+                    cmd.CommandText = "insert into user values(@id, @password, @name, @gender, @grade, @phone, @email, @role, @avatar_id)";
+                    
+                    cmd.Parameters.Add("@id", MySqlDbType.VarChar);
+                    cmd.Parameters.Add("@password", MySqlDbType.VarChar);
+                    cmd.Parameters.Add("@name", MySqlDbType.VarChar);
+                    cmd.Parameters.Add("@gender", MySqlDbType.Int16);
+                    cmd.Parameters.Add("@grade", MySqlDbType.Int16);
+                    cmd.Parameters.Add("@phone", MySqlDbType.VarChar);
+                    cmd.Parameters.Add("@email", MySqlDbType.VarChar);
+                    cmd.Parameters.Add("@role", MySqlDbType.Int16);
+                    cmd.Parameters.Add("@avatar_id", MySqlDbType.Int32);
+
+                    cmd.Parameters["@id"].Value = user.ID;
+                    cmd.Parameters["@password"].Value = user.Password;
+                    cmd.Parameters["@name"].Value = user.Name;
+                    cmd.Parameters["@gender"].Value = (int)user.Gender;
+                    cmd.Parameters["@grade"].Value = user.Grade;
+                    cmd.Parameters["@phone"].Value = user.Phone;
+                    cmd.Parameters["@email"].Value = user.Email;
+                    cmd.Parameters["@role"].Value = (int)user.Role;
+                    cmd.Parameters["avatar_id"].Value = user.AvatarID;
+
                     await cmd.ExecuteNonQueryAsync();
                     return true;
                 }
