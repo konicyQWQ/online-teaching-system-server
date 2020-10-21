@@ -24,11 +24,11 @@ namespace OTS_API.Models
         public string ID { get; set; }
         public string Password { get; set; }
         public string Name { get; set; }
-        public int AvatarID { get; set; }
         public Gender Gender { get; set; }
         public int Grade { get; set; }
         public string Phone { get; set; }
         public string Email { get; set; }
         public UserRole Role { get; set; }
+        public int AvatarID { get; set; }
     }
 }

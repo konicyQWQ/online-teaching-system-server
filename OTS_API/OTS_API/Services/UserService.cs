@@ -62,10 +62,10 @@ namespace OTS_API.Services
         }
 
         /// <summary>
-        /// 
+        /// 用户注册
         /// </summary>
-        /// <param name="user"></param>
-        /// <returns></returns>
+        /// <param name="user">用户信息</param>
+        /// <returns>注册结果</returns>
         public Task<bool> RegistAsync(User user)
         {
             return Task.Run(async () =>
@@ -108,6 +108,11 @@ namespace OTS_API.Services
             });
         }
 
+        /// <summary>
+        /// 获取用户信息
+        /// </summary>
+        /// <param name="id">用户ID</param>
+        /// <returns>用户信息（去密码）</returns>
         public Task<User> GetUserInfoAsync(string id)
         {
             return Task.Run(() =>
@@ -116,6 +121,10 @@ namespace OTS_API.Services
             });
         }
 
+        /// <summary>
+        /// 获取所有用户列表
+        /// </summary>
+        /// <returns>用户信息列表（去密码）</returns>
         public Task<List<User>> GetAllUserAsync()
         {
             return Task.Run(() =>

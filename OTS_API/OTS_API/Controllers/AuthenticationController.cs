@@ -82,11 +82,11 @@ namespace OTS_API.Controllers
         /// <returns>用户信息（去密码）,若token失效，返回？</returns>
         [HttpGet]
         [Route("User")]
-        public async Task<User> GetUserAsync(string token)
+        public async Task<object> GetUserAsync(string token)
         {
             var t = await tokenService.GetTokenAsync(token);
             if (t == null)
-                return null;//TBD
+                return new { Error = "Token is Invalid" };//TBD
             var user = await userService.GetUserInfoAsync(t.UserID);
             return user;
         }
