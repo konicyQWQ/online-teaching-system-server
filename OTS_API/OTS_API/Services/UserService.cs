@@ -33,9 +33,17 @@ namespace OTS_API.Services
             {
                 try
                 {
-                    var cmd = new MySqlCommand("select * from user where id = \"" + id + "\"", this.sqlConnection);
+                    var cmd = this.sqlConnection.CreateCommand();
+
+                    cmd.CommandType = System.Data.CommandType.Text;
+                    cmd.CommandText = "select * from user where id = @id";
+                    cmd.Parameters.Add("@id", MySqlDbType.VarChar);
+
+                    cmd.Parameters["@id"].Value = id;
+
                     using var reader = await cmd.ExecuteReaderAsync();
-                    if(!await reader.ReadAsync())
+
+                    if (!await reader.ReadAsync())
                     {
                         throw new Exception("User Not Found!");
                     }
@@ -115,9 +123,45 @@ namespace OTS_API.Services
         /// <returns>用户信息（去密码）</returns>
         public Task<User> GetUserInfoAsync(string id)
         {
-            return Task.Run(() =>
+            return Task.Run(async () =>
             {
-                return new User();
+                try
+                {
+                    var cmd = this.sqlConnection.CreateCommand();
+
+                    cmd.CommandType = System.Data.CommandType.Text;
+                    cmd.CommandText = "select * from user where id = @id";
+                    cmd.Parameters.Add("@id", MySqlDbType.VarChar);
+
+                    cmd.Parameters["@id"].Value = id;
+
+                    using var reader = await cmd.ExecuteReaderAsync();
+
+                    if (!await reader.ReadAsync())
+                    {
+                        throw new Exception("User Not Found!");
+                    }
+                    return new User
+                    {
+                        ID = reader.GetString(0),
+                        Name = reader.GetString(2),
+                        Gender = (Gender)reader.GetInt16(3),
+                        Grade = reader.GetInt16(4),
+                        Phone = reader.GetString(5),
+                        Email = reader.GetString(6),
+                        Role = (UserRole)reader.GetInt16(7),
+                        AvatarID = reader.GetInt32(8)
+                    };
+                }
+                catch (Exception e)
+                {
+                    logger.LogError(e.Message);
+                    return new User
+                    {
+                        Role = UserRole.Unknown,
+                        ID = e.Message
+                    };
+                }
             });
         }
 
@@ -127,8 +171,37 @@ namespace OTS_API.Services
         /// <returns>用户信息列表（去密码）</returns>
         public Task<List<User>> GetAllUserAsync()
         {
-            return Task.Run(() =>
+            return Task.Run(async () =>
             {
+                List<User> list = new List<User>();
+                try
+                {
+                    var cmd = this.sqlConnection.CreateCommand();
+
+                    cmd.CommandType = System.Data.CommandType.Text;
+                    cmd.CommandText = "select * from user";
+
+                    using var reader = await cmd.ExecuteReaderAsync();
+                    while (reader.HasRows)
+                    {
+                        list.Add(new User
+                        {
+                            ID = reader.GetString(0),
+                            Name = reader.GetString(2),
+                            Gender = (Gender)reader.GetInt16(3),
+                            Grade = reader.GetInt16(4),
+                            Phone = reader.GetString(5),
+                            Email = reader.GetString(6),
+                            Role = (UserRole)reader.GetInt16(7),
+                            AvatarID = reader.GetInt32(8)
+                        });
+                        reader.NextResult();
+                    }
+                }
+                catch (Exception e)
+                {
+                    logger.LogError(e.Message);
+                }
                 return new List<User>();
             });
         }
