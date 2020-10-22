@@ -13,7 +13,7 @@ namespace OTS_API.Controllers
     public class CourseController : ControllerBase
     {
         [HttpGet]
-        public Task<Course> OnGetAsync([FromForm] string id)
+        public Task<Course> OnGetAsync(string id)
         {
             return null;
         }
@@ -25,7 +25,7 @@ namespace OTS_API.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Bulletin")]
-        public Task<List<Bulletin>> GetBulletinAsync([FromForm] string id)
+        public Task<List<Bulletin>> GetBulletinAsync(string id)
         {
             return Task.Run(() =>
             {
@@ -50,7 +50,7 @@ namespace OTS_API.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Courseware")]
-        public Task<List<Courseware>> GetCoursewareAsync([FromForm] string id)
+        public Task<List<Courseware>> GetCoursewareAsync(string id)
         {
             return null;
         }
@@ -62,7 +62,7 @@ namespace OTS_API.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Homework")]
-        public Task<List<Homework>> GetHomeworkAsync([FromForm] string id)
+        public Task<List<Homework>> GetHomeworkAsync(string id)
         {
             return null;
         }

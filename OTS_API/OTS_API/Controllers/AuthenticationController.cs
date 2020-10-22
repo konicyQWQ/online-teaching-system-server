@@ -79,7 +79,7 @@ namespace OTS_API.Controllers
         /// 获取用户信息
         /// </summary>
         /// <param name="token">token</param>
-        /// <returns>用户信息（去密码）,若token失效，返回？</returns>
+        /// <returns>用户信息（去密码）,若token失效，返回错误信息</returns>
         [HttpGet]
         [Route("User")]
         public async Task<object> GetUserAsync(string token)

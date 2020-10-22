@@ -1,23 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "D:\\documents\\3\\软件需求工程\\项目\\online-teaching-system-server\\OTS_API\\OTS_API\\OTS_API.csproj": {}
+    "E:\\Git\\online-teaching-system-server\\OTS_API\\OTS_API\\OTS_API.csproj": {}
   },
   "projects": {
-    "D:\\documents\\3\\软件需求工程\\项目\\online-teaching-system-server\\OTS_API\\OTS_API\\OTS_API.csproj": {
+    "E:\\Git\\online-teaching-system-server\\OTS_API\\OTS_API\\OTS_API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\documents\\3\\软件需求工程\\项目\\online-teaching-system-server\\OTS_API\\OTS_API\\OTS_API.csproj",
+        "projectUniqueName": "E:\\Git\\online-teaching-system-server\\OTS_API\\OTS_API\\OTS_API.csproj",
         "projectName": "OTS_API",
-        "projectPath": "D:\\documents\\3\\软件需求工程\\项目\\online-teaching-system-server\\OTS_API\\OTS_API\\OTS_API.csproj",
-        "packagesPath": "C:\\Users\\Alex\\.nuget\\packages\\",
-        "outputPath": "D:\\documents\\3\\软件需求工程\\项目\\online-teaching-system-server\\OTS_API\\OTS_API\\obj\\",
+        "projectPath": "E:\\Git\\online-teaching-system-server\\OTS_API\\OTS_API\\OTS_API.csproj",
+        "packagesPath": "C:\\Users\\44641\\.nuget\\packages\\",
+        "outputPath": "E:\\Git\\online-teaching-system-server\\OTS_API\\OTS_API\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-        ],
         "configFilePaths": [
-          "C:\\Users\\Alex\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\44641\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -56,12 +53,6 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[3.1.2, 3.1.2]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"
@@ -70,7 +61,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.300\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.402\\RuntimeIdentifierGraph.json"
         }
       }
     }
