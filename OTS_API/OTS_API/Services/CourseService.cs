@@ -28,5 +28,31 @@ namespace OTS_API.Services
                 return new Course();
             });
         }
+
+        public Task<bool> UpdateCourseAysnc(string id)
+        {
+            return Task.Run(() =>
+            {
+                return true;
+            });
+        }
+
+        public Task<bool> DeleteCourseAsync(string id)
+        {
+            return Task.Run(() =>
+            {
+                return true;
+            });
+        }
+
+        public Task<bool> AddCourseAysnc(Course course)
+        {
+            return Task.Run(() =>
+            {
+                return true;
+            });
+        }
+
+
     }
 }
