@@ -81,7 +81,7 @@ namespace OTS_API.Services
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw e;
+                return null;
             }
         }
 
