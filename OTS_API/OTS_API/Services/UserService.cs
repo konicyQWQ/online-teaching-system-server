@@ -32,7 +32,7 @@ namespace OTS_API.Services
         /// <returns>用户角色</returns> 
         public async Task<User> AuthenticateAsync(string id, string password)
         {
-            var user = await dbContext.User.FirstOrDefaultAsync(u => u.Id == id);
+            var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
             if(user == null)
             {
                 logger.LogError("User: " + id + " Not Found!");
@@ -55,7 +55,7 @@ namespace OTS_API.Services
         {
             try
             {
-                await dbContext.User.AddAsync(user);
+                await dbContext.Users.AddAsync(user);
                 await dbContext.SaveChangesAsync();
             }
             catch (Exception e)
