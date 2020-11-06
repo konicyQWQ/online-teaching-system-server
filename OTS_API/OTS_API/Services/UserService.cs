@@ -35,10 +35,12 @@ namespace OTS_API.Services
             var user = await dbContext.User.FirstOrDefaultAsync(u => u.Id == id);
             if(user == null)
             {
+                logger.LogError("User: " + id + " Not Found!");
                 throw new Exception("User Not Found!");
             }
             if(user.Password != password)
             {
+                logger.LogError("User: " + id + "Wrong Password!");
                 throw new Exception("Wrong Password!");
             }
             return user;
@@ -51,7 +53,17 @@ namespace OTS_API.Services
         /// <returns>注册结果</returns>
         public async Task RegistAsync(User user)
         {
-            await dbContext.User.AddAsync(user);
+            try
+            {
+                await dbContext.User.AddAsync(user);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw e;
+            }
+            
         }
 
         /// <summary>
