@@ -39,18 +39,17 @@ namespace OTS_API.Controllers
         [HttpPost]
         public async Task<dynamic> OnPostAsync([FromForm]string id, [FromForm]string password)
         {
-            var token = "ERROR";
-            var user = await this.userService.AuthenticateAsync(id, password);
-            if(user.Role != UserRole.Unknown)
+            try
             {
-                token = await tokenService.AddTokenAsync(new Token(user.ID, user.Role, 24));
-            }
-            else
-            {
-                token = user.ID;
-            }
+                var user = await this.userService.AuthenticateAsync(id, password);
+                var token = await tokenService.AddTokenAsync(new Token(user.Id, user.Role, 24));
 
-            return new { Role = user.Role, Token = token };
+                return new { Role = user.Role, Token = token };
+            }
+            catch (Exception e)
+            {
+                return new { Role = UserRole.Unknown, Token = e.Message };
+            }
         }
 
         /// <summary>
@@ -62,17 +61,17 @@ namespace OTS_API.Controllers
         [Route("Regist")]
         public async Task<dynamic> OnRegistAysnc([FromForm] User user)
         {
-            var res = await userService.RegistAsync(user);
-            var token = "Error";
-            if (res)
+            try
             {
-                token = await tokenService.AddTokenAsync(new Token(user.ID, user.Role, 24));
+                await userService.RegistAsync(user);
+                var token = await tokenService.AddTokenAsync(new Token(user.Id, user.Role, 24));
+
+                return new { Res = true, Token = token };
             }
-            else
+            catch (Exception e)
             {
-                token = "学号已存在";
+                return new { Res = false, Token = e.Message };
             }
-            return new { Res = res, Token = token };
         }
 
         /// <summary>

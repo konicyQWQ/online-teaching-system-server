@@ -29,7 +29,7 @@ namespace OTS_API.Controllers
         {
             var user = await userService.GetUserInfoAsync(id);
             //头像，姓名
-            return new { Name = user.Name, AvatarID = user.AvatarID };
+            return new { Name = user.Name, AvatarID = user.AvatarId };
         }
     }
 }

@@ -7,10 +7,10 @@ namespace OTS_API.Models
 {
     public enum UserRole
     {
-        Teacher,
-        Student,
-        Admin,
-        Unknown,
+        Student = 0,
+        Teacher = 1,
+        Admin = 2,
+        Unknown = 3,
     }
 
     public enum Gender
@@ -21,14 +21,15 @@ namespace OTS_API.Models
 
     public class User
     {
-        public string ID { get; set; }
+        public string Id { get; set; }
         public string Password { get; set; }
         public string Name { get; set; }
         public Gender Gender { get; set; }
-        public int Grade { get; set; }
+        public byte Grade { get; set; }
         public string Phone { get; set; }
         public string Email { get; set; }
         public UserRole Role { get; set; }
-        public int AvatarID { get; set; }
+        public int? AvatarId { get; set; }
+        public string Introduction { get; set; }
     }
 }

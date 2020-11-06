@@ -11,6 +11,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using OTS_API.Services;
+using OTS_API.DatabaseContext;
+using Microsoft.EntityFrameworkCore;
+using OTS_API.Common;
 
 namespace OTS_API
 {
@@ -26,7 +29,8 @@ namespace OTS_API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<UserService>();
+            services.AddDbContext<OTSDbContext>(options => options.UseMySQL(Config.connStr));
+            services.AddTransient<UserService>();
             services.AddSingleton<TokenService>();
             services.AddControllers();
             services.AddCors(options => options.AddPolicy("AllowCors", builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
