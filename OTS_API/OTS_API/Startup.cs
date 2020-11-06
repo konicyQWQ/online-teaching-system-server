@@ -30,7 +30,7 @@ namespace OTS_API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<OTSDbContext>(options => options.UseMySQL(Config.connStr));
-            services.AddTransient<UserService>();
+            services.AddScoped<UserService>();
             services.AddSingleton<TokenService>();
             services.AddControllers();
             services.AddCors(options => options.AddPolicy("AllowCors", builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
