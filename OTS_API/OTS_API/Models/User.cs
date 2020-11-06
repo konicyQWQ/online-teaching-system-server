@@ -25,7 +25,7 @@ namespace OTS_API.Models
     {
         [Column("id")]
         public string Id { get; set; }
-        [Column("passwrod")]
+        [Column("password")]
         public string Password { get; set; }
         [Column("name")]
         public string Name { get; set; }
