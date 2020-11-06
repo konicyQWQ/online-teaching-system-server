@@ -76,6 +76,7 @@ namespace OTS_API.Services
             try
             {
                 var user = await dbContext.Users.FindAsync(id);
+                user.Password = null;
                 return user;
             }
             catch (Exception e)
