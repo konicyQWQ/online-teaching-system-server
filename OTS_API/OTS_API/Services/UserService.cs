@@ -71,12 +71,18 @@ namespace OTS_API.Services
         /// </summary>
         /// <param name="id">用户ID</param>
         /// <returns>用户信息（去密码）</returns>
-        public Task<User> GetUserInfoAsync(string id)
+        public async Task<User> GetUserInfoAsync(string id)
         {
-            return Task.Run(() =>
+            try
             {
-                return new User();
-            });
+                var user = await dbContext.Users.FindAsync(id);
+                return user;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw e;
+            }
         }
 
         /// <summary>
