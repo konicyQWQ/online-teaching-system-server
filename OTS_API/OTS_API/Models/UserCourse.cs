@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace OTS_API.TestModels
+namespace OTS_API.Models
 {
     public partial class UserCourse
     {

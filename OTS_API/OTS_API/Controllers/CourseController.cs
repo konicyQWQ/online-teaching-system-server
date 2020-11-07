@@ -50,12 +50,6 @@ namespace OTS_API.Controllers
                 return new List<Bulletin>()
             {
                 new Bulletin()
-                {
-                    CourseID = "ABCDE",
-                    Content = "Content",
-                    Time = DateTime.Now,
-                    Title = "Title",
-                }
             };
             });
             

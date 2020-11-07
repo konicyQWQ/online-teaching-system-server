@@ -74,6 +74,26 @@ namespace OTS_API.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("ChangeInfo")]
+        public async Task<dynamic> OnChangeInfoAsync([FromForm] User user, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if(t == null)
+                {
+                    throw new Exception("Invalid Token!");
+                }
+                await userService.UpdateUserInfoAsync(user);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
         /// <summary>
         /// 获取用户信息
         /// </summary>

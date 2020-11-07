@@ -1,14 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace OTS_API.Models
 {
-    public class File
+    public partial class File
     {
-        public int ID { get; set; }
-        public string FileName { get; set; }
+        public File()
+        {
+            Courseware = new HashSet<Courseware>();
+            User = new HashSet<User>();
+            UserHomework = new HashSet<UserHomework>();
+        }
+
+        public int Id { get; set; }
+        public string Name { get; set; }
         public string Path { get; set; }
+
+        public virtual ICollection<Courseware> Courseware { get; set; }
+        public virtual ICollection<User> User { get; set; }
+        public virtual ICollection<UserHomework> UserHomework { get; set; }
     }
 }

@@ -86,6 +86,26 @@ namespace OTS_API.Services
             }
         }
 
+        public async Task UpdateUserInfoAsync(User userInfo)
+        {
+            var userToUpdate = await dbContext.Users.FindAsync(userInfo.Id);
+            if(userToUpdate == null)
+            {
+                throw new Exception("User Not Found!");
+            }
+            try
+            {
+                userInfo.Password = userToUpdate.Password;
+                dbContext.Users.Update(userInfo);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Falied!");
+            }
+        }
+
         /// <summary>
         /// 获取所有用户列表
         /// </summary>
