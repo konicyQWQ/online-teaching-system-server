@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Web;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OTS_API.Services;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace OTS_API.Controllers
 {
@@ -54,7 +56,9 @@ namespace OTS_API.Controllers
             {
                 var fileInfo = await fileService.GetFileAsync(id);
 
-                return PhysicalFile(fileInfo.Path, Path.GetExtension(fileInfo.Name), fileInfo.Name);
+                using var stream = System.IO.File.OpenRead(fileInfo.Path);
+                new FileExtensionContentTypeProvider().TryGetContentType(fileInfo.Name, out var contentType);
+                return File(stream, contentType, fileInfo.Name);
             }
             catch (Exception e)
             {
