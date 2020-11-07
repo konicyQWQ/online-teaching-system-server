@@ -28,7 +28,7 @@ namespace OTS_API.Services
             {
                 Id = 0,
                 Name = file.FileName,
-                Path = Config.filePathRoot + DateTime.Now.ToShortTimeString() + CodeGenerator.GetCode(10)
+                Path = Config.filePathRoot + DateTime.Now.ToString("yyyyMMddHHmmss") + CodeGenerator.GetCode(10)
             };
 
             try
