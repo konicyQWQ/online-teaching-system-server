@@ -1,23 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OTS_API.Models
 {
-    public partial class File
+    [Table("file")]
+    public class File
     {
-        public File()
-        {
-            Courseware = new HashSet<Courseware>();
-            User = new HashSet<User>();
-            UserHomework = new HashSet<UserHomework>();
-        }
-
+        [Key]
+        [Column("id")]
         public int Id { get; set; }
+        [Column("name")]
         public string Name { get; set; }
+        [Column("path")]
         public string Path { get; set; }
-
-        public virtual ICollection<Courseware> Courseware { get; set; }
-        public virtual ICollection<User> User { get; set; }
-        public virtual ICollection<UserHomework> UserHomework { get; set; }
     }
 }

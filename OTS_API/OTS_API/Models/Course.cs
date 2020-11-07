@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OTS_API.Models
 {
@@ -10,16 +12,27 @@ namespace OTS_API.Models
         Closed = 2
     }
 
+    [Table("course")]
     public class Course
     {
+        [Key]
+        [Column("id")]
         public int Id { get; set; }
+        [Column("name")]
         public string Name { get; set; }
+        [Column("institute")]
         public string Institute { get; set; }
+        [Column("status")]
         public CourseStatus Status { get; set; }
+        [Column("year")]
         public int Year { get; set; }
+        [Column("startTime")]
         public DateTime StartTime { get; set; }
+        [Column("description")]
         public string Description { get; set; }
+        [Column("scoringMethod")]
         public string ScoringMethod { get; set; }
+        [Column("textbook")]
         public string Textbook { get; set; }
     }
 }

@@ -1,11 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OTS_API.Models
 {
-    public partial class Question
+    [Table("question")]
+    public class Question
     {
+        [Key]
+        [Column("question_id")]
         public int QuestionId { get; set; }
+        [Key]
+        [Column("exam_id")]
         public int ExamId { get; set; }
         public byte Type { get; set; }
         public string Content { get; set; }
