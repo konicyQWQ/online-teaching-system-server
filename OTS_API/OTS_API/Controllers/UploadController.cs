@@ -55,12 +55,10 @@ namespace OTS_API.Controllers
             try
             {
                 var fileInfo = await fileService.GetFileAsync(id);
+                var fs = new FileStream(fileInfo.Path, FileMode.Open);
 
-                using(var stream = System.IO.File.OpenRead(fileInfo.Path))
-                {
-                    new FileExtensionContentTypeProvider().TryGetContentType(fileInfo.Name, out var contentType);
-                    return File(stream, contentType, fileInfo.Name);
-                }
+                new FileExtensionContentTypeProvider().TryGetContentType(fileInfo.Name, out var contentType);
+                return new FileStreamResult(fs, contentType);
             }
             catch (Exception e)
             {
