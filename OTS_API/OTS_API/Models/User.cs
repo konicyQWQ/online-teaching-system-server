@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,17 +21,29 @@ namespace OTS_API.Models
         Female
     }
 
+    [Table("user")]
     public class User
     {
+        [Key]
+        [Column("id")]
         public string Id { get; set; }
+        [Column("password")]
         public string Password { get; set; }
+        [Column("name")]
         public string Name { get; set; }
+        [Column("gender")]
         public Gender Gender { get; set; }
+        [Column("grade")]
         public byte Grade { get; set; }
+        [Column("phone")]
         public string Phone { get; set; }
+        [Column("email")]
         public string Email { get; set; }
+        [Column("role")]
         public UserRole Role { get; set; }
+        [Column("avatar_id")]
         public int? AvatarId { get; set; }
+        [Column("introduction")]
         public string Introduction { get; set; }
     }
 }
