@@ -88,9 +88,19 @@ namespace OTS_API.Services
 
         public async Task UpdateUserInfoAsync(User userInfo)
         {
+            var userToUpdate = await dbContext.Users.FindAsync(userInfo.Id);
+            if(userToUpdate == null)
+            {
+                throw new Exception("User Not Found");
+            }
+            userToUpdate.Gender = userInfo.Gender;
+            userToUpdate.Phone = userInfo.Phone;
+            userToUpdate.Email = userInfo.Email;
+            userToUpdate.AvatarId = userInfo.AvatarId;
+            userToUpdate.Introduction = userInfo.Introduction;
             try
             {
-                dbContext.Users.Update(userInfo);
+                dbContext.Users.Update(userToUpdate);
                 await dbContext.SaveChangesAsync();
             }
             catch (Exception e)
