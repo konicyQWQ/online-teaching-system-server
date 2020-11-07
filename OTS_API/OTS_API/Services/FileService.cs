@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using OTS_API.Common;
+using Microsoft.VisualBasic;
 
 namespace OTS_API.Services
 {
@@ -47,6 +48,25 @@ namespace OTS_API.Services
                 logger.LogError(e.Message);
                 throw new Exception("Server Failed to Save File");
             }
+        }
+
+        public async Task<Models.File> GetFileAsync(int id)
+        {
+            try
+            {
+                var file = await dbContext.Files.FindAsync(id);
+                if (file == null)
+                {
+                    throw new Exception("File Not Found!");
+                }
+                return file;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw e;
+            }
+            
         }
     }
 }

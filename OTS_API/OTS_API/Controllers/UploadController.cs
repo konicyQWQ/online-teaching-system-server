@@ -24,7 +24,7 @@ namespace OTS_API.Controllers
         }
 
         [HttpPost]
-        public async Task<dynamic> OnPostUploadAsync(List<IFormFile> files)
+        public async Task<dynamic> OnPostUploadAsync([FromForm] List<IFormFile> files)
         {
             try
             {
@@ -45,6 +45,21 @@ namespace OTS_API.Controllers
                 return new { Res = false, Error = e.Message };
             }
             
+        }
+
+        [HttpGet]
+        public async Task<dynamic> OnGetAsync(int id)
+        {
+            try
+            {
+                var fileInfo = await fileService.GetFileAsync(id);
+
+                return PhysicalFile(fileInfo.Path, Path.GetExtension(fileInfo.Name), fileInfo.Name);
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
         }
     }
 }
