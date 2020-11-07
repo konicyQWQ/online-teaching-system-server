@@ -17,7 +17,7 @@ namespace OTS_API.DatabaseContext
         //public virtual DbSet<Courseware> Courseware { get; set; }
         //public virtual DbSet<Discussion> Discussion { get; set; }
         //public virtual DbSet<Exam> Exam { get; set; }
-        //public virtual DbSet<File> File { get; set; }
+        public virtual DbSet<File> Files { get; set; }
         //public virtual DbSet<Homework> Homework { get; set; }
         //public virtual DbSet<Question> Question { get; set; }
         //public virtual DbSet<UserAnswer> UserAnswer { get; set; }

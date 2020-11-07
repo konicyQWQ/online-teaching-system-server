@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using OTS_API.Services;
 
 namespace OTS_API.Controllers
 {
@@ -14,35 +15,36 @@ namespace OTS_API.Controllers
     public class UploadController : ControllerBase
     {
         private readonly ILogger<UploadController> logger;
+        private readonly FileService fileService;
 
-        public UploadController(ILogger<UploadController> logger)
+        public UploadController(ILogger<UploadController> logger, FileService fileService)
         {
             this.logger = logger;
+            this.fileService = fileService;
         }
 
         [HttpPost]
-        public async Task<IActionResult> OnPostUploadAsync(List<IFormFile> files)
+        public async Task<dynamic> OnPostUploadAsync(List<IFormFile> files)
         {
-            long size = files.Sum(f => f.Length);
-
-            foreach (var formFile in files)
+            try
             {
-                if (formFile.Length > 0)
+                var fileInfolist = new List<Models.File>();
+                foreach (var formFile in files)
                 {
-                    var filePath = Path.GetTempFileName();
-                    logger.LogInformation("Filepath:" + filePath);
-
-                    using (var stream = System.IO.File.Create(filePath))
+                    if (formFile.Length > 0)
                     {
-                        await formFile.CopyToAsync(stream);
+                        var fileInfo = await fileService.SaveFileAsync(formFile);
+                        fileInfolist.Add(fileInfo);
                     }
                 }
+
+                return new { Res = true, Count = files.Count, Size = files.Sum(f => f.Length), fileList = fileInfolist };
             }
-
-            // Process uploaded files
-            // Don't rely on or trust the FileName property without validation.
-
-            return Ok(new { count = files.Count, size });
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+            
         }
     }
 }
