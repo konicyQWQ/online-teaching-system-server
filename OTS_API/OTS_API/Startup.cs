@@ -31,6 +31,7 @@ namespace OTS_API
         {
             services.AddDbContext<OTSDbContext>(options => options.UseMySQL(Config.connStr));
             services.AddScoped<UserService>();
+            services.AddScoped<FileService>();
             services.AddSingleton<TokenService>();
             services.AddControllers();
             services.AddCors(options => options.AddPolicy("AllowCors", builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
