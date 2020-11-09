@@ -31,5 +31,10 @@ namespace OTS_API.DatabaseContext
         {
 
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<UserCourse>().HasKey(uc => new { uc.CourseId, uc.UserId });
+        }
     }
 }

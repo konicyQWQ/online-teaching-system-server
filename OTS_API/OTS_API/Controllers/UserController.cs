@@ -17,13 +17,13 @@ namespace OTS_API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [EnableCors("AllowCors")]
-    public class AuthenticationController : ControllerBase
+    public class UserController : ControllerBase
     {
         private readonly UserService userService;
         private readonly TokenService tokenService;
         private readonly ILogger<UserService> logger;
 
-        public AuthenticationController(UserService authenticateService, TokenService tokenService, ILogger<UserService> logger)
+        public UserController(UserService authenticateService, TokenService tokenService, ILogger<UserService> logger)
         {
             this.userService = authenticateService;
             this.tokenService = tokenService;
@@ -115,9 +115,18 @@ namespace OTS_API.Controllers
         /// </summary>
         /// <returns>用户列表</returns>
         [HttpGet]
-        public async Task<List<User>> OnGetAsync()
+        public async Task<dynamic> OnGetAsync(string keyword, int limit, UserRole role)
         {
-            return await userService.GetAllUserAsync();
+            try
+            {
+                var resList = await userService.SearchUserAsync(keyword, limit, role);
+                return new { Res = true, Count = resList.Count, resList = resList };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+            
         }
     }
 }

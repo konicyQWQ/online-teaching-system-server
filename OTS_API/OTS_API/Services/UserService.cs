@@ -110,6 +110,23 @@ namespace OTS_API.Services
             }
         }
 
+        public Task<List<User>> SearchUserAsync(string keyword, int limit, UserRole role)
+        {
+            return Task.Run(() =>
+            {
+                try
+                {
+                    var list = dbContext.Users.Where(user => user.Role == role && user.Name.Contains(keyword)).ToList();
+                    return list.Take(limit).ToList();
+                }
+                catch (Exception e)
+                {
+                    logger.LogError(e.Message);
+                    throw new Exception("Action Failed!");
+                }
+            });
+        }
+
         /// <summary>
         /// 获取所有用户列表
         /// </summary>
