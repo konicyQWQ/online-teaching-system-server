@@ -57,7 +57,7 @@ namespace OTS_API
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                endpoints.MapControllers().RequireCors("AllowCors");
             });
         }
     }
