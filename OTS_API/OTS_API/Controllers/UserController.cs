@@ -74,6 +74,12 @@ namespace OTS_API.Controllers
             }
         }
 
+        /// <summary>
+        /// 用户修改信息
+        /// </summary>
+        /// <param name="user">用户信息</param>
+        /// <param name="token">用户token</param>
+        /// <returns>操作结果</returns>
         [HttpPost]
         [Route("ChangeInfo")]
         public async Task<dynamic> OnChangeInfoAsync([FromForm] User user, [FromForm] string token)
@@ -111,9 +117,12 @@ namespace OTS_API.Controllers
         }
 
         /// <summary>
-        /// 获取所有用户列表
+        /// 批量获取用户列表
         /// </summary>
-        /// <returns>用户列表</returns>
+        /// <param name="keyword"></param>
+        /// <param name="limit"></param>
+        /// <param name="role"></param>
+        /// <returns></returns>
         [HttpGet]
         public async Task<dynamic> OnGetAsync(string keyword, int limit, UserRole role)
         {

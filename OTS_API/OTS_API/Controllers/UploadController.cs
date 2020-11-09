@@ -25,6 +25,11 @@ namespace OTS_API.Controllers
             this.fileService = fileService;
         }
 
+        /// <summary>
+        /// 上传公开文件
+        /// </summary>
+        /// <param name="files">文件</param>
+        /// <returns>上传结果+id</returns>
         [HttpPost]
         public async Task<dynamic> OnPostUploadAsync([FromForm] List<IFormFile> files)
         {
@@ -49,6 +54,11 @@ namespace OTS_API.Controllers
             
         }
 
+        /// <summary>
+        /// 获取公开文件
+        /// </summary>
+        /// <param name="id">文件id</param>
+        /// <returns>文件流</returns>
         [HttpGet]
         public async Task<dynamic> OnGetAsync(int id)
         {

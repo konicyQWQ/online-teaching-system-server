@@ -41,4 +41,10 @@ namespace OTS_API.Models
         public Course Course { get; set; }
         public List<User> Teachers { get; set; }
     }
+
+    public class CourseResList
+    {
+        public int TotalCount { get; set; }
+        public List<CourseWithTeachers> ResList { get; set; }
+    }
 }

@@ -39,11 +39,12 @@ namespace OTS_API.Services
             }
         }
 
-        public async Task<List<CourseWithTeachers>> GetCoursesAsync(int start, int limit)
+        public async Task<CourseResList> GetCoursesAsync(int start, int limit)
         {
             try
             {
                 var courseList = await dbContext.Courses.ToListAsync();
+                var totalCount = courseList.Count;
                 courseList = courseList.GetRange(start, limit);
                 var resList = new List<CourseWithTeachers>();
                 foreach(var course in courseList)
@@ -56,7 +57,11 @@ namespace OTS_API.Services
                     };
                     resList.Add(res);
                 }
-                return resList;
+                return new CourseResList()
+                {
+                    TotalCount = totalCount,
+                    ResList = resList
+                };
             }
             catch (Exception e)
             {
@@ -65,11 +70,12 @@ namespace OTS_API.Services
             }
         }
 
-        public async Task<List<CourseWithTeachers>> GetCoursesAsync(string keyword, int start, int limit)
+        public async Task<CourseResList> GetCoursesAsync(string keyword, int start, int limit)
         {
             try
             {
                 var courseList = await dbContext.Courses.Where(c => c.Name.Contains(keyword)).ToListAsync();
+                var totalCount = courseList.Count;
                 courseList = courseList.GetRange(start, limit);
                 var resList = new List<CourseWithTeachers>();
                 foreach (var course in courseList)
@@ -82,7 +88,11 @@ namespace OTS_API.Services
                     };
                     resList.Add(res);
                 }
-                return resList;
+                return new CourseResList()
+                {
+                    TotalCount = totalCount,
+                    ResList = resList
+                };
             }
             catch (Exception e)
             {

@@ -26,7 +26,7 @@ namespace OTS_API.Controllers
         }
 
         /// <summary>
-        /// 获取课程信息
+        /// 获取单个课程信息
         /// </summary>
         /// <param name="id">课程代码</param>
         /// <returns>课程信息</returns>
@@ -45,6 +45,13 @@ namespace OTS_API.Controllers
             }
         }
 
+        /// <summary>
+        /// 批量获取课程信息
+        /// </summary>
+        /// <param name="keyword">关键词，若为空则返回所有</param>
+        /// <param name="start">开始的index</param>
+        /// <param name="limit">返回的最大数量</param>
+        /// <returns>返回检索到的课程列表，附带教师信息</returns>
         [HttpGet]
         [Route("get")]
         public async Task<dynamic> OnGetAsync(string keyword, int start, int limit)
@@ -53,13 +60,13 @@ namespace OTS_API.Controllers
             {
                 if(keyword == null)
                 {
-                    var resList = await courseService.GetCoursesAsync(start, limit);
-                    return new { Res = true, Count = resList.Count, resList };
+                    var res = await courseService.GetCoursesAsync(start, limit);
+                    return new { Res = true, TotalCount = res.TotalCount, Count = res.ResList.Count, res.ResList };
                 }
                 else
                 {
-                    var resList = await courseService.GetCoursesAsync(keyword, start, limit);
-                    return new { Res = true, Count = resList.Count, resList };
+                    var res = await courseService.GetCoursesAsync(keyword, start, limit);
+                    return new { Res = true, TotalCount = res.TotalCount, Count = res.ResList.Count, res.ResList };
                 }
             }
             catch (Exception e)
@@ -68,6 +75,13 @@ namespace OTS_API.Controllers
             }
         }
 
+        /// <summary>
+        /// 添加课程
+        /// </summary>
+        /// <param name="course">课程信息</param>
+        /// <param name="teachers">教师的id列表（可有多个教师）</param>
+        /// <param name="token">管理员token</param>
+        /// <returns>课程id</returns>
         [HttpPost]
         public async Task<dynamic> OnPostAsync([FromForm] Course course, [FromForm] List<string> teachers, [FromForm] string token)
         {
@@ -95,6 +109,13 @@ namespace OTS_API.Controllers
             }
         }
 
+        /// <summary>
+        /// 更新课程信息
+        /// </summary>
+        /// <param name="course">课程信息</param>
+        /// <param name="teachers">教师id列表</param>
+        /// <param name="token">管理员token</param>
+        /// <returns>操作结果</returns>
         [HttpPost]
         [Route("Update")]
         public async Task<dynamic> OnUpdateAsync([FromForm] Course course, [FromForm] List<string> teachers, [FromForm] string token)
@@ -125,47 +146,5 @@ namespace OTS_API.Controllers
             }
         }
 
-        /// <summary>
-        /// 获取课程相关的公告
-        /// </summary>
-        /// <param name="id">课程代码</param>
-        /// <returns>公告列表</returns>
-        [HttpGet]
-        [Route("Bulletin")]
-        public Task<List<Bulletin>> GetBulletinAsync(string id)
-        {
-            return Task.Run(() =>
-            {
-                return new List<Bulletin>()
-            {
-                new Bulletin()
-            };
-            });
-            
-        }
-
-        /// <summary>
-        /// 获取课件列表
-        /// </summary>
-        /// <param name="id">课程代码</param>
-        /// <returns>课件列表</returns>
-        [HttpGet]
-        [Route("Courseware")]
-        public Task<List<Courseware>> GetCoursewareAsync(string id)
-        {
-            return null;
-        }
-
-        /// <summary>
-        /// 获取课程作业列表
-        /// </summary>
-        /// <param name="id">课程代码</param>
-        /// <returns>作业列表</returns>
-        [HttpGet]
-        [Route("Homework")]
-        public Task<List<Homework>> GetHomeworkAsync(string id)
-        {
-            return null;
-        }
     }
 }
