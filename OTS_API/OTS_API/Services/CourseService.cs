@@ -117,7 +117,7 @@ namespace OTS_API.Services
                 var teacherList = new List<User>();
                 foreach(var id in idList)
                 {
-                    var t = await dbContext.Users.FindAsync(id);
+                    var t = await dbContext.Users.FindAsync(id.UserId);
                     t.Introduction = null;
                     t.Password = null;
                     teacherList.Add(t);
