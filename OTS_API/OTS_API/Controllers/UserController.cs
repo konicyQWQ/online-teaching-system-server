@@ -16,7 +16,6 @@ namespace OTS_API.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
-    [EnableCors("AllowCors")]
     public class UserController : ControllerBase
     {
         private readonly UserService userService;
