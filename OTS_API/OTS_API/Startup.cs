@@ -45,13 +45,14 @@ namespace OTS_API
             {
                 app.UseDeveloperExceptionPage();
             }
-            app.UseCors("AllowCors");
 
             app.UseHttpsRedirection();
 
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseCors("AllowCors");
 
             app.UseEndpoints(endpoints =>
             {
