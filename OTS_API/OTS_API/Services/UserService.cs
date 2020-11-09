@@ -117,7 +117,13 @@ namespace OTS_API.Services
                 try
                 {
                     var list = dbContext.Users.Where(user => user.Role == role && user.Name.Contains(keyword)).ToList();
-                    return list.Take(limit).ToList();
+                    var res = list.Take(limit).ToList();
+                    foreach(var t in res)
+                    {
+                        t.Introduction = null;
+                        t.Password = null;
+                    }
+                    return res;
                 }
                 catch (Exception e)
                 {
