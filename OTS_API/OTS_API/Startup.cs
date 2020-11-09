@@ -35,7 +35,7 @@ namespace OTS_API
             services.AddScoped<FileService>();
             services.AddSingleton<TokenService>();
             services.AddControllers();
-            services.AddCors(options => options.AddPolicy("AllowCors", builder => builder.WithOrigins("*").AllowAnyMethod().AllowAnyHeader()));
+            services.AddCors(options => options.AddPolicy("AllowCors", builder => builder.SetIsOriginAllowed(_ => true).AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
