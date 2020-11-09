@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using OTS_API.Models;
 using OTS_API.DatabaseContext;
+using Microsoft.EntityFrameworkCore;
 
 namespace OTS_API.Services
 {
@@ -38,11 +39,63 @@ namespace OTS_API.Services
             }
         }
 
+        public async Task<List<CourseWithTeachers>> GetCoursesAsync(int start, int limit)
+        {
+            try
+            {
+                var courseList = await dbContext.Courses.ToListAsync();
+                courseList = courseList.GetRange(start, limit);
+                var resList = new List<CourseWithTeachers>();
+                foreach(var course in courseList)
+                {
+                    var teacherList = await this.GetCourseTeachersAsync(course.Id);
+                    var res = new CourseWithTeachers()
+                    {
+                        Course = course,
+                        Teachers = teacherList
+                    };
+                    resList.Add(res);
+                }
+                return resList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Unable to Get Course Info");
+            }
+        }
+
+        public async Task<List<CourseWithTeachers>> GetCoursesAsync(string keyword, int start, int limit)
+        {
+            try
+            {
+                var courseList = await dbContext.Courses.Where(c => c.Name.Contains(keyword)).ToListAsync();
+                courseList = courseList.GetRange(start, limit);
+                var resList = new List<CourseWithTeachers>();
+                foreach (var course in courseList)
+                {
+                    var teacherList = await this.GetCourseTeachersAsync(course.Id);
+                    var res = new CourseWithTeachers()
+                    {
+                        Course = course,
+                        Teachers = teacherList
+                    };
+                    resList.Add(res);
+                }
+                return resList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Unable to Get Course Info");
+            }
+        }
+
         public async Task<List<User>> GetCourseTeachersAsync(int courseID)
         {
             try
             {
-                var idList = dbContext.UserCourse.Where(uc => uc.UserRole == UserRole.Teacher && uc.CourseId == courseID).ToList();
+                var idList = await dbContext.UserCourse.Where(uc => uc.UserRole == UserRole.Teacher && uc.CourseId == courseID).ToListAsync();
                 var teacherList = new List<User>();
                 foreach(var id in idList)
                 {

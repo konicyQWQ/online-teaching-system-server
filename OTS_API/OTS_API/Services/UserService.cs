@@ -110,27 +110,24 @@ namespace OTS_API.Services
             }
         }
 
-        public Task<List<User>> SearchUserAsync(string keyword, int limit, UserRole role)
+        public async Task<List<User>> SearchUserAsync(string keyword, int limit, UserRole role)
         {
-            return Task.Run(() =>
+            try
             {
-                try
+                var list = await dbContext.Users.Where(user => user.Role == role && user.Name.Contains(keyword)).ToListAsync();
+                var res = list.Take(limit).ToList();
+                foreach (var t in res)
                 {
-                    var list = dbContext.Users.Where(user => user.Role == role && user.Name.Contains(keyword)).ToList();
-                    var res = list.Take(limit).ToList();
-                    foreach(var t in res)
-                    {
-                        t.Introduction = null;
-                        t.Password = null;
-                    }
-                    return res;
+                    t.Introduction = null;
+                    t.Password = null;
                 }
-                catch (Exception e)
-                {
-                    logger.LogError(e.Message);
-                    throw new Exception("Action Failed!");
-                }
-            });
+                return res;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
         }
 
         /// <summary>

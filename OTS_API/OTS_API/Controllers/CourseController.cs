@@ -45,6 +45,29 @@ namespace OTS_API.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("get")]
+        public async Task<dynamic> OnGetAsync(string keyword, int start, int limit)
+        {
+            try
+            {
+                if(keyword == null)
+                {
+                    var resList = await courseService.GetCoursesAsync(start, limit);
+                    return new { Res = true, Count = resList.Count, resList };
+                }
+                else
+                {
+                    var resList = await courseService.GetCoursesAsync(keyword, start, limit);
+                    return new { Res = true, Count = resList.Count, resList };
+                }
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
         [HttpPost]
         public async Task<dynamic> OnPostAsync([FromForm] Course course, [FromForm] List<string> teachers, [FromForm] string token)
         {

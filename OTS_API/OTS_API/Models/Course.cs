@@ -35,4 +35,10 @@ namespace OTS_API.Models
         [Column("textbook")]
         public string Textbook { get; set; }
     }
+
+    public class CourseWithTeachers
+    {
+        public Course Course { get; set; }
+        public List<User> Teachers { get; set; }
+    }
 }
