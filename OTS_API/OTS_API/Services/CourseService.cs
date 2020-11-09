@@ -45,6 +45,10 @@ namespace OTS_API.Services
             {
                 var courseList = await dbContext.Courses.ToListAsync();
                 var totalCount = courseList.Count;
+                if(limit > totalCount - start)
+                {
+                    limit = totalCount - start;
+                }
                 courseList = courseList.GetRange(start, limit);
                 var resList = new List<CourseWithTeachers>();
                 foreach(var course in courseList)
@@ -76,6 +80,10 @@ namespace OTS_API.Services
             {
                 var courseList = await dbContext.Courses.Where(c => c.Name.Contains(keyword)).ToListAsync();
                 var totalCount = courseList.Count;
+                if (limit > totalCount - start)
+                {
+                    limit = totalCount - start;
+                }
                 courseList = courseList.GetRange(start, limit);
                 var resList = new List<CourseWithTeachers>();
                 foreach (var course in courseList)
