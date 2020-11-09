@@ -36,6 +36,33 @@ namespace OTS_API.Controllers
             return null;
         }
 
+        [HttpPost]
+        public async Task<dynamic> OnPostAsync([FromForm] Course course, [FromForm] List<string> teachers, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if(t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if(t.Role != UserRole.Admin)
+                {
+                    throw new Exception("Insufficient Authority!");
+                }
+                var id = await courseService.AddCourseAysnc(course);
+                foreach(var teacher in teachers)
+                {
+                    await courseService.AddTeacherToCouseAsync(id, teacher);
+                }
+                return new { Res = true, CouseID = id };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
         /// <summary>
         /// 获取课程相关的公告
         /// </summary>

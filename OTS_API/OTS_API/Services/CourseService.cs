@@ -4,16 +4,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using OTS_API.Models;
+using OTS_API.DatabaseContext;
 
 namespace OTS_API.Services
 {
-    public class CourseService : DBService
+    public class CourseService
     {
         private readonly ILogger<CourseService> logger;
+        private readonly OTSDbContext dbContext;
 
-        public CourseService(ILogger<CourseService> logger ,ILogger<DBService> logger1) : base(logger1)
+        public CourseService(ILogger<CourseService> logger, OTSDbContext dbContext)
         {
             this.logger = logger;
+            this.dbContext = dbContext;
         }
 
         /// <summary>
@@ -45,14 +48,39 @@ namespace OTS_API.Services
             });
         }
 
-        public Task<bool> AddCourseAysnc(Course course)
+        public async Task<int> AddCourseAysnc(Course course)
         {
-            return Task.Run(() =>
+            try
             {
-                return true;
-            });
+                await dbContext.Courses.AddAsync(course);
+                await dbContext.SaveChangesAsync();
+                return course.Id;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
         }
 
-
+        public async Task AddTeacherToCouseAsync(int courseId, string teacherId)
+        {
+            try
+            {
+                var uc = new UserCourse()
+                {
+                    CourseId = courseId,
+                    UserId = teacherId,
+                    UserRole = UserRole.Teacher
+                };
+                await dbContext.UserCourse.AddAsync(uc);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Add Teacher(id: " + teacherId + ") Failed!");
+            }
+        }
     }
 }
