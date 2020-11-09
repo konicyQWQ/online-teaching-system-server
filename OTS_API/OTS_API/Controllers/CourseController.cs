@@ -31,9 +31,18 @@ namespace OTS_API.Controllers
         /// <param name="id">课程代码</param>
         /// <returns>课程信息</returns>
         [HttpGet]
-        public Task<Course> OnGetAsync(string id)
+        public async Task<dynamic> OnGetAsync(int id)
         {
-            return null;
+            try
+            {
+                var course = await courseService.GetCourseAsync(id);
+                var teachers = await courseService.GetCourseTeachersAsync(id);
+                return new { Res = true, Course = course, Teachers = teachers };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
         }
 
         [HttpPost]
@@ -55,7 +64,7 @@ namespace OTS_API.Controllers
                 {
                     await courseService.AddTeacherToCouseAsync(id, teacher);
                 }
-                return new { Res = true, CouseID = id };
+                return new { Res = true, CourseID = id };
             }
             catch (Exception e)
             {

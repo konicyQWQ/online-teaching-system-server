@@ -24,12 +24,37 @@ namespace OTS_API.Services
         /// </summary>
         /// <param name="id">课程代码</param>
         /// <returns>课程信息</returns>
-        public Task<Course> GetCourseAsync(string id)
+        public async Task<Course> GetCourseAsync(int id)
         {
-            return Task.Run(() =>
+            try
             {
-                return new Course();
-            });
+                var course = await dbContext.Courses.FindAsync(id);
+                return course;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<List<User>> GetCourseTeachersAsync(int courseID)
+        {
+            try
+            {
+                var idList = dbContext.UserCourse.Where(uc => uc.UserRole == UserRole.Teacher && uc.CourseId == courseID).ToList();
+                var teacherList = new List<User>();
+                foreach(var id in idList)
+                {
+                    teacherList.Add(await dbContext.Users.FindAsync(id));
+                }
+                return teacherList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Unable to Get Teacher Info!");
+            }
         }
 
         public Task<bool> UpdateCourseAysnc(string id)

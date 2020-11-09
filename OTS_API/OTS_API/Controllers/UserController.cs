@@ -119,7 +119,15 @@ namespace OTS_API.Controllers
         {
             try
             {
+                if(keyword == null)
+                {
+                    throw new Exception("keyword cannot be null!");
+                }
                 var resList = await userService.SearchUserAsync(keyword, limit, role);
+                foreach(var user in resList)
+                {
+                    user.Introduction = null;
+                }
                 return new { Res = true, Count = resList.Count, resList = resList };
             }
             catch (Exception e)
