@@ -113,12 +113,32 @@ namespace OTS_API.Services
             }
         }
 
-        public Task<bool> UpdateCourseAysnc(string id)
+        public async Task RemoveCourseTeachersAsync(int courseID)
         {
-            return Task.Run(() =>
+            try
             {
-                return true;
-            });
+                dbContext.UserCourse.RemoveRange(await dbContext.UserCourse.Where(uc => uc.CourseId == courseID).ToArrayAsync());
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task UpdateCourseAysnc(Course course)
+        {
+            try
+            {
+                dbContext.Courses.Update(course);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Unable to Update Course Info!");
+            }
         }
 
         public Task<bool> DeleteCourseAsync(string id)
