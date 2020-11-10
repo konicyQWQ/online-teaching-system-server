@@ -50,6 +50,10 @@ namespace OTS_API.Services
         {
             return Task.Run(() =>
             {
+                if(id == null)
+                {
+                    return null;
+                }
                 if (tokenMap.ContainsKey(id))
                 {
                     var token = tokenMap[id];
