@@ -61,7 +61,7 @@ namespace OTS_API.Services
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new Exception("Action Failed!");
+                throw new Exception("学号已存在");
             }
             
         }
