@@ -14,6 +14,8 @@ using OTS_API.Services;
 using OTS_API.DatabaseContext;
 using Microsoft.EntityFrameworkCore;
 using OTS_API.Common;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 
 namespace OTS_API
 {
@@ -48,7 +50,10 @@ namespace OTS_API
 
             app.UseHttpsRedirection();
 
-            app.UseStaticFiles();
+            app.UseStaticFiles(new StaticFileOptions()
+            {
+                FileProvider = new PhysicalFileProvider(Path.GetFullPath(Config.wwwrootPath))
+            });
 
             app.UseRouting();
 
