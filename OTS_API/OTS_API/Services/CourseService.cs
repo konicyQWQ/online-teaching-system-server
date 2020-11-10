@@ -294,5 +294,70 @@ namespace OTS_API.Services
                 throw new Exception("Action Failed!");
             }
         }
+
+        public async Task AddCoursewareAsync(Courseware courseware)
+        {
+            try
+            {
+                await dbContext.Coursewares.AddAsync(courseware);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<Courseware> GetCoursewareAsync(int id)
+        {
+            try
+            {
+                var res = await dbContext.Coursewares.FindAsync(id);
+                if(res == null)
+                {
+                    throw new Exception("Unable to Find Courseware(id: " + id + ")!");
+                }
+                return res;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task UpdateCousewareAsync(Courseware courseware)
+        {
+            try
+            {
+                dbContext.Coursewares.Update(courseware);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task DeleteCoursewareAsync(int id)
+        {
+            try
+            {
+                var cwToDelete = await dbContext.Coursewares.FindAsync(id);
+                if(cwToDelete == null)
+                {
+                    throw new Exception("Unable to Find Courseware(id: " + id + ")!");
+                }
+                dbContext.Coursewares.Remove(cwToDelete);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
     }
 }

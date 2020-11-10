@@ -9,7 +9,8 @@ namespace OTS_API.Common
     public static class Config
     {
         public static string connStr = "server=124.70.177.180;port=3306;user=root;password=a123456; database=education_system;";
-        public static string filePathRoot = "../../FileRoot/";
+        public static string publicFilePath = "../../FileRoot/Public";
+        public static string privateFilePath = "../../FileRoot/Private";
         public static string wwwrootPath = "../../wwwroot";
     }
 }
