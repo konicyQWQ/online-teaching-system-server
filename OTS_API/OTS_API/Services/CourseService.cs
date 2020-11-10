@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using OTS_API.Models;
 using OTS_API.DatabaseContext;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
+using OTS_API.Common;
 
 namespace OTS_API.Services
 {
@@ -173,6 +175,10 @@ namespace OTS_API.Services
             {
                 await dbContext.Courses.AddAsync(course);
                 await dbContext.SaveChangesAsync();
+                var courseFileRoot = Config.privateFilePath + "/Course" + course.Id;
+                Directory.CreateDirectory(courseFileRoot);
+                Directory.CreateDirectory(courseFileRoot + "/Courseware");
+                Directory.CreateDirectory(courseFileRoot + "/Homework");
                 return course.Id;
             }
             catch (Exception e)
@@ -287,6 +293,71 @@ namespace OTS_API.Services
             {
                 var list = await dbContext.Bulletin.Where(b => b.CourseId == courseID).ToListAsync();
                 return list;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task AddCoursewareAsync(Courseware courseware)
+        {
+            try
+            {
+                await dbContext.Coursewares.AddAsync(courseware);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<Courseware> GetCoursewareAsync(int id)
+        {
+            try
+            {
+                var res = await dbContext.Coursewares.FindAsync(id);
+                if(res == null)
+                {
+                    throw new Exception("Unable to Find Courseware(id: " + id + ")!");
+                }
+                return res;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task UpdateCousewareAsync(Courseware courseware)
+        {
+            try
+            {
+                dbContext.Coursewares.Update(courseware);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task DeleteCoursewareAsync(int id)
+        {
+            try
+            {
+                var cwToDelete = await dbContext.Coursewares.FindAsync(id);
+                if(cwToDelete == null)
+                {
+                    throw new Exception("Unable to Find Courseware(id: " + id + ")!");
+                }
+                dbContext.Coursewares.Remove(cwToDelete);
+                await dbContext.SaveChangesAsync();
             }
             catch (Exception e)
             {

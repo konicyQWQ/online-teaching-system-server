@@ -292,5 +292,125 @@ namespace OTS_API.Controllers
                 return new { Res = false, Error = e.Message };
             }
         }
+
+        [HttpPost]
+        [Route("Courseware")]
+        public async Task<dynamic> OnAddCoursewareAsync([FromForm] Courseware courseware, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if (t.Role != UserRole.Admin)
+                {
+                    if (t.Role == UserRole.Student)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                    var uc = await courseService.GetUserCourseAsync(t.UserID, courseware.CourseId);
+                    if (uc == null)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+                await courseService.AddCoursewareAsync(courseware);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpGet]
+        [Route("Courseware")]
+        public async Task<dynamic> OnGetCoursewareAsync(int courseId, int coursewareId, string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if (t.Role != UserRole.Admin)
+                {
+                    var uc = await courseService.GetUserCourseAsync(t.UserID, courseId);
+                    if (uc == null)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+                var courseware = await courseService.GetCoursewareAsync(coursewareId);
+                return new { Res = true, Courseware = courseware };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpPost]
+        [Route("Courseware/Update")]
+        public async Task<dynamic> OnUpdateCoursewareAsync([FromForm] Courseware courseware, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if (t.Role != UserRole.Admin)
+                {
+                    if (t.Role == UserRole.Student)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                    var uc = await courseService.GetUserCourseAsync(t.UserID, courseware.CourseId);
+                    if (uc == null)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+                await courseService.UpdateCousewareAsync(courseware);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpPost]
+        [Route("Courseware/Delete")]
+        public async Task<dynamic> OnDeleteCoursewareAsync([FromForm] int courseId, [FromForm] int coursewareId, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if (t.Role != UserRole.Admin)
+                {
+                    var uc = await courseService.GetUserCourseAsync(t.UserID, courseId);
+                    if (uc == null)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+                await courseService.DeleteCoursewareAsync(coursewareId);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
     }
 }

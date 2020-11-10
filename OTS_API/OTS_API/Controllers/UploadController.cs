@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OTS_API.Services;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.AspNetCore.Mvc.Razor.TagHelpers;
+using OTS_API.Models;
 
 namespace OTS_API.Controllers
 {
@@ -18,11 +20,15 @@ namespace OTS_API.Controllers
     {
         private readonly ILogger<UploadController> logger;
         private readonly FileService fileService;
+        private readonly TokenService tokenService;
+        private readonly CourseService courseService;
 
-        public UploadController(ILogger<UploadController> logger, FileService fileService)
+        public UploadController(ILogger<UploadController> logger, FileService fileService, TokenService tokenService, CourseService courseService)
         {
             this.logger = logger;
             this.fileService = fileService;
+            this.tokenService = tokenService;
+            this.courseService = courseService;
         }
 
         /// <summary>
@@ -36,16 +42,20 @@ namespace OTS_API.Controllers
             try
             {
                 var fileInfolist = new List<Models.File>();
+                int count = 0;
+                long size = 0;
                 foreach (var formFile in files)
                 {
                     if (formFile.Length > 0)
                     {
-                        var fileInfo = await fileService.SaveFileAsync(formFile);
+                        var fileInfo = await fileService.SavePublicFileAsync(formFile);
                         fileInfolist.Add(fileInfo);
+                        count++;
+                        size += formFile.Length;
                     }
                 }
 
-                return new { Res = true, Count = files.Count, Size = files.Sum(f => f.Length), fileList = fileInfolist };
+                return new { Res = true, Count = count, Size = size, fileList = fileInfolist };
             }
             catch (Exception e)
             {
@@ -65,11 +75,97 @@ namespace OTS_API.Controllers
             try
             {
                 var fileInfo = await fileService.GetFileAsync(id);
-                
+
+                if (fileInfo.Path.Contains("Private"))
+                {
+                    throw new Exception("Insufficient Authority!");
+                }
+
                 var fs = new FileStream(fileInfo.Path, FileMode.Open, FileAccess.Read);
 
                 new FileExtensionContentTypeProvider().TryGetContentType(fileInfo.Name, out var contentType);
                 return new FileStreamResult(fs, contentType);
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpPost]
+        [Route("Courseware")]
+        public async Task<dynamic> OnAddCoursewareFileAsync([FromForm] int courseID, [FromForm] List<IFormFile> formFiles, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if (t.Role != UserRole.Admin)
+                {
+                    if (t.Role == UserRole.Student)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                    var uc = await courseService.GetUserCourseAsync(t.UserID, courseID);
+                    if (uc == null)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+                var desPath = "/Course" + courseID + "/Courseware";
+                var fileInfoList = new List<Models.File>();
+                int count = 0;
+                long size = 0;
+                foreach(var file in formFiles)
+                {
+                    if(file.Length > 0)
+                    {
+                        var fileInfo = await fileService.SavePrivateFileAsync(file, desPath);
+                        fileInfoList.Add(fileInfo);
+                        count++;
+                        size += file.Length;
+                    }
+                }
+
+                return new { Res = true, Count = count, Size = size, FileList = fileInfoList };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpGet]
+        [Route("Courseware")]
+        public async Task<dynamic> OnGetCousewareFileAsync(int coursewareID, string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                var courseware = await courseService.GetCoursewareAsync(coursewareID);
+                if (t.Role != UserRole.Admin)
+                {
+                    if(t.Role == UserRole.Student && courseware.Privilege == Privilege.NotDownloadable)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                    var uc = await courseService.GetUserCourseAsync(t.UserID, courseware.CourseId);
+                    if (uc == null)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+
+                var fileInfo = await fileService.GetFileAsync(courseware.FileId);
+                new FileExtensionContentTypeProvider().TryGetContentType(fileInfo.Name, out var contentType);
+                return PhysicalFile(Path.GetFullPath(fileInfo.Path), contentType);
             }
             catch (Exception e)
             {
