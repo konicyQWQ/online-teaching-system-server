@@ -129,13 +129,24 @@ namespace OTS_API.Controllers
                 }
                 if (t.Role != UserRole.Admin)
                 {
-                    throw new Exception("Insufficient Authority!");
+                    if (t.Role == UserRole.Student)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                    var uc = await courseService.GetUserCourseAsync(t.UserID, course.Id);
+                    if (uc == null)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
                 }
 
-                await courseService.RemoveCourseTeachersAsync(course.Id);
-                foreach(var teacherId in teachers)
+                if(t.Role == UserRole.Admin)
                 {
-                    await courseService.AddTeacherToCouseAsync(course.Id, teacherId);
+                    await courseService.RemoveCourseTeachersAsync(course.Id);
+                    foreach (var teacherId in teachers)
+                    {
+                        await courseService.AddTeacherToCouseAsync(course.Id, teacherId);
+                    }
                 }
                 await courseService.UpdateCourseAysnc(course);
                 return new { Res = true };
