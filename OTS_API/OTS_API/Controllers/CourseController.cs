@@ -168,12 +168,19 @@ namespace OTS_API.Controllers
                 {
                     throw new Exception("Token is Invalid!");
                 }
-                var uc = await courseService.GetUserCourseAsync(t.UserID, courseID);
-                if(uc == null)
+                if(t.Role != UserRole.Admin)
                 {
-                    throw new Exception("Insufficient Authority!");
+                    var uc = await courseService.GetUserCourseAsync(t.UserID, courseID);
+                    if (uc == null)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                    return new { Res = true, Role = uc.UserRole };
                 }
-                return new { Res = true, Role = uc.UserRole };
+                else
+                {
+                    return new { Res = true, Role = t.Role };
+                }
             }
             catch (Exception e)
             {

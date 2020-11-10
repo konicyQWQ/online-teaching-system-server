@@ -10,11 +10,14 @@
         "projectUniqueName": "E:\\Git\\online-teaching-system-server\\OTS_API\\OTS_API\\OTS_API.csproj",
         "projectName": "OTS_API",
         "projectPath": "E:\\Git\\online-teaching-system-server\\OTS_API\\OTS_API\\OTS_API.csproj",
-        "packagesPath": "C:\\Users\\44641\\.nuget\\packages\\",
+        "packagesPath": "C:\\Users\\Stefan Chao\\.nuget\\packages\\",
         "outputPath": "E:\\Git\\online-teaching-system-server\\OTS_API\\OTS_API\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
         "configFilePaths": [
-          "C:\\Users\\44641\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Stefan Chao\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
