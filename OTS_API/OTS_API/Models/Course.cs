@@ -34,6 +34,8 @@ namespace OTS_API.Models
         public string ScoringMethod { get; set; }
         [Column("textbook")]
         public string Textbook { get; set; }
+        [Column("icon_id")]
+        public int IconId { get; set; }
     }
 
     public class CourseWithTeachers

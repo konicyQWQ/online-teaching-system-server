@@ -9,11 +9,10 @@ namespace OTS_API.Models
     public class Bulletin
     {
         [Key]
-        [Column("course_id")]
-        public int CourseId { get; set; }
-        [Key]
         [Column("bulletin_id")]
         public int BulletinId { get; set; }
+        [Column("course_id")]
+        public int CourseId { get; set; }
         [Column("time")]
         public DateTime Time { get; set; }
         [Column("title")]

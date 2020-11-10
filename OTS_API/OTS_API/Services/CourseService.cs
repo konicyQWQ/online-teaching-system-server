@@ -201,5 +201,98 @@ namespace OTS_API.Services
                 throw new Exception("Add Teacher(id: " + teacherId + ") Failed!");
             }
         }
+
+        public async Task<UserCourse> GetUserCourseAsync(string userID, int courseID)
+        {
+            try
+            {
+                var res = await dbContext.UserCourse.FindAsync(userID, courseID);
+                return res;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed");
+            }
+        }
+
+        public async Task AddBulletinAsync(Bulletin bulletin)
+        {
+            try
+            {
+                await dbContext.Bulletin.AddAsync(bulletin);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task UpdateBulletinAsync(Bulletin bulletin)
+        {
+            try
+            {
+                dbContext.Bulletin.Update(bulletin);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task DeleteBulletinAsync(int bulletinID)
+        {
+            try
+            {
+                var bulletinToDelete = await dbContext.Bulletin.FindAsync(bulletinID);
+                if(bulletinToDelete == null)
+                {
+                    throw new Exception("Cannot Find Bulletin(id: " + bulletinID + ")!");
+                }
+                dbContext.Bulletin.Remove(bulletinToDelete);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<Bulletin> GetBulletinAsync(int bulletinID)
+        {
+            try
+            {
+                var res = await dbContext.Bulletin.FindAsync(bulletinID);
+                if (res == null)
+                {
+                    throw new Exception("Cannot Find Bulletin(id: " + bulletinID + ")!");
+                }
+                return res;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<List<Bulletin>> GetCourseBulletinsAsync(int courseID)
+        {
+            try
+            {
+                var list = await dbContext.Bulletin.Where(b => b.CourseId == courseID).ToListAsync();
+                return list;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
     }
 }

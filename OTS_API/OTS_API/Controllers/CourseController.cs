@@ -146,5 +146,116 @@ namespace OTS_API.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("Bulletin")]
+        public async Task<dynamic> OnAddBulletinAsync([FromForm] Bulletin bulletin, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if(t.Role != UserRole.Admin)
+                {
+                    if(t.Role == UserRole.Student)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                    var uc = await courseService.GetUserCourseAsync(t.UserID, bulletin.CourseId);
+                    if(uc == null)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+                await courseService.AddBulletinAsync(bulletin);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpPost]
+        [Route("Bulletin/Update")]
+        public async Task<dynamic> OnUpdateBulletinAsync([FromForm] Bulletin bulletin, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if (t.Role != UserRole.Admin)
+                {
+                    if (t.Role == UserRole.Student)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                    var uc = await courseService.GetUserCourseAsync(t.UserID, bulletin.CourseId);
+                    if (uc == null)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+                await courseService.UpdateBulletinAsync(bulletin);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpPost]
+        [Route("Bulletin/Delete")]
+        public async Task<dynamic> OnDeleteBulletinAsync([FromForm] int bulletinID, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if (t.Role != UserRole.Admin)
+                {
+                    if (t.Role == UserRole.Student)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                    var bulletin = await courseService.GetBulletinAsync(bulletinID);
+                    var uc = await courseService.GetUserCourseAsync(t.UserID, bulletin.CourseId);
+                    if (uc == null)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+                await courseService.DeleteBulletinAsync(bulletinID);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpGet]
+        [Route("Bulletin")]
+        public async Task<dynamic> OnGetBulletinAsync(int courseID)
+        {
+            try
+            {
+                var list = await courseService.GetCourseBulletinsAsync(courseID);
+                return new { Res = true, List = list };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
     }
 }

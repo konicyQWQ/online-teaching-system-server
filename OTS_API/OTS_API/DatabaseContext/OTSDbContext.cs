@@ -11,7 +11,7 @@ namespace OTS_API.DatabaseContext
     public class OTSDbContext : DbContext
     {
         public DbSet<User> Users { get; set; }
-        //public virtual DbSet<Bulletin> Bulletin { get; set; }
+        public virtual DbSet<Bulletin> Bulletin { get; set; }
         public virtual DbSet<Course> Courses { get; set; }
         //public virtual DbSet<CourseGroup> CourseGroup { get; set; }
         //public virtual DbSet<Courseware> Courseware { get; set; }
@@ -34,7 +34,7 @@ namespace OTS_API.DatabaseContext
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<UserCourse>().HasKey(uc => new { uc.CourseId, uc.UserId });
+            modelBuilder.Entity<UserCourse>().HasKey(uc => new { uc.UserId, uc.CourseId });
         }
     }
 }

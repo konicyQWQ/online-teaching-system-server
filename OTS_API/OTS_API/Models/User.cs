@@ -13,6 +13,7 @@ namespace OTS_API.Models
         Teacher = 1,
         Admin = 2,
         Unknown = 3,
+        TA = 4
     }
 
     public enum Gender
