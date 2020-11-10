@@ -146,6 +146,30 @@ namespace OTS_API.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("GetRole")]
+        public async Task<dynamic> OnGetCourseRole(int courseID, string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                var uc = await courseService.GetUserCourseAsync(t.UserID, courseID);
+                if(uc == null)
+                {
+                    throw new Exception("Insufficient Authority!");
+                }
+                return new { Res = true, Role = uc.UserRole };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
         [HttpPost]
         [Route("Bulletin")]
         public async Task<dynamic> OnAddBulletinAsync([FromForm] Bulletin bulletin, [FromForm] string token)
