@@ -64,38 +64,6 @@ namespace OTS_API.Controllers
             
         }
 
-        [HttpPost]
-        [Route("UploadPrivate")]
-        public async Task<dynamic> OnUploadPrivateAsync([FromForm] List<IFormFile> files, [FromForm] string desRoot, [FromForm] string token)
-        {
-            try
-            {
-                var t = await tokenService.GetTokenAsync(token);
-                if(t == null)
-                {
-                    throw new Exception("Insufficient Authority!");
-                }
-                var fileInfoList = new List<OTS_API.Models.File>();
-                int count = 0;
-                long size = 0;
-                foreach(var file in files)
-                {
-                    if(file.Length > 0)
-                    {
-                        var fileInfo = await fileService.SavePrivateFileAsync(file, desRoot);
-                        fileInfoList.Add(fileInfo);
-                        count++;
-                        size += file.Length;
-                    }
-                }
-                return new { Res = true, Count = count, Size = size, fileList = fileInfoList };
-            }
-            catch (Exception e)
-            {
-                return new { Res = false, Error = e.Message };
-            }
-        }
-
         /// <summary>
         /// 获取公开文件
         /// </summary>
@@ -124,9 +92,9 @@ namespace OTS_API.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("Courseware")]
-        public async Task<dynamic> OnGetCousewareFileAsync(int courseId, int fileId, string token)
+        public async Task<dynamic> OnAddCoursewareFileAsync([FromForm] int courseID, [FromForm] List<IFormFile> formFiles, [FromForm] string token)
         {
             try
             {
@@ -137,14 +105,65 @@ namespace OTS_API.Controllers
                 }
                 if (t.Role != UserRole.Admin)
                 {
-                    var uc = await courseService.GetUserCourseAsync(t.UserID, courseId);
+                    if (t.Role == UserRole.Student)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                    var uc = await courseService.GetUserCourseAsync(t.UserID, courseID);
+                    if (uc == null)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+                var desPath = "/Course" + courseID + "/Courseware";
+                var fileInfoList = new List<Models.File>();
+                int count = 0;
+                long size = 0;
+                foreach(var file in formFiles)
+                {
+                    if(file.Length > 0)
+                    {
+                        var fileInfo = await fileService.SavePrivateFileAsync(file, desPath);
+                        fileInfoList.Add(fileInfo);
+                        count++;
+                        size += file.Length;
+                    }
+                }
+
+                return new { Res = true, Count = count, Size = size, FileList = fileInfoList };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpGet]
+        [Route("Courseware")]
+        public async Task<dynamic> OnGetCousewareFileAsync(int coursewareID, string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                var courseware = await courseService.GetCoursewareAsync(coursewareID);
+                if (t.Role != UserRole.Admin)
+                {
+                    if(t.Role == UserRole.Student && courseware.Privilege == Privilege.NotDownloadable)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                    var uc = await courseService.GetUserCourseAsync(t.UserID, courseware.CourseId);
                     if (uc == null)
                     {
                         throw new Exception("Insufficient Authority!");
                     }
                 }
 
-                var fileInfo = await fileService.GetFileAsync(fileId);
+                var fileInfo = await fileService.GetFileAsync(courseware.FileId);
                 new FileExtensionContentTypeProvider().TryGetContentType(fileInfo.Name, out var contentType);
                 return PhysicalFile(Path.GetFullPath(fileInfo.Path), contentType);
             }

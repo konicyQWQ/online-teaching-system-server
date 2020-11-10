@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using OTS_API.Models;
 using OTS_API.DatabaseContext;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
+using OTS_API.Common;
 
 namespace OTS_API.Services
 {
@@ -173,6 +175,10 @@ namespace OTS_API.Services
             {
                 await dbContext.Courses.AddAsync(course);
                 await dbContext.SaveChangesAsync();
+                var courseFileRoot = Config.privateFilePath + "/Course" + course.Id;
+                Directory.CreateDirectory(courseFileRoot);
+                Directory.CreateDirectory(courseFileRoot + "/Courseware");
+                Directory.CreateDirectory(courseFileRoot + "/Homework");
                 return course.Id;
             }
             catch (Exception e)
