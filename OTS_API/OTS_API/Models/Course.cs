@@ -35,7 +35,7 @@ namespace OTS_API.Models
         [Column("textbook")]
         public string Textbook { get; set; }
         [Column("icon_id")]
-        public int IconId { get; set; }
+        public int? IconId { get; set; }
     }
 
     public class CourseWithTeachers
