@@ -21,28 +21,23 @@ namespace OTS_API.Services
             this.tokenMap = new Dictionary<string, SToken>();
         }
 
-        public Task<string> AddSTokenAsync(User userInfo, string email)
+        public async Task<string> AddSTokenAsync(User userInfo, string email)
         {
-            return Task.Run(() =>
+            if (userInfo == null)
             {
-                if (userInfo == null)
-                {
-                    throw new Exception("User Not Found!");
-                }
-                if (userInfo.Email != email)
-                {
-                    throw new Exception("Email is Incorrect!");
-                }
-                var t = new SToken(userInfo.Id, email);
-                var tID = CodeGenerator.GetCode(20);
-                t.ID = tID;
-                t.ValidationCode = CodeGenerator.GetCode(8);
+                throw new Exception("User Not Found!");
+            }
+            if (userInfo.Email != email)
+            {
+                throw new Exception("Email is Incorrect!");
+            }
+            var t = new SToken(userInfo.Id, email);
+            var tID = CodeGenerator.GetCode(20);
+            t.ID = tID;
+            await SendValidatingEmailAsync(t);
 
-                logger.LogInformation("Validation Code for User(id: " + userInfo.Id + ") is: " + t.ValidationCode);
-
-                tokenMap.Add(tID, t);
-                return tID;
-            });
+            tokenMap.Add(tID, t);
+            return tID;
         }
 
         public Task VerifyAsync(string tokenID, string validationCode)
@@ -61,14 +56,25 @@ namespace OTS_API.Services
                 }
                 if (token.ValidationCode != validationCode)
                 {
-                    token.ValidationCode = CodeGenerator.GetCode(10);
-
-                    logger.LogInformation("Validation Code for User(id: " + token.UserID + ") is: " + token.ValidationCode);
-
                     throw new Exception("Code is Incorrect!");
                 }
                 token.IsVerified = true;
             });
+        }
+
+        public async Task ResendEmailAsync(string tokenID)
+        {
+            if (tokenID == null || !tokenMap.ContainsKey(tokenID))
+            {
+                throw new Exception("Token is Invalid!");
+            }
+            var token = tokenMap[tokenID];
+            if (!token.IsValid())
+            {
+                tokenMap.Remove(tokenID);
+                throw new Exception("Token is Invalid!");
+            }
+            await SendValidatingEmailAsync(token);
         }
 
         public Task<string> ResetVerifyAsync(string tokenID)
@@ -92,6 +98,15 @@ namespace OTS_API.Services
                 var userID = token.UserID;
                 tokenMap.Remove(tokenID);
                 return userID;
+            });
+        }
+
+        private Task SendValidatingEmailAsync(SToken token)
+        {
+            return Task.Run(() =>
+            {
+                token.ValidationCode = CodeGenerator.GetCode(8);
+                logger.LogInformation("Validation Code for User(id: " + token.UserID + ") is: " + token.ValidationCode);
             });
         }
     }
