@@ -344,23 +344,10 @@ namespace OTS_API.Controllers
         /// <returns>所有的课件、每个课件的fileList、包含file{id, name, size}</returns>
         [HttpGet]
         [Route("Courseware/GetAll")]
-        public async Task<dynamic> OnGetAllCoursewareAsync(int courseId, string token)
+        public async Task<dynamic> OnGetAllCoursewareAsync(int courseId)
         {
             try
             {
-                var t = await tokenService.GetTokenAsync(token);
-                if (t == null)
-                {
-                    throw new Exception("Token is Invalid!");
-                }
-                if (t.Role != UserRole.Admin)
-                {
-                    var uc = await courseService.GetUserCourseAsync(t.UserID, courseId);
-                    if (uc == null)
-                    {
-                        throw new Exception("Insufficient Authority!");
-                    }
-                }
                 var allInfoList = await courseService.GetCoursewareWithFilesAsync(courseId);
                 return new { Res = true, CoursewareList = allInfoList };
             }
