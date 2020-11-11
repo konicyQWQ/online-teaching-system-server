@@ -302,7 +302,7 @@ namespace OTS_API.Controllers
 
         [HttpPost]
         [Route("Courseware")]
-        public async Task<dynamic> OnAddCoursewareAsync([FromForm] Courseware courseware, [FromForm] string token)
+        public async Task<dynamic> OnAddCoursewareAsync([FromForm] Courseware courseware,[FromForm] List<int> fileList, [FromForm] string token)
         {
             try
             {
@@ -324,7 +324,45 @@ namespace OTS_API.Controllers
                     }
                 }
                 await courseService.AddCoursewareAsync(courseware);
+                foreach(var fileID in fileList)
+                {
+                    await courseService.AddFileToCourseware(courseware.Id, fileID);
+                }
                 return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="courseId"></param>
+        /// <param name="token"></param>
+        /// <returns>所有的课件、每个课件的fileList、包含file{id, name, size}</returns>
+        [HttpGet]
+        [Route("Courseware/GetAll")]
+        public async Task<dynamic> OnGetAllCoursewareAsync(int courseId, string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if (t.Role != UserRole.Admin)
+                {
+                    var uc = await courseService.GetUserCourseAsync(t.UserID, courseId);
+                    if (uc == null)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+                var allInfoList = await courseService.GetCoursewareWithFilesAsync(courseId);
+                return new { Res = true, CoursewareList = allInfoList };
             }
             catch (Exception e)
             {

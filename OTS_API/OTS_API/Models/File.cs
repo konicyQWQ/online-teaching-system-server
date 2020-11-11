@@ -15,5 +15,7 @@ namespace OTS_API.Models
         public string Name { get; set; }
         [Column("path")]
         public string Path { get; set; }
+        [Column("size")]
+        public long Size { get; set; }
     }
 }

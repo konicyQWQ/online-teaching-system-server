@@ -31,7 +31,8 @@ namespace OTS_API.Services
                 {
                     Id = 0,
                     Name = file.FileName,
-                    Path = Config.publicFilePath + DateTime.Now.ToString("yyyyMMddHHmmss") + CodeGenerator.GetCode(10)
+                    Path = Config.publicFilePath + DateTime.Now.ToString("yyyyMMddHHmmss") + CodeGenerator.GetCode(10),
+                    Size = file.Length
                 };
 
                 using (var stream = System.IO.File.Create(fileInfo.Path))
@@ -58,7 +59,8 @@ namespace OTS_API.Services
                 {
                     Id = 0,
                     Name = file.FileName,
-                    Path = Config.privateFilePath + desPath + DateTime.Now.ToString("yyyyMMddHHmmss") + CodeGenerator.GetCode(10)
+                    Path = Config.privateFilePath + desPath + DateTime.Now.ToString("yyyyMMddHHmmss") + CodeGenerator.GetCode(10),
+                    Size = file.Length
                 };
 
                 using (var stream = System.IO.File.Create(fileInfo.Path))

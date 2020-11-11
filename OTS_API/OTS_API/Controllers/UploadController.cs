@@ -11,6 +11,7 @@ using OTS_API.Services;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.AspNetCore.Mvc.Razor.TagHelpers;
 using OTS_API.Models;
+using OTS_API.Common;
 
 namespace OTS_API.Controllers
 {
@@ -115,7 +116,17 @@ namespace OTS_API.Controllers
                         throw new Exception("Insufficient Authority!");
                     }
                 }
-                var desPath = "/Course" + courseID + "/Courseware";
+                //Only For Dev
+                var courseFileRoot = Config.privateFilePath + "Course" + courseID;
+                if (!Directory.Exists(courseFileRoot))
+                {
+                    Directory.CreateDirectory(courseFileRoot);
+                    Directory.CreateDirectory(courseFileRoot + "/Courseware");
+                    Directory.CreateDirectory(courseFileRoot + "/Homework");
+                }
+
+
+                var desPath = "Course" + courseID + "/Courseware";
                 var fileInfoList = new List<Models.File>();
                 int count = 0;
                 long size = 0;
@@ -140,7 +151,7 @@ namespace OTS_API.Controllers
 
         [HttpGet]
         [Route("Courseware")]
-        public async Task<dynamic> OnGetCousewareFileAsync(int coursewareID, string token)
+        public async Task<dynamic> OnGetCousewareFileAsync(int coursewareID, int fileID, string token)
         {
             try
             {
@@ -163,7 +174,7 @@ namespace OTS_API.Controllers
                     }
                 }
 
-                var fileInfo = await fileService.GetFileAsync(courseware.FileId);
+                var fileInfo = await fileService.GetFileAsync(fileID);
                 new FileExtensionContentTypeProvider().TryGetContentType(fileInfo.Name, out var contentType);
                 return PhysicalFile(Path.GetFullPath(fileInfo.Path), contentType);
             }

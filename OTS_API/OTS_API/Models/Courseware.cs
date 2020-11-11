@@ -19,13 +19,17 @@ namespace OTS_API.Models
         public int Id { get; set; }
         [Column("course_id")]
         public int CourseId { get; set; }
-        [Column("file_id")]
-        public int FileId { get; set; }
         [Column("privilege")]
         public Privilege Privilege { get; set; }
         [Column("time")]
         public DateTime Time { get; set; }
         [Column("description")]
         public string Description { get; set; }
+    }
+
+    public class CoursewareWithFiles
+    {
+        public Courseware Courseware { get; set; }
+        public List<File> Files { get; set; }
     }
 }

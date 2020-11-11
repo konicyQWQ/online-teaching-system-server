@@ -175,7 +175,7 @@ namespace OTS_API.Services
             {
                 await dbContext.Courses.AddAsync(course);
                 await dbContext.SaveChangesAsync();
-                var courseFileRoot = Config.privateFilePath + "/Course" + course.Id;
+                var courseFileRoot = Config.privateFilePath + "Course" + course.Id;
                 Directory.CreateDirectory(courseFileRoot);
                 Directory.CreateDirectory(courseFileRoot + "/Courseware");
                 Directory.CreateDirectory(courseFileRoot + "/Homework");
@@ -363,6 +363,69 @@ namespace OTS_API.Services
             {
                 logger.LogError(e.Message);
                 throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task AddFileToCourseware(int coursewareID, int fileID)
+        {
+            try
+            {
+                var coursewareFile = new CoursewareFile()
+                {
+                    CoursewareId = coursewareID,
+                    FileId = fileID
+                };
+                await dbContext.CoursewareFile.AddAsync(coursewareFile);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<List<Models.File>> GetCoursewareFilesAsync(int coursewareID)
+        {
+            try
+            {
+                var cfList = await dbContext.CoursewareFile.Where(cf => cf.CoursewareId == coursewareID).ToListAsync();
+                var fileList = new List<Models.File>();
+                foreach(var cf in cfList)
+                {
+                    var fileInfo = await dbContext.Files.FindAsync(cf.FileId);
+                    fileList.Add(fileInfo);
+                }
+                return fileList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Unable to Get Courseware FileList!");
+            }
+        }
+
+        public async Task<List<CoursewareWithFiles>> GetCoursewareWithFilesAsync(int courseID)
+        {
+            try
+            {
+                var coursewareList = await dbContext.Coursewares.Where(c => c.CourseId == courseID).ToListAsync();
+                var cwfList = new List<CoursewareWithFiles>();
+                foreach(var courseware in coursewareList)
+                {
+                    var cwf = new CoursewareWithFiles()
+                    {
+                        Courseware = courseware,
+                        Files = await GetCoursewareFilesAsync(courseware.Id)
+                    };
+                    cwfList.Add(cwf);
+                }
+                return cwfList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Unable to Get Courseware FileList!");
             }
         }
     }
