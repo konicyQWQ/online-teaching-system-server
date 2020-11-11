@@ -171,7 +171,7 @@ namespace OTS_API.Controllers
             {
                 var userInfo = await userService.GetUserInfoAsync(userID);
                 var token = await passwordRetrieveService.AddSTokenAsync(userInfo, email);
-                return new { Res = true, Roken = token};
+                return new { Res = true, Token = token};
             }
             catch (Exception e)
             {
