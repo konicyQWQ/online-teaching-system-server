@@ -142,7 +142,7 @@ namespace OTS_API.Controllers
         }
 
         [HttpPost]
-        [Route("ResetPassord")]
+        [Route("ResetPassword")]
         public async Task<dynamic> OnResetPasswordAsync([FromForm] string token, [FromForm] string oldPassword, [FromForm] string newPassword)
         {
             try
