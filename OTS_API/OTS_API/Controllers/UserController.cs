@@ -209,5 +209,20 @@ namespace OTS_API.Controllers
                 return new { Res = false, Error = e.Message };
             }
         }
+
+        [HttpPost]
+        [Route("ResendEmail")]
+        public async Task<dynamic> OnResendEmailAsync([FromForm] string token)
+        {
+            try
+            {
+                await passwordRetrieveService.ResendEmailAsync(token);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
     }
 }
