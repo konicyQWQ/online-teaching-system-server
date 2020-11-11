@@ -140,5 +140,25 @@ namespace OTS_API.Controllers
             }
             
         }
+
+        [HttpPost]
+        [Route("ResetPassord")]
+        public async Task<dynamic> OnResetPasswordAsync([FromForm] string token, [FromForm] string oldPassword, [FromForm] string newPassword)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                await userService.ResetPasswordAsync(t.UserID, oldPassword, newPassword);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
     }
 }

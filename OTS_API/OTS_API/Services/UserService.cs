@@ -130,6 +130,26 @@ namespace OTS_API.Services
             }
         }
 
+        public async Task ResetPasswordAsync(string userID, string oldPassword, string newPassword)
+        {
+            try
+            {
+                var user = await dbContext.Users.FindAsync(userID);
+                if(user.Password != oldPassword)
+                {
+                    throw new Exception("密码错误!");
+                }
+                user.Password = newPassword;
+                dbContext.Users.Update(user);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw e;
+            }
+        }
+
         /// <summary>
         /// 获取所有用户列表
         /// </summary>
