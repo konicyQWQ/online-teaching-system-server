@@ -126,7 +126,7 @@ namespace OTS_API.Controllers
                 }
 
 
-                var desPath = "Course" + courseID + "/Courseware";
+                var desPath = "Course" + courseID + "/Courseware/";
                 var fileInfoList = new List<Models.File>();
                 int count = 0;
                 long size = 0;
@@ -156,19 +156,10 @@ namespace OTS_API.Controllers
             try
             {
                 var t = await tokenService.GetTokenAsync(token);
+                var courseware = await courseService.GetCoursewareAsync(coursewareID);
                 if (t == null)
                 {
-                    throw new Exception("Token is Invalid!");
-                }
-                var courseware = await courseService.GetCoursewareAsync(coursewareID);
-                if (t.Role != UserRole.Admin)
-                {
-                    if(t.Role == UserRole.Student && courseware.Privilege == Privilege.NotDownloadable)
-                    {
-                        throw new Exception("Insufficient Authority!");
-                    }
-                    var uc = await courseService.GetUserCourseAsync(t.UserID, courseware.CourseId);
-                    if (uc == null)
+                    if(courseware.Privilege == Privilege.NotDownloadable)
                     {
                         throw new Exception("Insufficient Authority!");
                     }

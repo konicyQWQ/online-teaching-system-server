@@ -405,6 +405,21 @@ namespace OTS_API.Services
             }
         }
 
+        public async Task RemoveCoursewareFilesAsync(int coursewareID)
+        {
+            try
+            {
+                var arrayToRemove = await dbContext.CoursewareFile.Where(cf => cf.CoursewareId == coursewareID).ToArrayAsync();
+                dbContext.CoursewareFile.RemoveRange(arrayToRemove);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Unable Reset Courseware FileList!");
+            }
+        }
+
         public async Task<List<CoursewareWithFiles>> GetCoursewareWithFilesAsync(int courseID)
         {
             try

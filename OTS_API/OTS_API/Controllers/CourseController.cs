@@ -400,7 +400,7 @@ namespace OTS_API.Controllers
 
         [HttpPost]
         [Route("Courseware/Update")]
-        public async Task<dynamic> OnUpdateCoursewareAsync([FromForm] Courseware courseware, [FromForm] string token)
+        public async Task<dynamic> OnUpdateCoursewareAsync([FromForm] Courseware courseware,[FromForm] List<int> fileList, [FromForm] string token)
         {
             try
             {
@@ -420,6 +420,11 @@ namespace OTS_API.Controllers
                     {
                         throw new Exception("Insufficient Authority!");
                     }
+                }
+                await courseService.RemoveCoursewareFilesAsync(courseware.Id);
+                foreach(var fileID in fileList)
+                {
+                    await courseService.AddFileToCourseware(courseware.Id, fileID);
                 }
                 await courseService.UpdateCousewareAsync(courseware);
                 return new { Res = true };
