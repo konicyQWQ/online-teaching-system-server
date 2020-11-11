@@ -7,7 +7,7 @@ using OTS_API.DatabaseContext;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
 using System.IO;
-using OTS_API.Common;
+using OTS_API.Utilities;
 using Microsoft.VisualBasic;
 
 namespace OTS_API.Services

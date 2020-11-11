@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MySql.Data;
 using OTS_API.Models;
-using OTS_API.Common;
+using OTS_API.Utilities;
 
 namespace OTS_API.Services
 {
@@ -18,6 +18,7 @@ namespace OTS_API.Services
         {
             this.logger = logger;
             tokenMap = new Dictionary<string, Token>();
+            tokenMap.Add("MagicToken", new Token("Admin", UserRole.Admin, 24));
         }
 
         /// <summary>

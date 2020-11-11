@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection.Metadata;
 using System.Threading.Tasks;
 
-namespace OTS_API.Common
+namespace OTS_API.Utilities
 {
     public static class Config
     {

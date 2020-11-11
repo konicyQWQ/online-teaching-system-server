@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using MySql.Data;
 using MySql.Data.MySqlClient;
 using OTS_API.Models;
-using OTS_API.Common;
+using OTS_API.Utilities;
 using OTS_API.DatabaseContext;
 using Microsoft.EntityFrameworkCore;
 

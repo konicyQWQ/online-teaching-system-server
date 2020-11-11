@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace OTS_API.Common
+namespace OTS_API.Utilities
 {
     public static class CodeGenerator
     {

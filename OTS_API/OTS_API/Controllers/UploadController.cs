@@ -11,7 +11,11 @@ using OTS_API.Services;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.AspNetCore.Mvc.Razor.TagHelpers;
 using OTS_API.Models;
-using OTS_API.Common;
+using OTS_API.Utilities;
+using System.Net;
+using System.Net.Http.Headers;
+using Microsoft.AspNetCore.WebUtilities;
+using System.Text;
 
 namespace OTS_API.Controllers
 {
@@ -19,6 +23,8 @@ namespace OTS_API.Controllers
     [ApiController]
     public class UploadController : ControllerBase
     {
+        public int lengthLimit = int.MaxValue;
+
         private readonly ILogger<UploadController> logger;
         private readonly FileService fileService;
         private readonly TokenService tokenService;
@@ -151,7 +157,7 @@ namespace OTS_API.Controllers
 
         [HttpGet]
         [Route("Courseware")]
-        public async Task<dynamic> OnGetCousewareFileAsync(int coursewareID, int fileID, string token)
+        public async Task<dynamic> OnGetCousewareFileAsync(int coursewareID, int fileID, string token, bool mode)
         {
             try
             {
@@ -167,6 +173,16 @@ namespace OTS_API.Controllers
 
                 var fileInfo = await fileService.GetFileAsync(fileID);
                 new FileExtensionContentTypeProvider().TryGetContentType(fileInfo.Name, out var contentType);
+                if (mode)
+                {
+                    var arr = Encoding.UTF8.GetBytes(fileInfo.Name);
+                    var name = string.Empty;
+                    foreach (var b in arr)
+                    {
+                        name += string.Format("%{0:X2}", b);
+                    }
+                    HttpContext.Response.Headers.Add("Content-Disposition", new Microsoft.Extensions.Primitives.StringValues("attachment; filename = " + name));
+                }
                 return PhysicalFile(Path.GetFullPath(fileInfo.Path), contentType);
             }
             catch (Exception e)
@@ -174,5 +190,6 @@ namespace OTS_API.Controllers
                 return new { Res = false, Error = e.Message };
             }
         }
+
     }
 }

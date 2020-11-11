@@ -7,7 +7,7 @@ using OTS_API.Models;
 using OTS_API.DatabaseContext;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
-using OTS_API.Common;
+using OTS_API.Utilities;
 
 namespace OTS_API.Services
 {
