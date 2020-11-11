@@ -39,6 +39,7 @@ namespace OTS_API
             services.AddScoped<FileService>();
 
             services.AddSingleton<TokenService>();
+            services.AddSingleton<PasswordRetrieveService>();
 
             services.AddControllers();
             services.AddCors(options => options.AddPolicy("AllowCors", builder => builder.SetIsOriginAllowed(_ => true).AllowAnyMethod().AllowAnyHeader().AllowCredentials()));

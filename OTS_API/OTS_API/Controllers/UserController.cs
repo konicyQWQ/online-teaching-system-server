@@ -20,12 +20,14 @@ namespace OTS_API.Controllers
     {
         private readonly UserService userService;
         private readonly TokenService tokenService;
+        private readonly PasswordRetrieveService passwordRetrieveService;
         private readonly ILogger<UserService> logger;
 
-        public UserController(UserService authenticateService, TokenService tokenService, ILogger<UserService> logger)
+        public UserController(UserService authenticateService, TokenService tokenService, PasswordRetrieveService passwordRetrieveService, ILogger<UserService> logger)
         {
             this.userService = authenticateService;
             this.tokenService = tokenService;
+            this.passwordRetrieveService = passwordRetrieveService;
             this.logger = logger;
         }
 
@@ -153,6 +155,53 @@ namespace OTS_API.Controllers
                     throw new Exception("Token is Invalid!");
                 }
                 await userService.ResetPasswordAsync(t.UserID, oldPassword, newPassword);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpPost]
+        [Route("RetrievePassword")]
+        public async Task<dynamic> OnRetrievePassword([FromForm] string userID, [FromForm] string email)
+        {
+            try
+            {
+                var userInfo = await userService.GetUserInfoAsync(userID);
+                var token = await passwordRetrieveService.AddSTokenAsync(userInfo, email);
+                return new { Res = true, Roken = token};
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpPost]
+        [Route("VerifyEmail")]
+        public async Task<dynamic> OnVerifyEmailAsync([FromForm] string token, [FromForm] string code)
+        {
+            try
+            {
+                await passwordRetrieveService.VerifyAsync(token, code);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpPost]
+        [Route("PasswordReset")]
+        public async Task<dynamic> OnPasswordResetAsync([FromForm] string token, [FromForm] string newPassword)
+        {
+            try
+            {
+                var userID = await passwordRetrieveService.ResetVerifyAsync(token);
+                await userService.ResetPasswordAsync(userID, newPassword);
                 return new { Res = true };
             }
             catch (Exception e)
