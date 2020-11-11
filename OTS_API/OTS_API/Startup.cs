@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using OTS_API.Utilities;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace OTS_API
 {
@@ -32,12 +33,21 @@ namespace OTS_API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<OTSDbContext>(options => options.UseMySQL(Config.connStr));
+
             services.AddScoped<UserService>();
             services.AddScoped<CourseService>();
             services.AddScoped<FileService>();
+
             services.AddSingleton<TokenService>();
+
             services.AddControllers();
             services.AddCors(options => options.AddPolicy("AllowCors", builder => builder.SetIsOriginAllowed(_ => true).AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
+            services.Configure<FormOptions>(options =>
+            {
+                options.ValueLengthLimit = int.MaxValue;
+                options.MultipartBodyLengthLimit = int.MaxValue;
+                options.MemoryBufferThreshold = int.MaxValue;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

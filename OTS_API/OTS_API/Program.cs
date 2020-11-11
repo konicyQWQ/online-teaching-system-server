@@ -20,6 +20,10 @@ namespace OTS_API
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    webBuilder.UseKestrel(options =>
+                    {
+                        options.Limits.MaxRequestBodySize = int.MaxValue;
+                    });
                     webBuilder.UseStartup<Startup>();
                 });
     }
