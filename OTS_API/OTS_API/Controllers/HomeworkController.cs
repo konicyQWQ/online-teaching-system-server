@@ -86,5 +86,37 @@ namespace OTS_API.Controllers
                 return new { Res = false, Error = e.Message };
             }
         }
+
+        [HttpPost]
+        public async Task<dynamic> OnAddHomeworkAsync([FromForm] Homework homework, [FromForm] List<int> files, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Toke is Invalid!");
+                }
+                var role = t.Role;
+                if (role != UserRole.Admin)
+                {
+                    role = await homeworkService.GetCourseRoleAsync(homework.CourseId, t.UserID);
+                }
+                if(role == UserRole.Student)
+                {
+                    throw new Exception("Insufficient Authority!");
+                }
+                await homeworkService.AddHomeworkAsync(homework);
+                foreach (var file in files)
+                {
+                    await homeworkService.AddFileToHomeworkAsync(file, homework.HwId);
+                }
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
     }
 }
