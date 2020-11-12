@@ -110,6 +110,21 @@ namespace OTS_API.Services
             }
         }
 
+        public async Task RemoveUserAsync(string userID)
+        {
+            try
+            {
+                var userToRemove = await dbContext.Users.FindAsync(userID);
+                dbContext.Users.Remove(userToRemove);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Falied!");
+            }
+        }
+
         public async Task<List<User>> SearchUserAsync(string keyword, int limit, UserRole role)
         {
             try
@@ -234,6 +249,48 @@ namespace OTS_API.Services
             {
                 logger.LogError(e.Message);
                 throw new Exception("Unable to Get Teacher Info!");
+            }
+        }
+
+        public async Task<UserRole> GetCourseRoleAsync(string userID, int courseID)
+        {
+            try
+            {
+                var uc = await dbContext.UserCourse.FindAsync(userID, courseID);
+                if(uc == null)
+                {
+                    return UserRole.Unknown;
+                }
+                return uc.UserRole;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Unable to Get Course Role!");
+            }
+        }
+
+        public async Task AddUserToCourseAsync(string userID, int courseID, UserRole role)
+        {
+            try
+            {
+                if(role == UserRole.Admin || role == UserRole.Unknown)
+                {
+                    throw new Exception("Invalid Course Role!");
+                }
+                var uc = new UserCourse()
+                {
+                    CourseId = courseID,
+                    UserId = userID,
+                    UserRole = role
+                };
+                await dbContext.UserCourse.AddAsync(uc);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
             }
         }
 

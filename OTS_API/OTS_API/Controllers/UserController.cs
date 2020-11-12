@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Cors;
@@ -68,6 +69,31 @@ namespace OTS_API.Controllers
                 var token = await tokenService.AddTokenAsync(new Token(user.Id, user.Role, 24));
 
                 return new { Res = true, Token = token };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Token = e.Message };
+            }
+        }
+
+        [HttpPost]
+        [Route("Remove")]
+        public async Task<dynamic> OnRemoveUserAsync([FromForm] string userID, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if(t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                var userInfo = await userService.GetUserInfoAsync(userID);
+                if(t.Role != UserRole.Admin || userInfo.Role == UserRole.Admin)
+                {
+                    throw new Exception("Insufficient Authority!");
+                }
+                await userService.RemoveUserAsync(userID);
+                return new { Res = true };
             }
             catch (Exception e)
             {
@@ -187,6 +213,41 @@ namespace OTS_API.Controllers
                 }
                 var resList = await userService.GetUserCoursesAsync(userID);
                 return new { Res = true, ResList = resList };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpPost]
+        [Route("AddToCourse")]
+        public async Task<dynamic> OnAddUserToCourseAsync([FromForm] string userID, [FromForm] int courseID, [FromForm] UserRole role, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if(t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if(t.Role != UserRole.Admin)
+                {
+                    if(t.Role == UserRole.Teacher)
+                    {
+                        var courseRole = await userService.GetCourseRoleAsync(t.UserID, courseID);
+                        if(courseRole != UserRole.Teacher || role == UserRole.Teacher)
+                        {
+                            throw new Exception("Insufficient Authority!");
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+                await userService.AddUserToCourseAsync(userID, courseID, role);
+                return new { Res = true };
             }
             catch (Exception e)
             {
