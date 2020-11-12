@@ -112,12 +112,8 @@ namespace OTS_API.Controllers
                 }
                 if (t.Role != UserRole.Admin)
                 {
-                    if (t.Role == UserRole.Student)
-                    {
-                        throw new Exception("Insufficient Authority!");
-                    }
                     var uc = await courseService.GetUserCourseAsync(t.UserID, courseID);
-                    if (uc == null)
+                    if (uc == null || uc.UserRole == UserRole.Student)
                     {
                         throw new Exception("Insufficient Authority!");
                     }
@@ -191,5 +187,85 @@ namespace OTS_API.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("Homework")]
+        public async Task<dynamic> OnUploadHomeworkFileAsync([FromForm] int courseID, [FromForm] List<IFormFile> formFiles, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if (t.Role != UserRole.Admin)
+                {
+                    var uc = await courseService.GetUserCourseAsync(t.UserID, courseID);
+                    if (uc == null)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+                //Only For Dev
+                var courseFileRoot = Config.privateFilePath + "Course" + courseID;
+                if (!Directory.Exists(courseFileRoot))
+                {
+                    Directory.CreateDirectory(courseFileRoot);
+                    Directory.CreateDirectory(courseFileRoot + "/Courseware");
+                    Directory.CreateDirectory(courseFileRoot + "/Homework");
+                }
+
+
+                var desPath = "Course" + courseID + "/Homework/";
+                var fileInfoList = new List<Models.File>();
+                int count = 0;
+                long size = 0;
+                foreach (var file in formFiles)
+                {
+                    if (file.Length > 0)
+                    {
+                        var fileInfo = await fileService.SavePrivateFileAsync(file, desPath);
+                        fileInfoList.Add(fileInfo);
+                        count++;
+                        size += file.Length;
+                    }
+                }
+
+                return new { Res = true, Count = count, Size = size, FileList = fileInfoList };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpGet]
+        [Route("Homework")]
+        public async Task<dynamic> OnGetHomeworkFileAsync(int hwID, int fileID, string token, bool mode)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                
+
+                var fileInfo = await fileService.GetFileAsync(fileID);
+                new FileExtensionContentTypeProvider().TryGetContentType(fileInfo.Name, out var contentType);
+                if (mode)
+                {
+                    var arr = Encoding.UTF8.GetBytes(fileInfo.Name);
+                    var name = string.Empty;
+                    foreach (var b in arr)
+                    {
+                        name += string.Format("%{0:X2}", b);
+                    }
+                    HttpContext.Response.Headers.Add("Content-Disposition", new Microsoft.Extensions.Primitives.StringValues("attachment; filename = " + name));
+                }
+                return PhysicalFile(Path.GetFullPath(fileInfo.Path), contentType);
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
     }
 }

@@ -5,6 +5,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OTS_API.Models
 {
+    public enum PassStatus
+    {
+        Passed = 1,
+        Denined = 0
+    }
+
     [Table("user_discussion")]
     public class UserDiscussion
     {
@@ -18,5 +24,7 @@ namespace OTS_API.Models
         public string UserId { get; set; }
         [Column("content")]
         public string Content { get; set; }
+        [Column("pass")]
+        public PassStatus PassStatus { get; set; }
     }
 }

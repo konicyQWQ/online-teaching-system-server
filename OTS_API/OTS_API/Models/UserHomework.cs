@@ -11,11 +11,9 @@ namespace OTS_API.Models
         [Key]
         [Column("user_id")]
         public string UserId { get; set; }
+        [Key]
         [Column("hw_id")]
         public int HwId { get; set; }
-        [Key]
-        [Column("file_id")]
-        public int FileId { get; set; }
         [Column("description")]
         public string Description { get; set; }
         [Column("mark")]

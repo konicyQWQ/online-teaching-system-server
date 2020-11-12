@@ -9,11 +9,10 @@ namespace OTS_API.Models
     public class Homework
     {
         [Key]
-        [Column("course_id")]
-        public int CourseId { get; set; }
-        [Key]
         [Column("hw_id")]
         public int HwId { get; set; }
+        [Column("course_id")]
+        public int CourseId { get; set; }
         [Column("title")]
         public string Title { get; set; }
         [Column("startTime")]
@@ -26,5 +25,11 @@ namespace OTS_API.Models
         public int TotalMark { get; set; }
         [Column("percentage")]
         public int Percentage { get; set; }
+    }
+
+    public class HomeworkWithFiles
+    {
+        public Homework Homework { get; set; }
+        public List<Models.File> Files { get; set; }
     }
 }

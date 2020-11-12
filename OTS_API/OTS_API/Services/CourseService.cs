@@ -226,7 +226,7 @@ namespace OTS_API.Services
         {
             try
             {
-                await dbContext.Bulletin.AddAsync(bulletin);
+                await dbContext.Bulletins.AddAsync(bulletin);
                 await dbContext.SaveChangesAsync();
             }
             catch (Exception e)
@@ -240,7 +240,7 @@ namespace OTS_API.Services
         {
             try
             {
-                dbContext.Bulletin.Update(bulletin);
+                dbContext.Bulletins.Update(bulletin);
                 await dbContext.SaveChangesAsync();
             }
             catch (Exception e)
@@ -254,12 +254,12 @@ namespace OTS_API.Services
         {
             try
             {
-                var bulletinToDelete = await dbContext.Bulletin.FindAsync(bulletinID);
+                var bulletinToDelete = await dbContext.Bulletins.FindAsync(bulletinID);
                 if(bulletinToDelete == null)
                 {
                     throw new Exception("Cannot Find Bulletin(id: " + bulletinID + ")!");
                 }
-                dbContext.Bulletin.Remove(bulletinToDelete);
+                dbContext.Bulletins.Remove(bulletinToDelete);
                 await dbContext.SaveChangesAsync();
             }
             catch (Exception e)
@@ -273,7 +273,7 @@ namespace OTS_API.Services
         {
             try
             {
-                var res = await dbContext.Bulletin.FindAsync(bulletinID);
+                var res = await dbContext.Bulletins.FindAsync(bulletinID);
                 if (res == null)
                 {
                     throw new Exception("Cannot Find Bulletin(id: " + bulletinID + ")!");
@@ -291,7 +291,7 @@ namespace OTS_API.Services
         {
             try
             {
-                var list = await dbContext.Bulletin.Where(b => b.CourseId == courseID).ToListAsync();
+                var list = await dbContext.Bulletins.Where(b => b.CourseId == courseID).ToListAsync();
                 return list;
             }
             catch (Exception e)
