@@ -185,27 +185,20 @@ namespace OTS_API.Services
         /// 获取所有用户列表
         /// </summary>
         /// <returns>用户信息列表（去密码）</returns>
-        public async Task<UserResList> GetUsersAsync(int start, int limit, string keyword, UserRole? role)
+        public async Task<UserResList> GetUsersAsync(int start, int limit, string keyword, List<UserRole> roles)
         {
             try
             {
-                List<User> resList = null;
-                if(keyword != null && role != null)
+                List<User> resList = await dbContext.Users.ToListAsync();
+                if(keyword != null)
                 {
-                    resList = await dbContext.Users.Where(u => u.Role == role && (u.Name.Contains(keyword) || u.Id.Contains(keyword))).ToListAsync();
+                    resList = resList.Where(u => u.Name.Contains(keyword) || u.Id.Contains(keyword)).ToList();
                 }
-                else if(keyword != null)
+                if(roles.Count > 0)
                 {
-                    resList = await dbContext.Users.Where(u => u.Name.Contains(keyword) || u.Id.Contains(keyword)).ToListAsync();
+                    resList = resList.Where(u => roles.Contains(u.Role)).ToList();
                 }
-                else if(role != null)
-                {
-                    resList = await dbContext.Users.Where(u => u.Role == role).ToListAsync();
-                }
-                else
-                {
-                    resList = await dbContext.Users.ToListAsync();
-                }
+
                 var totalCount = resList.Count;
                 if (limit > totalCount - start)
                 {
