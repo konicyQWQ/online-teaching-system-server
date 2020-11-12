@@ -174,7 +174,7 @@ namespace OTS_API.Controllers
 
         [HttpGet]
         [Route("GetAll")]
-        public async Task<dynamic> OnGetAllUsersAsync(int start, int limit, string keyword, List<UserRole> roles, string token)
+        public async Task<dynamic> OnGetAllUsersAsync(int start, int limit, string keyword, List<int> roles, string token)
         {
             try
             {
@@ -187,7 +187,12 @@ namespace OTS_API.Controllers
                 {
                     throw new Exception("Insuficient Authority!");
                 }
-                var res = await userService.GetUsersAsync(start, limit, keyword, roles);
+                List<UserRole> roleList = new List<UserRole>();
+                foreach(var role in roles)
+                {
+                    roleList.Add((UserRole)role);
+                }
+                var res = await userService.GetUsersAsync(start, limit, keyword, roleList);
                 return new { Res = true, TotalCount = res.TotalCount, Count = res.ResList.Count, ResList = res.ResList };
             }
             catch (Exception e)
