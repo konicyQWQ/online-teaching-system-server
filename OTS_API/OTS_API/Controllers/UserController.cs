@@ -174,7 +174,7 @@ namespace OTS_API.Controllers
 
         [HttpGet]
         [Route("GetAll")]
-        public async Task<dynamic> OnGetAllUsersAsync(int start, int limit, string keyword, List<int> roles, string token)
+        public async Task<dynamic> OnGetAllUsersAsync(int start, int limit, string keyword, [FromQuery] List<int> roles, string token)
         {
             try
             {
