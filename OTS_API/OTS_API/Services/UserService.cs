@@ -287,6 +287,25 @@ namespace OTS_API.Services
             }
         }
 
+        public async Task RemoveUserFromCourseAsync(string userID, int courseID)
+        {
+            try
+            {
+                var ucToDelete = await dbContext.UserCourse.FindAsync(userID, courseID);
+                if(ucToDelete == null)
+                {
+                    throw new Exception("User is Not in Course!");
+                }
+                dbContext.UserCourse.Remove(ucToDelete);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
         public async Task<UserCourseResList> GetUserCoursesAsync(string userID)
         {
             try

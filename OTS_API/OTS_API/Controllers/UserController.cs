@@ -265,7 +265,7 @@ namespace OTS_API.Controllers
                     if(t.Role == UserRole.Teacher)
                     {
                         var courseRole = await userService.GetCourseRoleAsync(t.UserID, courseID);
-                        if(courseRole != UserRole.Teacher || role == UserRole.Teacher)
+                        if(courseRole != UserRole.Teacher || role != UserRole.TA)
                         {
                             throw new Exception("Insufficient Authority!");
                         }
@@ -276,6 +276,42 @@ namespace OTS_API.Controllers
                     }
                 }
                 await userService.AddUserToCourseAsync(userID, courseID, role);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpPost]
+        [Route("RemoveFromCourse")]
+        public async Task<dynamic> OnRemoveUserFromCourseAsync([FromForm] string userID, [FromForm] int courseID, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if (t.Role != UserRole.Admin)
+                {
+                    if (t.Role == UserRole.Teacher)
+                    {
+                        var courseRole = await userService.GetCourseRoleAsync(t.UserID, courseID);
+                        var targetRole = await userService.GetCourseRoleAsync(userID, courseID);
+                        if (courseRole != UserRole.Teacher || targetRole != UserRole.TA)
+                        {
+                            throw new Exception("Insufficient Authority!");
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+                await userService.RemoveUserFromCourseAsync(userID, courseID);
                 return new { Res = true };
             }
             catch (Exception e)
