@@ -118,5 +118,40 @@ namespace OTS_API.Controllers
                 return new { Res = false, Error = e.Message };
             }
         }
+
+        [HttpPost]
+        [Route("Submit")]
+        public async Task<dynamic> OnSubmitHomeworkAsync([FromForm] UserHomework homework, [FromForm] List<int> files, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Toke is Invalid!");
+                }
+                var role = t.Role;
+                if (role == UserRole.Admin)
+                {
+                    throw new Exception("Invalid Action!");
+                }
+                role = await homeworkService.GetHWRoleAsync(homework.HwId, t.UserID);
+                if (role != UserRole.Student)
+                {
+                    throw new Exception("Invalid Action!");
+                }
+                await homeworkService.AddStuHomeworkAsync(homework);
+                foreach (var file in files)
+                {
+                    await homeworkService.AddFileToStuHomeworkAsync(file, t.UserID, homework.HwId);
+                }
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+            
+        }
     }
 }
