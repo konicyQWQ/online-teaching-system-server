@@ -98,6 +98,7 @@ namespace OTS_API.Services
             userToUpdate.Email = userInfo.Email;
             userToUpdate.AvatarId = userInfo.AvatarId;
             userToUpdate.Introduction = userInfo.Introduction;
+            userToUpdate.Role = userInfo.Role;
             try
             {
                 dbContext.Users.Update(userToUpdate);
