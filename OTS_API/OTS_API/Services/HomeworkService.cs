@@ -275,6 +275,30 @@ namespace OTS_API.Services
             }
         }
 
+        public async Task<List<StuHomeworkOverview>> GetCourseHomeworkOverviewAsync(string stuID, int courseID)
+        {
+            try
+            {
+                var hwList = await this.GetCourseHomeworkAsync(courseID);
+                var resList = new List<StuHomeworkOverview>();
+                foreach (var hw in hwList)
+                {
+                    var uh = await this.GetStuHomeworkAsync(stuID, hw.HwId);
+                    resList.Add(new StuHomeworkOverview()
+                    {
+                        Homework = hw,
+                        UserHomework = uh
+                    });
+                }
+                return resList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
         public async Task<List<HomeworkOverview>> GetCourseHomeworkOverviewTAsync(int courseID)
         {
             try
@@ -305,12 +329,16 @@ namespace OTS_API.Services
             try
             {
                 var uc = await dbContext.UserCourse.FindAsync(userID, courseID);
-                return UserRole.Admin;
+                if(uc == null)
+                {
+                    throw new Exception("User-Course Not Valid!");
+                }
+                return uc.UserRole;
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
-                throw;
+                logger.LogError(e.Message);
+                throw e;
             }
         }
     }

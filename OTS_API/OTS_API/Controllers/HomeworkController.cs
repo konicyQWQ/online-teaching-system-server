@@ -36,14 +36,22 @@ namespace OTS_API.Controllers
                 var role = t.Role;
                 if(role != UserRole.Admin)
                 {
-                    
+                    role = await homeworkService.GetCourseRoleAsync(courseID, t.UserID);
                 }
-                return Ok();
+                if(role == UserRole.Student)
+                {
+                    var hwList = await homeworkService.GetCourseHomeworkOverviewAsync(t.UserID, courseID);
+                    return new { Res = true, HWList = hwList };
+                }
+                else
+                {
+                    var hwList = await homeworkService.GetCourseHomeworkOverviewTAsync(courseID);
+                    return new { Res = true, HWList = hwList };
+                }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
-                throw;
+                return new { Res = false, Error = e.Message };
             }
         }
     }

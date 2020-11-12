@@ -40,6 +40,12 @@ namespace OTS_API.Models
         public HomeworkStatistics Statistics { get; set; }
     }
 
+    public class StuHomeworkOverview
+    {
+        public Homework Homework { get; set; }
+        public UserHomework UserHomework { get; set; }
+    }
+
     public class HomeworkWithFiles
     {
         public Homework Homework { get; set; }
