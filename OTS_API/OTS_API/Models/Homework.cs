@@ -51,4 +51,11 @@ namespace OTS_API.Models
         public Homework Homework { get; set; }
         public List<Models.File> Files { get; set; }
     }
+
+    public class HomeworkDetail
+    {
+        public HomeworkWithFiles Homework { get; set; }
+        public HomeworkStatistics Statistics { get; set; }
+        public List<UserHomeworkWithFiles> StuHomeworkList { get; set; }
+    }
 }

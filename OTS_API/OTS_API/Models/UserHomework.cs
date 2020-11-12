@@ -26,4 +26,10 @@ namespace OTS_API.Models
         public UserHomework UserHomework { get; set; }
         public List<Models.File> Files { get; set; }
     }
+
+    public class UserHomeworkDetail
+    {
+        public HomeworkWithFiles Homework { get; set; }
+        public UserHomeworkWithFiles UserHomework { get; set; }
+    }
 }

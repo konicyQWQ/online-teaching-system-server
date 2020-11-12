@@ -261,6 +261,24 @@ namespace OTS_API.Services
             }
         }
 
+        public async Task<List<UserHomeworkWithFiles>> GetCourseStuHomeworkWithFilesTAsync(Homework hw, List<UserCourse> ucList)
+        {
+            try
+            {
+                var resList = new List<UserHomeworkWithFiles>();
+                foreach (var uc in ucList)
+                {
+                    resList.Add(await this.GetStuHomeworkWithFilesTAsync(uc.UserId, hw.HwId));
+                }
+                return resList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
         public async Task<List<Homework>> GetCourseHomeworkAsync(int courseID)
         {
             try
@@ -284,6 +302,7 @@ namespace OTS_API.Services
                 foreach (var hw in hwList)
                 {
                     var uh = await this.GetStuHomeworkAsync(stuID, hw.HwId);
+                    hw.Content = null;
                     resList.Add(new StuHomeworkOverview()
                     {
                         Homework = hw,
@@ -309,6 +328,7 @@ namespace OTS_API.Services
                 foreach(var hw in hwList)
                 {
                     var hwStat = await this.GetHomeworkStatisticsAsync(hw.HwId, ucList);
+                    hw.Content = null;
                     resList.Add(new HomeworkOverview()
                     {
                         Homework = hw,
@@ -316,6 +336,47 @@ namespace OTS_API.Services
                     });
                 }
                 return resList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<UserHomeworkDetail> GetHomeworkDetailAsync(int hwID, string stuID)
+        {
+            try
+            {
+                var hw = await this.GetHomeworkWithFilesAsync(hwID);
+                var stuHW = await this.GetStuHomeworkWithFilesAsync(stuID, hwID);
+                return new UserHomeworkDetail()
+                {
+                    Homework = hw,
+                    UserHomework = stuHW
+                };
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<HomeworkDetail> GetHomeworkDetailTAsync(int hwID)
+        {
+            try
+            {
+                var hwWithFiles = await this.GetHomeworkWithFilesAsync(hwID);
+                var ucList = await this.GetCourseStuListAsync(hwWithFiles.Homework.CourseId);
+                var hwStatistics = await this.GetHomeworkStatisticsAsync(hwID, ucList);
+                var stuHWList = await this.GetCourseStuHomeworkWithFilesTAsync(hwWithFiles.Homework, ucList);
+                return new HomeworkDetail()
+                {
+                    Homework = hwWithFiles,
+                    Statistics = hwStatistics,
+                    StuHomeworkList = stuHWList
+                };
             }
             catch (Exception e)
             {
@@ -334,6 +395,24 @@ namespace OTS_API.Services
                     throw new Exception("User-Course Not Valid!");
                 }
                 return uc.UserRole;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw e;
+            }
+        }
+
+        public async Task<UserRole> GetHWRoleAsync(int hwID, string userID)
+        {
+            try
+            {
+                var hw = await this.GetHomeworkAsync(hwID);
+                if(hw == null)
+                {
+                    throw new Exception("Cannot Find Homework(id: " + hwID + ")!");
+                }
+                return await this.GetCourseRoleAsync(hw.CourseId, userID);
             }
             catch (Exception e)
             {

@@ -23,6 +23,38 @@ namespace OTS_API.Controllers
         }
 
         [HttpGet]
+        public async Task<dynamic> OnGetHomeworkAsync(int hwID, string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Toke is Invalid!");
+                }
+                var role = t.Role;
+                if (role != UserRole.Admin)
+                {
+                    role = await homeworkService.GetHWRoleAsync(hwID, t.UserID);
+                }
+                if(role == UserRole.Student)
+                {
+                    var hwDetail = await homeworkService.GetHomeworkDetailAsync(hwID, t.UserID);
+                    return new { Res = true, HWDetail = hwDetail };
+                }
+                else
+                {
+                    var hwDetail = await homeworkService.GetHomeworkDetailTAsync(hwID);
+                    return new { Res = true, HWDetail = hwDetail };
+                }
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpGet]
         [Route("all")]
         public async Task<dynamic> OnGetCourseHomeworkAsync(int courseID, string token)
         {
