@@ -443,5 +443,28 @@ namespace OTS_API.Services
                 throw new Exception("Unable to Get Courseware FileList!");
             }
         }
+
+        public async Task<List<User>> GetCourseUsersAsync(int courseID)
+        {
+            try
+            {
+                var ucList = await dbContext.UserCourse.Where(uc => uc.CourseId == courseID).ToListAsync();
+                var resList = new List<User>();
+                foreach(var uc in ucList)
+                {
+                    var userInfo = await dbContext.Users.FindAsync(uc.UserId);
+                    userInfo.Password = null;
+                    userInfo.Introduction = null;
+                    userInfo.Role = uc.UserRole;
+                    resList.Add(userInfo);
+                }
+                return resList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Unable to Get Courseware FileList!");
+            }
+        }
     }
 }

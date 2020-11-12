@@ -174,7 +174,7 @@ namespace OTS_API.Services
             {
                 var uh = await this.GetStuHomeworkAsync(stuID, hwID);
                 var fileList = await this.GetStuHomeworkFilesAsync(stuID, hwID);
-                var userInfo = await dbContext.Users.FindAsync(uh.UserId);
+                var userInfo = await dbContext.Users.FindAsync(stuID);
                 if(userInfo == null)
                 {
                     throw new Exception("User Not Found!");
@@ -187,6 +187,72 @@ namespace OTS_API.Services
                     UserHomework = uh,
                     Files = fileList
                 };
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<HomeworkStatistics> GetHomeworkStatisticsAsync(int hwID, List<UserCourse> ucList)
+        {
+            try
+            {
+                int submitCount = 0;
+                int scoredCount = 0;
+                foreach(var uc in ucList)
+                {
+                    var stuHW = await this.GetStuHomeworkAsync(uc.UserId, hwID);
+                    if(stuHW != null)
+                    {
+                        submitCount++;
+                        if(stuHW.Mark != null)
+                        {
+                            scoredCount++;
+                        }
+                    }
+                }
+                return new HomeworkStatistics()
+                {
+                    TotalCount = ucList.Count,
+                    SubmitCount = submitCount,
+                    ScoredCount = scoredCount
+                };
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Unable to Get Course Statistics!");
+            }
+        }
+
+        public async Task<List<UserCourse>> GetCourseStuListAsync(int courseID)
+        {
+            try
+            {
+                var ucList = await dbContext.UserCourse.Where(uc => uc.UserRole == UserRole.Student && uc.CourseId == courseID).ToListAsync();
+                return ucList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<List<UserHomeworkWithFiles>> GetCourseStuHomeworkWithFilesTAsync(int hwID)
+        {
+            try
+            {
+                var hw = await this.GetHomeworkAsync(hwID);
+                var ucList = await this.GetCourseStuListAsync(hw.CourseId);
+                var resList = new List<UserHomeworkWithFiles>();
+                foreach(var uc in ucList)
+                {
+                    resList.Add(await this.GetStuHomeworkWithFilesTAsync(uc.UserId, hwID));
+                }
+                return resList;
             }
             catch (Exception e)
             {
@@ -209,9 +275,43 @@ namespace OTS_API.Services
             }
         }
 
-        public async Task<List<HomeworkOverview>> GetCourseHomeworkOverviewAsync(int courseID)
+        public async Task<List<HomeworkOverview>> GetCourseHomeworkOverviewTAsync(int courseID)
         {
+            try
+            {
+                var hwList = await this.GetCourseHomeworkAsync(courseID);
+                var ucList = await this.GetCourseStuListAsync(courseID);
+                var resList = new List<HomeworkOverview>();
+                foreach(var hw in hwList)
+                {
+                    var hwStat = await this.GetHomeworkStatisticsAsync(hw.HwId, ucList);
+                    resList.Add(new HomeworkOverview()
+                    {
+                        Homework = hw,
+                        Statistics = hwStat
+                    });
+                }
+                return resList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
 
+        public async Task<UserRole> GetCourseRoleAsync(int courseID, string userID)
+        {
+            try
+            {
+                var uc = await dbContext.UserCourse.FindAsync(userID, courseID);
+                return UserRole.Admin;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
     }
 }

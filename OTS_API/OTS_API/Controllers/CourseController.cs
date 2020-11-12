@@ -449,5 +449,33 @@ namespace OTS_API.Controllers
                 return new { Res = false, Error = e.Message };
             }
         }
+
+        [HttpGet]
+        [Route("GetUsers")]
+        public async Task<dynamic> OnGetCourseUsersAsync(int courseID, string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if(t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if(t.Role != UserRole.Admin)
+                {
+                    var uc = await courseService.GetUserCourseAsync(t.UserID, courseID);
+                    if(uc == null)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+                var resList = await courseService.GetCourseUsersAsync(courseID);
+                return new { Res = true, UserList = resList };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
     }
 }

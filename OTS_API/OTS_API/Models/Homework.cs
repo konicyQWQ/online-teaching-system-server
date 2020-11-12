@@ -27,11 +27,17 @@ namespace OTS_API.Models
         public int Percentage { get; set; }
     }
 
+    public class HomeworkStatistics
+    {
+        public int TotalCount { get; set; }
+        public int SubmitCount { get; set; }
+        public int ScoredCount { get; set; }
+    }
+
     public class HomeworkOverview
     {
         public Homework Homework { get; set; }
-        public int TotalCount { get; set; }
-        public int SubmitCount { get; set; }
+        public HomeworkStatistics Statistics { get; set; }
     }
 
     public class HomeworkWithFiles
