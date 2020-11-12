@@ -162,6 +162,10 @@ namespace OTS_API.Controllers
                 {
                     throw new Exception("Insufficient Authority!");
                 }
+                else if(t.Role != UserRole.Admin)
+                {
+                    userID = t.UserID;
+                }
                 var userInfo = await userService.GetUserInfoAsync(userID);
                 var courseList = await userService.GetUserCoursesAsync(userID);
                 return new { Res = true, UserInfo = userInfo, CourseList = courseList };
