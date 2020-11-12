@@ -37,6 +37,7 @@ namespace OTS_API
             services.AddScoped<UserService>();
             services.AddScoped<CourseService>();
             services.AddScoped<FileService>();
+            services.AddScoped<HomeworkService>();
 
             services.AddSingleton<TokenService>();
             services.AddSingleton<PasswordRetrieveService>();
