@@ -47,4 +47,17 @@ namespace OTS_API.Models
         [Column("introduction")]
         public string Introduction { get; set; }
     }
+
+    public class UserResList
+    {
+        public int TotalCount { get; set; }
+        public List<User> ResList { get; set; }
+    }
+
+    public class UserCourseResList
+    {
+        public List<CourseWithTeachers> CourseList { get; set; }
+        public List<CourseWithTeachers> TeachList { get; set; }
+        public List<CourseWithTeachers> AssistList { get; set; }
+    }
 }

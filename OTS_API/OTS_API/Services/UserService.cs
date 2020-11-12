@@ -170,12 +170,114 @@ namespace OTS_API.Services
         /// 获取所有用户列表
         /// </summary>
         /// <returns>用户信息列表（去密码）</returns>
-        public Task<List<User>> GetAllUserAsync()
+        public async Task<UserResList> GetUsersAsync(int start, int limit, string keyword, UserRole? role)
         {
-            return Task.Run(() =>
+            try
             {
-                return new List<User>();
-            });
+                List<User> resList = null;
+                if(keyword != null && role != null)
+                {
+                    resList = await dbContext.Users.Where(u => u.Role == role && (u.Name.Contains(keyword) || u.Id.Contains(keyword))).ToListAsync();
+                }
+                else if(keyword != null)
+                {
+                    resList = await dbContext.Users.Where(u => u.Name.Contains(keyword) || u.Id.Contains(keyword)).ToListAsync();
+                }
+                else if(role != null)
+                {
+                    resList = await dbContext.Users.Where(u => u.Role == role).ToListAsync();
+                }
+                else
+                {
+                    resList = await dbContext.Users.ToListAsync();
+                }
+                var totalCount = resList.Count;
+                if (limit > totalCount - start)
+                {
+                    limit = totalCount - start;
+                }
+                resList = resList.GetRange(start, limit);
+                foreach(var res in resList)
+                {
+                    res.Password = null;
+                    res.Introduction = null;
+                }
+                return new UserResList()
+                {
+                    TotalCount = totalCount,
+                    ResList = resList
+                };
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed");
+            }
+        }
+
+        public async Task<List<User>> GetCourseTeachersAsync(int courseID)
+        {
+            try
+            {
+                var idList = await dbContext.UserCourse.Where(uc => uc.UserRole == UserRole.Teacher && uc.CourseId == courseID).ToListAsync();
+                var teacherList = new List<User>();
+                foreach (var id in idList)
+                {
+                    var t = await dbContext.Users.FindAsync(id.UserId);
+                    t.Introduction = null;
+                    t.Password = null;
+                    teacherList.Add(t);
+                }
+                return teacherList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Unable to Get Teacher Info!");
+            }
+        }
+
+        public async Task<UserCourseResList> GetUserCoursesAsync(string userID)
+        {
+            try
+            {
+                var ucList = await dbContext.UserCourse.Where(uc => uc.UserId == userID).ToListAsync();
+                var courseList = new List<CourseWithTeachers>();
+                var teachList = new List<CourseWithTeachers>();
+                var assistList = new List<CourseWithTeachers>();
+                foreach(var uc in ucList)
+                {
+                    var course = await dbContext.Courses.FindAsync(uc.CourseId);
+                    var t = new CourseWithTeachers()
+                    {
+                        Course = course,
+                        Teachers = await this.GetCourseTeachersAsync(course.Id)
+                    };
+                    if(uc.UserRole == UserRole.Student)
+                    {
+                        courseList.Add(t);
+                    }
+                    else if(uc.UserRole == UserRole.Teacher)
+                    {
+                        teachList.Add(t);
+                    }
+                    else
+                    {
+                        assistList.Add(t);
+                    }
+                }
+                return new UserCourseResList()
+                {
+                    CourseList = courseList,
+                    TeachList = teachList,
+                    AssistList = assistList
+                };
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed");
+            }
         }
     }
 }

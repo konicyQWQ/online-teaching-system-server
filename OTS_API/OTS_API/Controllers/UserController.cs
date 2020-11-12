@@ -92,6 +92,10 @@ namespace OTS_API.Controllers
                 {
                     throw new Exception("Invalid Token!");
                 }
+                if(t.Role != UserRole.Admin && t.UserID != user.Id)
+                {
+                    throw new Exception("Insufficient Authority!");
+                }
                 await userService.UpdateUserInfoAsync(user);
                 return new { Res = true };
             }
@@ -139,8 +143,55 @@ namespace OTS_API.Controllers
             catch (Exception e)
             {
                 return new { Res = false, Error = e.Message };
+            }  
+        }
+
+        [HttpGet]
+        [Route("GetAll")]
+        public async Task<dynamic> OnGetAllUsersAsync(int start, int limit, string keyword, UserRole? role, string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if(t.Role != UserRole.Admin)
+                {
+                    throw new Exception("Insuficient Authority!");
+                }
+                var res = await userService.GetUsersAsync(start, limit, keyword, role);
+                return new { Res = true, TotalCount = res.TotalCount, Count = res.ResList.Count, ResList = res.ResList };
             }
-            
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpGet]
+        [Route("GetCourses")]
+        public async Task<dynamic> OnGetUserCourse(string userID, string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if(t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if(t.Role != UserRole.Admin && t.UserID != userID)
+                {
+                    throw new Exception("Insufficient Authority!");
+                }
+                var resList = await userService.GetUserCoursesAsync(userID);
+                return new { Res = true, ResList = resList };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
         }
 
         [HttpPost]
