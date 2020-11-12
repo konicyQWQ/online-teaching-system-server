@@ -187,6 +187,13 @@ namespace OTS_API.Controllers
             }
         }
 
+        /// <summary>
+        /// 学生提交作业文件接口
+        /// </summary>
+        /// <param name="courseID"></param>
+        /// <param name="formFiles"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("Homework")]
         public async Task<dynamic> OnUploadHomeworkFileAsync([FromForm] int courseID, [FromForm] List<IFormFile> formFiles, [FromForm] string token)

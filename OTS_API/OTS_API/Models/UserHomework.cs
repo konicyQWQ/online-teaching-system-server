@@ -19,4 +19,11 @@ namespace OTS_API.Models
         [Column("mark")]
         public int? Mark { get; set; }
     }
+
+    public class UserHomeworkWithFiles
+    {
+        public User UserInfo { get; set; }
+        public UserHomework UserHomework { get; set; }
+        public List<Models.File> Files { get; set; }
+    }
 }

@@ -158,7 +158,7 @@ namespace OTS_API.Controllers
                 {
                     throw new Exception("Token is Invalid!");
                 }
-                if(t.Role != UserRole.Admin && t.UserID != userID)
+                if(t.Role != UserRole.Admin && userID != null && t.UserID != userID)
                 {
                     throw new Exception("Insufficient Authority!");
                 }
@@ -172,7 +172,7 @@ namespace OTS_API.Controllers
             }
             catch (Exception e)
             {
-                return new { Res = true, Error = e.Message };
+                return new { Res = false, Error = e.Message };
             }
         }
 

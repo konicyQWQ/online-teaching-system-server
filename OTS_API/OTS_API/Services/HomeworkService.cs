@@ -109,6 +109,109 @@ namespace OTS_API.Services
             }
         }
 
-        
+        /// <summary>
+        /// Get Stu's Homework, return UH Info
+        /// </summary>
+        /// <param name="stuID">Stu ID</param>
+        /// <param name="hwID">HW ID</param>
+        /// <returns>null if the Student didn't submit his homework</returns>
+        public async Task<UserHomework> GetStuHomeworkAsync(string stuID, int hwID)
+        {
+            try
+            {
+                var stuHW = await dbContext.UserHomework.FindAsync(stuID, hwID);
+                return stuHW;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<List<Models.File>> GetStuHomeworkFilesAsync(string stuID, int hwID)
+        {
+            try
+            {
+                var uhfList = await dbContext.UserHomeworkFile.Where(uhf => uhf.HwID == hwID && uhf.UserID == stuID).ToListAsync();
+                var fileList = new List<Models.File>();
+                foreach(var uhf in uhfList)
+                {
+                    fileList.Add(await dbContext.Files.FindAsync(uhf.FileID));
+                }
+                return fileList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<UserHomeworkWithFiles> GetStuHomeworkWithFilesAsync(string stuID, int hwID)
+        {
+            try
+            {
+                var uh = await this.GetStuHomeworkAsync(stuID, hwID);
+                var fileList = await this.GetStuHomeworkFilesAsync(stuID, hwID);
+                return new UserHomeworkWithFiles()
+                {
+                    UserInfo = null,
+                    UserHomework = uh,
+                    Files = fileList
+                };
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<UserHomeworkWithFiles> GetStuHomeworkWithFilesTAsync(string stuID, int hwID)
+        {
+            try
+            {
+                var uh = await this.GetStuHomeworkAsync(stuID, hwID);
+                var fileList = await this.GetStuHomeworkFilesAsync(stuID, hwID);
+                var userInfo = await dbContext.Users.FindAsync(uh.UserId);
+                if(userInfo == null)
+                {
+                    throw new Exception("User Not Found!");
+                }
+                userInfo.Password = null;
+                userInfo.Introduction = null;
+                return new UserHomeworkWithFiles()
+                {
+                    UserInfo = userInfo,
+                    UserHomework = uh,
+                    Files = fileList
+                };
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<List<Homework>> GetCourseHomeworkAsync(int courseID)
+        {
+            try
+            {
+                var resList = await dbContext.Homework.Where(hw => hw.CourseId == courseID).ToListAsync();
+                return resList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<List<HomeworkOverview>> GetCourseHomeworkOverviewAsync(int courseID)
+        {
+
+        }
     }
 }
