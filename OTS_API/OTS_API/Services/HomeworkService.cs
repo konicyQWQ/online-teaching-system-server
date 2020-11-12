@@ -53,6 +53,40 @@ namespace OTS_API.Services
             }
         }
 
+        public async Task AddStuHomeworkAsync(UserHomework homework)
+        {
+            try
+            {
+                await dbContext.UserHomework.AddAsync(homework);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task AddFileToStuHomeworkAsync(int fileID, string userID, int hwID)
+        {
+            try
+            {
+                var uhwFile = new UserHomeworkFile()
+                {
+                    FileID = fileID,
+                    UserID = userID,
+                    HwID = hwID
+                };
+                await dbContext.UserHomeworkFile.AddAsync(uhwFile);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
         public async Task<Homework> GetHomeworkAsync(int hwID)
         {
             try
