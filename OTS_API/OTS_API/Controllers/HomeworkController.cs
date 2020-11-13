@@ -302,10 +302,9 @@ namespace OTS_API.Controllers
                 {
                     throw new Exception("Invalid Action!");
                 }
-                if(homework.UserId != t.UserID)
-                {
-                    throw new Exception("Invalid Action!");
-                }
+                homework.UserId = t.UserID;
+                homework.Mark = null;
+                homework.Comment = null;
 
                 if(await homeworkService.HasSubmittedAsync(homework.HwId, homework.UserId))
                 {

@@ -17,15 +17,15 @@ namespace OTS_API.DatabaseContext
         public DbSet<Courseware> Coursewares { get; set; }
         public DbSet<CoursewareFile> CoursewareFile { get; set; }
         //public DbSet<Discussion> Discussion { get; set; }
-        //public DbSet<Exam> Exam { get; set; }
+        public DbSet<Exam> Exams { get; set; }
         public DbSet<File> Files { get; set; }
         public DbSet<Homework> Homework { get; set; }
         public DbSet<HomeworkFile> HomeworkFile { get; set; }
-        //public DbSet<Question> Question { get; set; }
-        //public DbSet<UserAnswer> UserAnswer { get; set; }
+        public DbSet<Question> Questions { get; set; }
+        public DbSet<UserAnswer> UserAnswer { get; set; }
         public DbSet<UserCourse> UserCourse { get; set; }
         //public DbSet<UserDiscussion> UserDiscussion { get; set; }
-        //public DbSet<UserExam> UserExam { get; set; }
+        public DbSet<UserExam> UserExam { get; set; }
         //public DbSet<UserGroup> UserGroup { get; set; }
         public DbSet<UserHomework> UserHomework { get; set; }
         public DbSet<UserHomeworkFile> UserHomeworkFile { get; set; }
@@ -41,6 +41,9 @@ namespace OTS_API.DatabaseContext
             modelBuilder.Entity<CoursewareFile>().HasKey(cf => new { cf.CoursewareId, cf.FileId });
             modelBuilder.Entity<HomeworkFile>().HasKey(hf => new { hf.HwID, hf.FileID });
             modelBuilder.Entity<UserHomework>().HasKey(uh => new { uh.UserId, uh.HwId });
+            modelBuilder.Entity<Question>().HasKey(q => new { q.QuestionId, q.ExamId });
+            modelBuilder.Entity<UserExam>().HasKey(ue => new { ue.UserId, ue.ExamId });
+            modelBuilder.Entity<UserAnswer>().HasKey(ua => new { ua.UserId, ua.ExamId, ua.QuestionId });
         }
     }
 }
