@@ -120,6 +120,70 @@ namespace OTS_API.Controllers
         }
 
         [HttpPost]
+        [Route("Update")]
+        public async Task<dynamic> OnUpdateHomeworkAsync([FromForm] Homework homework, [FromForm] List<int> files, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Toke is Invalid!");
+                }
+                var role = t.Role;
+                if (role != UserRole.Admin)
+                {
+                    role = await homeworkService.GetCourseRoleAsync(homework.CourseId, t.UserID);
+                }
+                if (role == UserRole.Student)
+                {
+                    throw new Exception("Insufficient Authority!");
+                }
+                await homeworkService.RemoveHomeworkFilesAsync(homework.HwId);
+                await homeworkService.UpdateHomeworkAsync(homework);
+                foreach(var file in files)
+                {
+                    await homeworkService.AddFileToHomeworkAsync(file, homework.HwId);
+                }
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpPost]
+        [Route("SetScore")]
+        public async Task<dynamic> OnSetStuHWScoreAsync([FromForm] string stuID, [FromForm] int hwID, [FromForm] int score, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Toke is Invalid!");
+                }
+                var role = t.Role;
+                if (role != UserRole.Admin)
+                {
+                    role = await homeworkService.GetHWRoleAsync(hwID, t.UserID);
+                }
+                if (role == UserRole.Student)
+                {
+                    throw new Exception("Insufficient Authority!");
+                }
+                await homeworkService.SetStuHomeworkScoreAsync(stuID, hwID, score);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+
+        [HttpPost]
         [Route("Submit")]
         public async Task<dynamic> OnSubmitHomeworkAsync([FromForm] UserHomework homework, [FromForm] List<int> files, [FromForm] string token)
         {
@@ -140,10 +204,27 @@ namespace OTS_API.Controllers
                 {
                     throw new Exception("Invalid Action!");
                 }
-                await homeworkService.AddStuHomeworkAsync(homework);
-                foreach (var file in files)
+                if(homework.UserId != t.UserID)
                 {
-                    await homeworkService.AddFileToStuHomeworkAsync(file, t.UserID, homework.HwId);
+                    throw new Exception("Invalid Action!");
+                }
+
+                if(await homeworkService.HasSubmittedAsync(homework.HwId, homework.UserId))
+                {
+                    await homeworkService.RemoveStuHomeworkFilesAsync(homework.HwId, homework.UserId);
+                    await homeworkService.UpdateStuHomeworkAsync(homework);
+                    foreach(var file in files)
+                    {
+                        await homeworkService.AddFileToStuHomeworkAsync(file, homework.UserId, homework.HwId);
+                    }
+                }
+                else
+                {
+                    await homeworkService.AddStuHomeworkAsync(homework);
+                    foreach (var file in files)
+                    {
+                        await homeworkService.AddFileToStuHomeworkAsync(file, t.UserID, homework.HwId);
+                    }
                 }
                 return new { Res = true };
             }
@@ -151,7 +232,35 @@ namespace OTS_API.Controllers
             {
                 return new { Res = false, Error = e.Message };
             }
-            
+        }
+
+        [HttpPost]
+        [Route("Remove")]
+        public async Task<dynamic> OnRemoveHomeworkAsync([FromForm] int hwID, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Toke is Invalid!");
+                }
+                var role = t.Role;
+                if (role != UserRole.Admin)
+                {
+                    role = await homeworkService.GetHWRoleAsync(hwID, t.UserID);
+                }
+                if (role == UserRole.Student)
+                {
+                    throw new Exception("Insufficient Authority!");
+                }
+                await homeworkService.RemoveHomeworkAsync(hwID);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
         }
     }
 }

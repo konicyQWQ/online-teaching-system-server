@@ -57,6 +57,11 @@ namespace OTS_API.Services
         {
             try
             {
+                var hw = await this.GetHomeworkAsync(homework.HwId);
+                if (!hw.IsOpen())
+                {
+                    throw new Exception("Cannot Submit Closed Homework!");
+                }
                 await dbContext.UserHomework.AddAsync(homework);
                 await dbContext.SaveChangesAsync();
             }
@@ -79,6 +84,20 @@ namespace OTS_API.Services
                 };
                 await dbContext.UserHomeworkFile.AddAsync(uhwFile);
                 await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<bool> HasSubmittedAsync(int hwID, string userID)
+        {
+            try
+            {
+                var uhw = await dbContext.UserHomework.FindAsync(userID, hwID);
+                return uhw != null;
             }
             catch (Exception e)
             {
@@ -452,6 +471,105 @@ namespace OTS_API.Services
             {
                 logger.LogError(e.Message);
                 throw e;
+            }
+        }
+
+        public async Task UpdateHomeworkAsync(Homework homework)
+        {
+            try
+            {
+                dbContext.Homework.Update(homework);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task UpdateStuHomeworkAsync(UserHomework userHomework)
+        {
+            try
+            {
+                var hwToUpdate = await this.GetStuHomeworkAsync(userHomework.UserId, userHomework.HwId);
+                if(hwToUpdate == null)
+                {
+                    throw new Exception("Unable to Find UHW(" + userHomework.UserId + ", " + userHomework.HwId + ")");
+                }
+                hwToUpdate.Description = userHomework.Description;
+                dbContext.UserHomework.Update(hwToUpdate);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task SetStuHomeworkScoreAsync(string userID, int hwID, int mark)
+        {
+            try
+            {
+                var hwToUpdate = await this.GetStuHomeworkAsync(userID, hwID);
+                if (hwToUpdate == null)
+                {
+                    throw new Exception("Unable to Find UHW(" + userID + ", " + hwID + ")");
+                }
+                hwToUpdate.Mark = mark;
+                dbContext.UserHomework.Update(hwToUpdate);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task RemoveHomeworkFilesAsync(int hwID)
+        {
+            try
+            {
+                var hwFileList = await dbContext.HomeworkFile.Where(hwf => hwf.HwID == hwID).ToListAsync();
+                dbContext.HomeworkFile.RemoveRange(hwFileList);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task RemoveStuHomeworkFilesAsync(int hwID, string userID)
+        {
+            try
+            {
+                var uhwFileList = await dbContext.UserHomeworkFile.Where(uhf => uhf.HwID == hwID && uhf.UserID == userID).ToListAsync();
+                dbContext.UserHomeworkFile.RemoveRange(uhwFileList);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task RemoveHomeworkAsync(int hwID)
+        {
+            try
+            {
+                var hwToDelete = await this.GetHomeworkAsync(hwID);
+                dbContext.Homework.Remove(hwToDelete);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
             }
         }
     }

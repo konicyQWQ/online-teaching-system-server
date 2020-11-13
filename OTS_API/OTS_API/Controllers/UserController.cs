@@ -122,6 +122,10 @@ namespace OTS_API.Controllers
                 {
                     throw new Exception("Insufficient Authority!");
                 }
+                if(t.Role != UserRole.Admin)
+                {
+                    user.Role = t.Role;
+                }
                 await userService.UpdateUserInfoAsync(user);
                 return new { Res = true };
             }

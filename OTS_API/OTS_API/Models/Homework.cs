@@ -25,6 +25,11 @@ namespace OTS_API.Models
         public int TotalMark { get; set; }
         [Column("percentage")]
         public int Percentage { get; set; }
+
+        public bool IsOpen()
+        {
+            return DateTime.Now <= EndTime && DateTime.Now >= StartTime;
+        }
     }
 
     public class HomeworkStatistics
