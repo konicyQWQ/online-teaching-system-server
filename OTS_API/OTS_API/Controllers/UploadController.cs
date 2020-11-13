@@ -285,5 +285,45 @@ namespace OTS_API.Controllers
                 return new { Res = false, Error = e.Message };
             }
         }
+
+        [HttpGet]
+        [Route("StuHomework")]
+        public async Task<dynamic> OnGetStuHomeworkFileAsync(string stuID, int hwID, int fileID, string token, bool mode)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if(t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if(t.Role != UserRole.Admin)
+                {
+                    var courseRole = await homeworkService.GetHWRoleAsync(hwID, t.UserID);
+                    if(courseRole == UserRole.Student && stuID != t.UserID)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+
+                var fileInfo = await fileService.GetFileAsync(fileID);
+                new FileExtensionContentTypeProvider().TryGetContentType(fileInfo.Name, out var contentType);
+                if (mode)
+                {
+                    var arr = Encoding.UTF8.GetBytes(fileInfo.Name);
+                    var name = string.Empty;
+                    foreach (var b in arr)
+                    {
+                        name += string.Format("%{0:X2}", b);
+                    }
+                    HttpContext.Response.Headers.Add("Content-Disposition", new Microsoft.Extensions.Primitives.StringValues("attachment; filename = " + name));
+                }
+                return PhysicalFile(Path.GetFullPath(fileInfo.Path), contentType);
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
     }
 }
