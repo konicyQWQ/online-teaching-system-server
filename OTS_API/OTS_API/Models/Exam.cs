@@ -11,12 +11,17 @@ namespace OTS_API.Models
         [Key]
         [Column("exam_id")]
         public int ExamId { get; set; }
-        [Key]
         [Column("course_id")]
         public int CourseId { get; set; }
         [Column("title")]
         public string Title { get; set; }
         [Column("max_mark")]
         public int MaxMark { get; set; }
+        [Column("percentage")]
+        public int Percentage { get; set; }
+        [Column("start_time")]
+        public DateTime StartTime { get; set; }
+        [Column("duration")]
+        public int Duration { get; set; }
     }
 }

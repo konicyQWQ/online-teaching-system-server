@@ -18,6 +18,8 @@ namespace OTS_API.Models
         public string Description { get; set; }
         [Column("mark")]
         public int? Mark { get; set; }
+        [Column("comment")]
+        public string Comment { get; set; }
     }
 
     public class UserHomeworkWithFiles

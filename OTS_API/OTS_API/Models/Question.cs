@@ -18,7 +18,6 @@ namespace OTS_API.Models
         [Key]
         [Column("question_id")]
         public int QuestionId { get; set; }
-        [Key]
         [Column("exam_id")]
         public int ExamId { get; set; }
         [Column("type")]

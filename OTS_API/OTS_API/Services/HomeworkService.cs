@@ -635,7 +635,7 @@ namespace OTS_API.Services
             }
         }
 
-        public async Task SetStuHomeworkScoreAsync(string userID, int hwID, int mark)
+        public async Task SetStuHomeworkScoreAsync(string userID, int hwID, int mark, string comment)
         {
             try
             {
@@ -645,6 +645,7 @@ namespace OTS_API.Services
                     throw new Exception("Unable to Find UHW(" + userID + ", " + hwID + ")");
                 }
                 hwToUpdate.Mark = mark;
+                hwToUpdate.Comment = comment;
                 dbContext.UserHomework.Update(hwToUpdate);
                 await dbContext.SaveChangesAsync();
             }

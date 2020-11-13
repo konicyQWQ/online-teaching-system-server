@@ -253,7 +253,7 @@ namespace OTS_API.Controllers
 
         [HttpPost]
         [Route("SetScore")]
-        public async Task<dynamic> OnSetStuHWScoreAsync([FromForm] string stuID, [FromForm] int hwID, [FromForm] int score, [FromForm] string token)
+        public async Task<dynamic> OnSetStuHWScoreAsync([FromForm] string stuID, [FromForm] int hwID, [FromForm] int score, [FromForm] string comment, [FromForm] string token)
         {
             try
             {
@@ -271,7 +271,7 @@ namespace OTS_API.Controllers
                 {
                     throw new Exception("Insufficient Authority!");
                 }
-                await homeworkService.SetStuHomeworkScoreAsync(stuID, hwID, score);
+                await homeworkService.SetStuHomeworkScoreAsync(stuID, hwID, score, comment);
                 return new { Res = true };
             }
             catch (Exception e)
