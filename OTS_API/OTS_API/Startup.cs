@@ -68,7 +68,7 @@ namespace OTS_API
                 FileProvider = new PhysicalFileProvider(Path.GetFullPath(Config.wwwrootPath))
             });
 
-            app.UseRouting();
+            app.UseRouting().UseCors("AllowCors");
 
             app.UseCors("AllowCors");
 
