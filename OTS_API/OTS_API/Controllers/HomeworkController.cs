@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
 using OTS_API.Models;
 using OTS_API.Services;
+using OTS_API.Utilities;
 
 namespace OTS_API.Controllers
 {
@@ -89,10 +93,72 @@ namespace OTS_API.Controllers
 
         [HttpGet]
         [Route("Export")]
-        public async Task<dynamic> OnExportHomeworkAsync(int hwID)
+        public async Task<dynamic> OnExportHomeworkAsync(int hwID, bool mode, string token)
         {
             try
             {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Toke is Invalid!");
+                }
+                var role = t.Role;
+                if (role != UserRole.Admin)
+                {
+                    role = await homeworkService.GetHWRoleAsync(hwID, t.UserID);
+                }
+                if (role == UserRole.Student)
+                {
+                    throw new Exception("Insufficient Authority!");
+                }
+
+                var homeworkInfo = await homeworkService.GetHomeworkAsync(hwID);
+                var tempFile = Config.tempFilePath + Path.GetTempFileName();
+                using (var sw = new StreamWriter(tempFile))
+                {
+                    await homeworkService.WriteHWInfoAsync(sw, homeworkInfo);
+                }
+                    
+                var fileName = homeworkInfo.Title + " 作业成绩.csv";
+                new FileExtensionContentTypeProvider().TryGetContentType(fileName, out var contentType);
+                if (mode)
+                {
+                    var arr = Encoding.UTF8.GetBytes(fileName);
+                    var name = string.Empty;
+                    foreach (var b in arr)
+                    {
+                        name += string.Format("%{0:X2}", b);
+                    }
+                    HttpContext.Response.Headers.Add("Content-Disposition", new Microsoft.Extensions.Primitives.StringValues("attachment; filename = " + name));
+                }
+                return PhysicalFile(Path.GetFullPath(tempFile), contentType, fileName);
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpGet]
+        [Route("ExportAll")]
+        public async Task<dynamic> OnExportCourseHomeworkAsync(int courseID, bool mode, string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Toke is Invalid!");
+                }
+                var role = t.Role;
+                if (role != UserRole.Admin)
+                {
+                    role = await homeworkService.GetCourseRoleAsync(courseID, t.UserID);
+                }
+                if (role == UserRole.Student)
+                {
+                    throw new Exception("Insufficient Authority!");
+                }
                 return Ok();
             }
             catch (Exception)

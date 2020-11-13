@@ -4,6 +4,7 @@ using OTS_API.DatabaseContext;
 using OTS_API.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -124,6 +125,24 @@ namespace OTS_API.Services
             }
         }
 
+        public async Task<Course> GetCourseAsync(int courseID)
+        {
+            try
+            {
+                var hw = await dbContext.Courses.FindAsync(courseID);
+                if(hw == null)
+                {
+                    throw new Exception("Unable to Find Course(id: " + courseID + ")!");
+                }
+                return hw;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
         public async Task<List<Models.File>> GetHomeworkFileAsync(int hwID)
         {
             try
@@ -174,6 +193,28 @@ namespace OTS_API.Services
             {
                 var stuHW = await dbContext.UserHomework.FindAsync(stuID, hwID);
                 return stuHW;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<int> GetStuHomeworkScoreAsync(string stuID, int hwID)
+        {
+            try
+            {
+                var hw = await this.GetStuHomeworkAsync(stuID, hwID);
+                if(hw == null)
+                {
+                    return 0;
+                }
+                if(hw.Mark == null)
+                {
+                    return 0;
+                }
+                return hw.Mark.Value;
             }
             catch (Exception e)
             {
@@ -280,6 +321,38 @@ namespace OTS_API.Services
             }
         }
 
+        public async Task<HomeworkStatistics> GetHomeworkStatisticsAsync(int hwID, List<User> stuList)
+        {
+            try
+            {
+                int submitCount = 0;
+                int scoredCount = 0;
+                foreach (var uc in stuList)
+                {
+                    var stuHW = await this.GetStuHomeworkAsync(uc.Id, hwID);
+                    if (stuHW != null)
+                    {
+                        submitCount++;
+                        if (stuHW.Mark != null)
+                        {
+                            scoredCount++;
+                        }
+                    }
+                }
+                return new HomeworkStatistics()
+                {
+                    TotalCount = stuList.Count,
+                    SubmitCount = submitCount,
+                    ScoredCount = scoredCount
+                };
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Unable to Get Course Statistics!");
+            }
+        }
+
         public async Task<List<UserCourse>> GetCourseStuListAsync(int courseID)
         {
             try
@@ -327,6 +400,19 @@ namespace OTS_API.Services
                     throw new Exception("Unable to Find Homework(id: " + hwID + ")!");
                 }
                 return await this.GetCourseStuInfoListAsync(hw.CourseId);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<List<User>> GetHWStuInfoListAsync(Homework homework)
+        {
+            try
+            {
+                return await this.GetCourseStuInfoListAsync(homework.CourseId);
             }
             catch (Exception e)
             {
@@ -606,6 +692,64 @@ namespace OTS_API.Services
                 var hwToDelete = await this.GetHomeworkAsync(hwID);
                 dbContext.Homework.Remove(hwToDelete);
                 await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task WriteHWInfoAsync(StreamWriter sw, Homework homework)
+        {
+            try
+            {
+                var stuList = await this.GetCourseStuInfoListAsync(homework.CourseId);
+                var course = await dbContext.Courses.FindAsync(homework.CourseId);
+                var hwStat = await this.GetHomeworkStatisticsAsync(homework.HwId, stuList);
+                await sw.WriteLineAsync("课程名称：," + course.Name + ",人数：," + hwStat.TotalCount);
+                await sw.WriteLineAsync("作业名称：," + homework.Title);
+                await sw.WriteLineAsync("开始时间：," + homework.StartTime.ToUniversalTime());
+                await sw.WriteLineAsync("结束时间：," + homework.EndTime.ToUniversalTime());
+                await sw.WriteLineAsync("总分：," + homework.TotalMark + ",占比：," + homework.Percentage);
+                await sw.WriteLineAsync("完成情况：,已交：," + hwStat.ScoredCount + ",未交：," + (hwStat.TotalCount - hwStat.SubmitCount) + ",已评分：," + hwStat.ScoredCount);
+                await sw.WriteLineAsync("学号,姓名,学院,得分");
+                foreach (var stu in stuList)
+                {
+                    await sw.WriteLineAsync(string.Join(",", stu.Id, stu.Name, stu.Department, await this.GetStuHomeworkScoreAsync(stu.Id, homework.HwId)));
+                }
+                await sw.FlushAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task WirteCourseHWInfoAsync(StreamWriter sw, Course course)
+        {
+            try
+            {
+                var stuList = await this.GetCourseStuInfoListAsync(course.Id);
+                var hwList = await this.GetCourseHomeworkAsync(course.Id);
+                await sw.WriteLineAsync("课程名称：," + course.Name + ",人数：," + stuList.Count);
+
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<bool> CheckInCourse(string userID, int hwID)
+        {
+            try
+            {
+                var homework = await this.GetHomeworkAsync(hwID);
+                var uc = await dbContext.UserCourse.FindAsync(userID, homework.CourseId);
+                return uc != null;
             }
             catch (Exception e)
             {

@@ -36,6 +36,8 @@ namespace OTS_API.Models
         public Gender Gender { get; set; }
         [Column("grade")]
         public byte Grade { get; set; }
+        [Column("department")]
+        public string Department { get; set; }
         [Column("phone")]
         public string Phone { get; set; }
         [Column("email")]

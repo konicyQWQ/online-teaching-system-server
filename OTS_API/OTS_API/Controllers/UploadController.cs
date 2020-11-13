@@ -29,13 +29,15 @@ namespace OTS_API.Controllers
         private readonly FileService fileService;
         private readonly TokenService tokenService;
         private readonly CourseService courseService;
+        private readonly HomeworkService homeworkService;
 
-        public UploadController(ILogger<UploadController> logger, FileService fileService, TokenService tokenService, CourseService courseService)
+        public UploadController(ILogger<UploadController> logger, FileService fileService, TokenService tokenService, CourseService courseService, HomeworkService homeworkService)
         {
             this.logger = logger;
             this.fileService = fileService;
             this.tokenService = tokenService;
             this.courseService = courseService;
+            this.homeworkService = homeworkService;
         }
 
         /// <summary>
@@ -253,7 +255,16 @@ namespace OTS_API.Controllers
             try
             {
                 var t = await tokenService.GetTokenAsync(token);
-                
+                if(t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if(t.Role != UserRole.Admin)
+                {
+                    if(!await homeworkService.CheckInCourse(t.UserID, hwID)){
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
 
                 var fileInfo = await fileService.GetFileAsync(fileID);
                 new FileExtensionContentTypeProvider().TryGetContentType(fileInfo.Name, out var contentType);
