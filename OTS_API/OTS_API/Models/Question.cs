@@ -9,7 +9,8 @@ namespace OTS_API.Models
     {
         True_False = 0,
         Multi_Choice = 1,
-        Fill_In_Blanks = 2
+        Fill_In_Blanks = 2,
+        Sub_Question = 3
     }
 
     [Table("question")]

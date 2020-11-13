@@ -17,4 +17,11 @@ namespace OTS_API.Models
         [Column("mark")]
         public int Mark { get; set; }
     }
+
+    public class UserExamWithAnswers
+    {
+        public User UserInfo { get; set; }
+        public UserExam UserExam { get; set; }
+        
+    }
 }

@@ -24,4 +24,30 @@ namespace OTS_API.Models
         [Column("duration")]
         public int Duration { get; set; }
     }
+
+    public class ExamWithQuestions
+    {
+        public Exam Exam { get; set; }
+        public List<Question> Questions { get; set; }
+    }
+
+    public class ExamStatistics
+    {
+        public int TotalCount { get; set; }
+        public int StartCount { get; set; }
+        public int FinishedCount { get; set; }
+        public double AverageMark { get; set; }
+    }
+
+    public class ExamOverview
+    {
+        public Exam Exam { get; set; }
+        public ExamStatistics Statistics { get; set; }
+    }
+
+    public class ExamDetail
+    {
+        public ExamWithQuestions ExamWithQuestions { get; set; }
+        public ExamStatistics Statistics { get; set; }
+    }
 }

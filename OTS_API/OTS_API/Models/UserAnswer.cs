@@ -19,5 +19,7 @@ namespace OTS_API.Models
         public int QuestionId { get; set; }
         [Column("answer")]
         public string Answer { get; set; }
+        [Column("mark")]
+        public int? Mark { get; set; }
     }
 }

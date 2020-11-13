@@ -248,9 +248,12 @@ namespace OTS_API.Services
             {
                 var uh = await this.GetStuHomeworkAsync(stuID, hwID);
                 var fileList = await this.GetStuHomeworkFilesAsync(stuID, hwID);
+                var userInfo = await dbContext.Users.FindAsync(stuID);
+                userInfo.Password = null;
+                userInfo.Introduction = null;
                 return new UserHomeworkWithFiles()
                 {
-                    UserInfo = null,
+                    UserInfo = userInfo,
                     UserHomework = uh,
                     Files = fileList
                 };
