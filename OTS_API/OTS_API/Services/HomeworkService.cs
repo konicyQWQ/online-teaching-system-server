@@ -734,7 +734,33 @@ namespace OTS_API.Services
                 var stuList = await this.GetCourseStuInfoListAsync(course.Id);
                 var hwList = await this.GetCourseHomeworkAsync(course.Id);
                 await sw.WriteLineAsync("课程名称：," + course.Name + ",人数：," + stuList.Count);
-
+                var buffList = new List<string>()
+                {
+                    "学号", "姓名", "学院"
+                };
+                foreach(var hw in hwList)
+                {
+                    buffList.Add(hw.Title);
+                }
+                buffList.Add("总分");
+                await sw.WriteLineAsync(string.Join(',', buffList));
+                foreach(var stu in stuList)
+                {
+                    buffList.Clear();
+                    buffList.Add(stu.Id);
+                    buffList.Add(stu.Name);
+                    buffList.Add(stu.Department);
+                    double totalScore = 0;
+                    foreach(var hw in hwList)
+                    {
+                        var score = await this.GetStuHomeworkScoreAsync(stu.Id, hw.HwId);
+                        totalScore += (double)score * (hw.Percentage / 100.0);
+                        buffList.Add(score.ToString());
+                    }
+                    buffList.Add(totalScore.ToString());
+                    await sw.WriteLineAsync(string.Join(',', buffList));
+                }
+                await sw.FlushAsync();
             }
             catch (Exception e)
             {

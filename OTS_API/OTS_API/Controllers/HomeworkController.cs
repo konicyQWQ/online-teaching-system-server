@@ -159,12 +159,29 @@ namespace OTS_API.Controllers
                 {
                     throw new Exception("Insufficient Authority!");
                 }
-                return Ok();
+                var courseInfo = await homeworkService.GetCourseAsync(courseID);
+                var tempFile = Config.tempFilePath + Path.GetTempFileName();
+                using (var sw = new StreamWriter(tempFile))
+                {
+                    await homeworkService.WirteCourseHWInfoAsync(sw, courseInfo);
+                }
+                var fileName = courseInfo.Name + " 课程作业成绩.csv";
+                new FileExtensionContentTypeProvider().TryGetContentType(fileName, out var contentType);
+                if (mode)
+                {
+                    var arr = Encoding.UTF8.GetBytes(fileName);
+                    var name = string.Empty;
+                    foreach (var b in arr)
+                    {
+                        name += string.Format("%{0:X2}", b);
+                    }
+                    HttpContext.Response.Headers.Add("Content-Disposition", new Microsoft.Extensions.Primitives.StringValues("attachment; filename = " + name));
+                }
+                return PhysicalFile(Path.GetFullPath(tempFile), contentType, fileName);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
-                throw;
+                return new { Res = false, Error = e.Message };
             }
         }
 
