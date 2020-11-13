@@ -87,6 +87,21 @@ namespace OTS_API.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("Export")]
+        public async Task<dynamic> OnExportHomeworkAsync(int hwID)
+        {
+            try
+            {
+                return Ok();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         [HttpPost]
         public async Task<dynamic> OnAddHomeworkAsync([FromForm] Homework homework, [FromForm] List<int> files, [FromForm] string token)
         {

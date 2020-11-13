@@ -294,6 +294,47 @@ namespace OTS_API.Services
             }
         }
 
+        public async Task<List<User>> GetCourseStuInfoListAsync(int courseID)
+        {
+            try
+            {
+                var ucList = await this.GetCourseStuListAsync(courseID);
+                var userList = new List<User>();
+                foreach(var uc in ucList)
+                {
+                    var user = await dbContext.Users.FindAsync(uc.UserId);
+                    if(user != null)
+                    {
+                        userList.Add(user);
+                    }
+                }
+                return userList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<List<User>> GetHWStuInfoListAsync(int hwID)
+        {
+            try
+            {
+                var hw = await this.GetHomeworkAsync(hwID);
+                if(hw == null)
+                {
+                    throw new Exception("Unable to Find Homework(id: " + hwID + ")!");
+                }
+                return await this.GetCourseStuInfoListAsync(hw.CourseId);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
         public async Task<List<UserHomeworkWithFiles>> GetCourseStuHomeworkWithFilesTAsync(int hwID)
         {
             try

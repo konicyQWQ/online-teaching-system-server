@@ -42,8 +42,9 @@ namespace OTS_API
             services.AddSingleton<TokenService>();
             services.AddSingleton<PasswordRetrieveService>();
 
-            services.AddControllers();
             services.AddCors(options => options.AddPolicy("AllowCors", builder => builder.SetIsOriginAllowed(_ => true).AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
+            services.AddControllers();
+            
             services.Configure<FormOptions>(options =>
             {
                 options.ValueLengthLimit = int.MaxValue;
