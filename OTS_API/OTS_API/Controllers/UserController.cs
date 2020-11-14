@@ -50,7 +50,7 @@ namespace OTS_API.Controllers
             }
             catch (Exception e)
             {
-                return new { Role = UserRole.Unknown, Token = e.Message };
+                return new { Role = UserRole.Unknown, Error = e.Message };
             }
         }
 
@@ -72,7 +72,7 @@ namespace OTS_API.Controllers
             }
             catch (Exception e)
             {
-                return new { Res = false, Token = e.Message };
+                return new { Res = false, Error = e.Message };
             }
         }
 
@@ -97,7 +97,7 @@ namespace OTS_API.Controllers
             }
             catch (Exception e)
             {
-                return new { Res = false, Token = e.Message };
+                return new { Res = false, Error = e.Message };
             }
         }
 

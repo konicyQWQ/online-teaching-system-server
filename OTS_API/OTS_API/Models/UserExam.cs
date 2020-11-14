@@ -22,6 +22,12 @@ namespace OTS_API.Models
     {
         public User UserInfo { get; set; }
         public UserExam UserExam { get; set; }
-        
+        public List<UserAnswer> Answers { get; set; }
+    }
+
+    public class UserExamDetail
+    {
+        public ExamWithQuestions Exam { get; set; }
+        public UserExamWithAnswers UserExam { get; set; }
     }
 }
