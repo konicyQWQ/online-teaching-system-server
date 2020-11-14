@@ -65,6 +65,7 @@ namespace OTS_API.Controllers
         {
             try
             {
+                user.Role = UserRole.Student;
                 await userService.RegistAsync(user);
                 var token = await tokenService.AddTokenAsync(new Token(user.Id, user.Role, 24));
 

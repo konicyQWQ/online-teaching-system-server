@@ -9,11 +9,11 @@ namespace OTS_API.Models
 {
     public enum UserRole
     {
-        Student = 0,
-        Teacher = 1,
-        Admin = 2,
-        Unknown = 3,
-        TA = 4
+        Unknown = 0,
+        Student = 1,
+        TA = 2,
+        Teacher = 3,
+        Admin = 4
     }
 
     public enum Gender
