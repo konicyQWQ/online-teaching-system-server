@@ -69,6 +69,7 @@ namespace OTS_API.Services
                     {
                         exam.Status = ExamStatus.Finished;
                         dbContext.Exams.Update(exam);
+                        await dbContext.SaveChangesAsync();
                         var list = await dbContext.UserExams.Where(ue => ue.ExamId == exam.ExamId && ue.Mark == null).ToListAsync();
                         foreach (var ue in list)
                         {
@@ -80,7 +81,6 @@ namespace OTS_API.Services
                         }
                     }
                 }
-                await dbContext.SaveChangesAsync();
             }
             catch (Exception e)
             {
