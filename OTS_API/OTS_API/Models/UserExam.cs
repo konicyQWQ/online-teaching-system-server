@@ -15,9 +15,12 @@ namespace OTS_API.Models
         [Column("exam_id")]
         public int ExamId { get; set; }
         [Column("mark")]
-        public int Mark { get; set; }
+        public int? Mark { get; set; }
     }
 
+    /// <summary>
+    /// 用户信息+用户考试信息+用户答案
+    /// </summary>
     public class UserExamWithAnswers
     {
         public User UserInfo { get; set; }
@@ -25,9 +28,21 @@ namespace OTS_API.Models
         public List<UserAnswer> Answers { get; set; }
     }
 
+    /// <summary>
+    /// 考试信息+题目列表+用户考试信息+用户答案,考试前题目列表的RightAnswer应置null,考试后可显示
+    /// </summary>
     public class UserExamDetail
     {
         public ExamWithQuestions Exam { get; set; }
         public UserExamWithAnswers UserExam { get; set; }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public class UserExamOverView
+    {
+        public Exam Exam { get; set; }
+        public UserExam UserExam { get; set; }
     }
 }

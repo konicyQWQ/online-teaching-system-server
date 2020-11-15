@@ -29,9 +29,9 @@ namespace OTS_API.Controllers
         private readonly FileService fileService;
         private readonly TokenService tokenService;
         private readonly CourseService courseService;
-        private readonly HomeworkService homeworkService;
+        private readonly HomeworkExamService homeworkService;
 
-        public UploadController(ILogger<UploadController> logger, FileService fileService, TokenService tokenService, CourseService courseService, HomeworkService homeworkService)
+        public UploadController(ILogger<UploadController> logger, FileService fileService, TokenService tokenService, CourseService courseService, HomeworkExamService homeworkService)
         {
             this.logger = logger;
             this.fileService = fileService;

@@ -18,9 +18,9 @@ namespace OTS_API.Controllers
     public class HomeworkController : ControllerBase
     {
         private readonly TokenService tokenService;
-        private readonly HomeworkService homeworkService;
+        private readonly HomeworkExamService homeworkService;
 
-        public HomeworkController(TokenService tokenService, HomeworkService homeworkService)
+        public HomeworkController(TokenService tokenService, HomeworkExamService homeworkService)
         {
             this.tokenService = tokenService;
             this.homeworkService = homeworkService;
@@ -113,7 +113,7 @@ namespace OTS_API.Controllers
                 }
 
                 var homeworkInfo = await homeworkService.GetHomeworkAsync(hwID);
-                var tempFile = Config.tempFilePath + Path.GetTempFileName();
+                var tempFile = Path.GetTempFileName();
                 using (var sw = new StreamWriter(tempFile))
                 {
                     await homeworkService.WriteHWInfoAsync(sw, homeworkInfo);
@@ -160,7 +160,7 @@ namespace OTS_API.Controllers
                     throw new Exception("Insufficient Authority!");
                 }
                 var courseInfo = await homeworkService.GetCourseAsync(courseID);
-                var tempFile = Config.tempFilePath + Path.GetTempFileName();
+                var tempFile = Path.GetTempFileName();
                 using (var sw = new StreamWriter(tempFile))
                 {
                     await homeworkService.WirteCourseHWInfoAsync(sw, courseInfo);
