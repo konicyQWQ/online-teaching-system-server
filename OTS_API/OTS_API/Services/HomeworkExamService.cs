@@ -798,6 +798,7 @@ namespace OTS_API.Services
         {
             try
             {
+                exam.Status = ExamStatus.Pending;
                 await dbContext.Exams.AddAsync(exam);
                 await dbContext.SaveChangesAsync();
                 foreach (var question in questions)
@@ -839,7 +840,7 @@ namespace OTS_API.Services
         {
             try
             {
-                if(DateTime.Now < exam.StartTime)
+                if(exam.Status == ExamStatus.Pending)
                 {
                     await this.RemoveExamQuestionsAsync(exam.ExamId);
                     dbContext.Update(exam);
@@ -849,6 +850,10 @@ namespace OTS_API.Services
                         await dbContext.Questions.AddAsync(q);
                     }
                     await dbContext.SaveChangesAsync();
+                }
+                else
+                {
+                    throw new Exception("Invalid Action!");
                 }
             }
             catch (Exception e)
@@ -868,8 +873,15 @@ namespace OTS_API.Services
             try
             {
                 var examToRemove = await this.GetExamAsync(examID);
-                dbContext.Exams.Remove(examToRemove);
-                await dbContext.SaveChangesAsync();
+                if(examToRemove.Status == ExamStatus.Pending)
+                {
+                    dbContext.Exams.Remove(examToRemove);
+                    await dbContext.SaveChangesAsync();
+                }
+                else
+                {
+                    throw new Exception("Invalid Action!");
+                }
             }
             catch (Exception e)
             {
@@ -889,7 +901,7 @@ namespace OTS_API.Services
             try
             {
                 var exam = await this.GetExamAsync(examID);
-                if(DateTime.Now >= exam.StartTime && !await this.HasStuStartedExamAsync(userID, examID))
+                if(exam.Status == ExamStatus.Active && !await this.HasStuStartedExamAsync(userID, examID))
                 {
                     var ue = new UserExam()
                     {
@@ -941,7 +953,8 @@ namespace OTS_API.Services
                 }
                 var userID = answers[0].UserId;
                 var examID = answers[0].ExamId;
-                if(await this.HasStuStartedExamAsync(userID, examID) && !await HasStuFinishedExamAsync(userID, examID))
+                var exam = await this.GetExamAsync(examID);
+                if(exam.Status == ExamStatus.Active && await this.HasStuStartedExamAsync(userID, examID) && !await HasStuFinishedExamAsync(userID, examID))
                 {
                     await this.RemoveStuAnswersAsync(userID, examID);
                     foreach (var an in answers)
@@ -987,6 +1000,23 @@ namespace OTS_API.Services
             }
         }
 
+        public async Task ForceFinishExamAsync(int examID)
+        {
+            try
+            {
+                var list = await dbContext.UserExam.Where(ue => ue.ExamId == examID && ue.Mark == null).ToListAsync();
+                foreach(var ue in list)
+                {
+                    await this.StuFinishExamAsync(ue.UserId, ue.ExamId);
+                }
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
         /// <summary>
         /// 老师设置分数
         /// </summary>
@@ -999,11 +1029,18 @@ namespace OTS_API.Services
         {
             try
             {
-                var uaToUpdate = await this.GetStuAnswerAsync(userID, examID, questionID);
-                uaToUpdate.Mark = score;
-                dbContext.UserAnswer.Update(uaToUpdate);
-                await dbContext.SaveChangesAsync();
-                _ = this.CalculateStuScoreAsync(userID, examID);
+                if(await this.HasStuFinishedExamAsync(userID, examID))
+                {
+                    var uaToUpdate = await this.GetStuAnswerAsync(userID, examID, questionID);
+                    uaToUpdate.Mark = score;
+                    dbContext.UserAnswer.Update(uaToUpdate);
+                    await dbContext.SaveChangesAsync();
+                    _ = this.CalculateStuScoreAsync(userID, examID);
+                }
+                else
+                {
+                    throw new Exception("Invalid Action!");
+                }
             }
             catch (Exception e)
             {
@@ -1397,7 +1434,7 @@ namespace OTS_API.Services
             return Task.Run(() =>
             {
                 List<Question> qList = null;
-                if(DateTime.Now >= exam.StartTime)
+                if(exam.Status != ExamStatus.Pending)
                 {
                     qList = new List<Question>(questions);
                     if (!withAnswer)

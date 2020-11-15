@@ -62,10 +62,6 @@
             "MySql.Data.EntityFrameworkCore": {
               "target": "Package",
               "version": "[8.0.22, )"
-            },
-            "Pomelo.AspNetCore.TimedJob": {
-              "target": "Package",
-              "version": "[2.0.0-rtm-10046, )"
             }
           },
           "imports": [

@@ -140,6 +140,62 @@ namespace OTS_API.Controllers
         }
 
         [HttpPost]
+        [Route("Remove")]
+        public async Task<dynamic> OnRemoveExamAsync([FromForm] int examID, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if (t.Role != UserRole.Admin)
+                {
+                    var courseRole = await examService.GetExamRoleAsync(examID, t.UserID);
+                    if (courseRole == UserRole.Student)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+                await examService.RemoveExamAsync(examID);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpPost]
+        [Route("SetScore")]
+        public async Task<dynamic> OnSetScoreAsync([FromForm] string stuID, [FromForm] int examID, [FromForm] int questionID, [FromForm] int score, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if (t.Role != UserRole.Admin)
+                {
+                    var courseRole = await examService.GetExamRoleAsync(examID, t.UserID);
+                    if (courseRole == UserRole.Student)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+                await examService.SetExamScore(stuID, examID, questionID, score);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpPost]
         [Route("Start")]
         public async Task<dynamic> OnStartExamAsync([FromForm] int examID, [FromForm] string token)
         {

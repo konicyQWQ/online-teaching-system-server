@@ -5,6 +5,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OTS_API.Models
 {
+    public enum ExamStatus
+    {
+        Pending = 0,
+        Active = 1,
+        Finished = 2
+    }
+
     [Table("exam")]
     public class Exam
     {
@@ -23,6 +30,8 @@ namespace OTS_API.Models
         public DateTime StartTime { get; set; }
         [Column("duration")]
         public int Duration { get; set; }
+        [Column("status")]
+        public ExamStatus Status { get; set; }
     }
 
     //View Models

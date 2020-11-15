@@ -42,6 +42,8 @@ namespace OTS_API
             services.AddSingleton<TokenService>();
             services.AddSingleton<PasswordRetrieveService>();
 
+            services.AddHostedService<ApplicationHostedService>();
+
             services.AddCors(options => options.AddPolicy("AllowCors", builder => builder.SetIsOriginAllowed(_ => true).AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
             services.AddControllers();
             
