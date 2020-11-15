@@ -839,14 +839,17 @@ namespace OTS_API.Services
         {
             try
             {
-                await this.RemoveExamQuestionsAsync(exam.ExamId);
-                dbContext.Update(exam);
-                foreach(var q in questions)
+                if(DateTime.Now < exam.StartTime)
                 {
-                    q.ExamId = exam.ExamId;
-                    await dbContext.Questions.AddAsync(q);
+                    await this.RemoveExamQuestionsAsync(exam.ExamId);
+                    dbContext.Update(exam);
+                    foreach (var q in questions)
+                    {
+                        q.ExamId = exam.ExamId;
+                        await dbContext.Questions.AddAsync(q);
+                    }
+                    await dbContext.SaveChangesAsync();
                 }
-                await dbContext.SaveChangesAsync();
             }
             catch (Exception e)
             {
@@ -885,13 +888,21 @@ namespace OTS_API.Services
         {
             try
             {
-                var ue = new UserExam()
+                var exam = await this.GetExamAsync(examID);
+                if(DateTime.Now >= exam.StartTime && !await this.HasStuStartedExamAsync(userID, examID))
                 {
-                    UserId = userID,
-                    ExamId = examID
-                };
-                await dbContext.UserExam.AddAsync(ue);
-                await dbContext.SaveChangesAsync();
+                    var ue = new UserExam()
+                    {
+                        UserId = userID,
+                        ExamId = examID
+                    };
+                    await dbContext.UserExam.AddAsync(ue);
+                    await dbContext.SaveChangesAsync();
+                }
+                else
+                {
+                    throw new Exception("Invalid Action!");
+                }
             }
             catch (Exception e)
             {
@@ -928,12 +939,23 @@ namespace OTS_API.Services
                 {
                     throw new Exception("Answers are Not Valid!");
                 }
-                await this.RemoveStuAnswersAsync(answers[0].UserId, answers[0].ExamId);
-                foreach(var an in answers)
+                var userID = answers[0].UserId;
+                var examID = answers[0].ExamId;
+                if(await this.HasStuStartedExamAsync(userID, examID) && !await HasStuFinishedExamAsync(userID, examID))
                 {
-                    await dbContext.UserAnswer.AddAsync(an);
+                    await this.RemoveStuAnswersAsync(userID, examID);
+                    foreach (var an in answers)
+                    {
+                        an.UserId = userID;
+                        an.ExamId = examID;
+                        await dbContext.UserAnswer.AddAsync(an);
+                    }
+                    await dbContext.SaveChangesAsync();
                 }
-                await dbContext.SaveChangesAsync();
+                else
+                {
+                    throw new Exception("Invalid Action!");
+                }
             }
             catch (Exception e)
             {
@@ -1370,14 +1392,27 @@ namespace OTS_API.Services
             }
         }
 
-        public Task<ExamWithQuestions> GetExamWithQuestionsAsync(Exam exam, List<Question> questions)
+        public Task<ExamWithQuestions> GetExamWithQuestionsAsync(Exam exam, List<Question> questions, bool withAnswer)
         {
             return Task.Run(() =>
             {
+                List<Question> qList = null;
+                if(DateTime.Now >= exam.StartTime)
+                {
+                    qList = new List<Question>(questions);
+                    if (!withAnswer)
+                    {
+                        foreach (var q in qList)
+                        {
+                            q.RightAnswer = null;
+                        }
+                    }
+                }
+                
                 return new ExamWithQuestions()
                 {
                     Exam = exam,
-                    Questions = questions
+                    Questions = qList
                 };
             });
         }
@@ -1683,6 +1718,20 @@ namespace OTS_API.Services
             }
         }
 
+        public async Task<UserRole> GetExamRoleAsync(int examID, string userID)
+        {
+            try
+            {
+                var exam = await this.GetExamAsync(examID);
+                return await this.GetCourseRoleAsync(exam.CourseId, userID);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
         /// <summary>
         /// 教师获取课程考试列表
         /// </summary>
@@ -1780,7 +1829,7 @@ namespace OTS_API.Services
                 var questions = await this.GetExamQuestionsAsync(examID);
                 return new UserExamDetail()
                 {
-                    Exam = await this.GetExamWithQuestionsAsync(exam, questions),
+                    Exam = await this.GetExamWithQuestionsAsync(exam, questions, await this.HasStuFinishedExamAsync(stuID, examID)),
                     UserExam = await this.GetStuExamWithAnswersAsync(user, exam, questions)
                 };
             }

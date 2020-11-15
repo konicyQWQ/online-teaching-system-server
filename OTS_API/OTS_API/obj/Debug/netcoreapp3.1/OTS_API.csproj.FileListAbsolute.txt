@@ -129,5 +129,3 @@ E:\Git\online-teaching-system-server\OTS_API\OTS_API\bin\Debug\netcoreapp3.1\Mic
 E:\Git\online-teaching-system-server\OTS_API\OTS_API\bin\Debug\netcoreapp3.1\Microsoft.DotNet.PlatformAbstractions.dll
 E:\Git\online-teaching-system-server\OTS_API\OTS_API\bin\Debug\netcoreapp3.1\Microsoft.Extensions.DependencyModel.dll
 E:\Git\online-teaching-system-server\OTS_API\OTS_API\bin\Debug\netcoreapp3.1\Newtonsoft.Json.dll
-E:\Git\online-teaching-system-server\OTS_API\OTS_API\obj\Debug\netcoreapp3.1\OTS_API.csproj.CoreCompileInputs.cache
-E:\Git\online-teaching-system-server\OTS_API\OTS_API\obj\Debug\netcoreapp3.1\OTS_API.MvcApplicationPartsAssemblyInfo.cache
