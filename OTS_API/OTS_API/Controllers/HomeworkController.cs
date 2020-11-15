@@ -161,7 +161,7 @@ namespace OTS_API.Controllers
                 }
                 var courseInfo = await homeworkService.GetCourseAsync(courseID);
                 var tempFile = Path.GetTempFileName();
-                using (var sw = new StreamWriter(tempFile))
+                using (var sw = new StreamWriter(new FileStream(tempFile, FileMode.OpenOrCreate), Encoding.GetEncoding("gbk")))
                 {
                     await homeworkService.WirteCourseHWInfoAsync(sw, courseInfo);
                 }
