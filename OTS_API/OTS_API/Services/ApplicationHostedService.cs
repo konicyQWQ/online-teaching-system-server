@@ -9,39 +9,31 @@ using Microsoft.Extensions.Logging;
 using OTS_API.DatabaseContext;
 using OTS_API.Models;
 using OTS_API.Services;
+using MySql.Data.MySqlClient;
+using OTS_API.Utilities;
 
 namespace OTS_API.Services
 {
     public class ApplicationHostedService : BackgroundService
     {
         private readonly ILogger<ApplicationHostedService> logger;
-        private readonly OTSDbContext dbContext;
-        private readonly HomeworkExamService examService;
+        private ExamDBContext dbContext;
 
-        public ApplicationHostedService(ILogger<ApplicationHostedService> logger, OTSDbContext dbContext, HomeworkExamService examService)
+        public ApplicationHostedService(ILogger<ApplicationHostedService> logger)
         {
             this.logger = logger;
-            this.dbContext = dbContext;
-            this.examService = examService;
+            this.dbContext = new ExamDBContext();
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            try
+            logger.LogInformation("Hosted Service Starting!");
+            while (!stoppingToken.IsCancellationRequested)
             {
-                logger.LogInformation("Hosted Service Started!");
-                while (!stoppingToken.IsCancellationRequested)
-                {
-                    await this.CheckPendingExamsAsync();
-                    await this.CheckActiveExamsAsync();
-                    Thread.Sleep(100);
-                }
+                await this.CheckPendingExamsAsync();
+                await this.CheckActiveExamsAsync();
             }
-            catch (Exception e)
-            {
-                logger.LogError(e.Message);
-                logger.LogError("Hosted Service Has Ended!");
-            }
+            logger.LogInformation("Hosted Service Stopping!");
         }
 
         private async Task CheckPendingExamsAsync()
@@ -76,7 +68,15 @@ namespace OTS_API.Services
                     {
                         exam.Status = ExamStatus.Finished;
                         dbContext.Exams.Update(exam);
-                        await examService.ForceFinishExamAsync(exam.ExamId);
+                        var list = await dbContext.UserExams.Where(ue => ue.ExamId == exam.ExamId && ue.Mark == null).ToListAsync();
+                        foreach (var ue in list)
+                        {
+                            var ueToUpdate = await dbContext.UserExams.FindAsync(ue.UserId, ue.ExamId);
+                            ueToUpdate.Mark = 0;
+                            dbContext.UserExams.Update(ueToUpdate);
+                            await dbContext.SaveChangesAsync();
+                            await CalculateStuScoreAsync(ue);
+                        }
                     }
                 }
                 await dbContext.SaveChangesAsync();
@@ -85,6 +85,22 @@ namespace OTS_API.Services
             {
 
                 throw;
+            }
+        }
+
+        private async Task CalculateStuScoreAsync(UserExam ue)
+        {
+            try
+            {
+                var userAnswers = await dbContext.UserAnswers.Where(ua => ua.ExamId == ue.ExamId && ua.UserId == ue.UserId).ToListAsync();
+                ue.Mark = userAnswers.Sum(ua => ua.Mark);
+                dbContext.UserExams.Update(ue);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
             }
         }
     }

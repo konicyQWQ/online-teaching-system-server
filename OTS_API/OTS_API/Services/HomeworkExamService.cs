@@ -1429,12 +1429,12 @@ namespace OTS_API.Services
             }
         }
 
-        public Task<ExamWithQuestions> GetExamWithQuestionsAsync(Exam exam, List<Question> questions, bool withAnswer)
+        public async Task<ExamWithQuestions> GetExamWithQuestionsAsync(Exam exam, List<Question> questions, bool withAnswer, string userID)
         {
-            return Task.Run(() =>
+            try
             {
                 List<Question> qList = null;
-                if(exam.Status != ExamStatus.Pending)
+                if (await this.HasStuStartedExamAsync(userID, exam.ExamId))
                 {
                     qList = new List<Question>(questions);
                     if (!withAnswer)
@@ -1445,13 +1445,18 @@ namespace OTS_API.Services
                         }
                     }
                 }
-                
+
                 return new ExamWithQuestions()
                 {
                     Exam = exam,
                     Questions = qList
                 };
-            });
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
         }
 
         public async Task<ExamWithQuestionDetails> GetExamWithQuestionDetailsAsync(Exam exam, List<UserCourse> stuList, int finishedCount)
@@ -1866,7 +1871,7 @@ namespace OTS_API.Services
                 var questions = await this.GetExamQuestionsAsync(examID);
                 return new UserExamDetail()
                 {
-                    Exam = await this.GetExamWithQuestionsAsync(exam, questions, await this.HasStuFinishedExamAsync(stuID, examID)),
+                    Exam = await this.GetExamWithQuestionsAsync(exam, questions, await this.HasStuFinishedExamAsync(stuID, examID), stuID),
                     UserExam = await this.GetStuExamWithAnswersAsync(user, exam, questions)
                 };
             }
