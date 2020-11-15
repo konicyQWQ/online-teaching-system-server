@@ -870,6 +870,28 @@ namespace OTS_API.Services
             }
         }
 
+        public async Task<List<UserExam>> GetStuExamListAsync(int examID, List<UserCourse> ucList)
+        {
+            try
+            {
+                var resList = new List<UserExam>();
+                foreach(var uc in ucList)
+                {
+                    var ue = await this.GetStuExamAsync(uc.UserId, examID);
+                    if(ue != null)
+                    {
+                        resList.Add(ue);
+                    }
+                }
+                return resList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
         public async Task<bool> HasStuStartedExamAsync(string userID, int examID)
         {
             try
@@ -977,6 +999,44 @@ namespace OTS_API.Services
             }
         }
 
+        public Task<ExamStatistics> GetExamStatisticsAsync(Exam exam, List<UserExam> ueList, int totalCount)
+        {
+            return Task.Run(() =>
+            {
+                try
+                {
+                    int startCount = 0;
+                    int finishedCount = ueList.Count;
+                    int totalScore = 0;
+                    double avgScore = 0;
+                    foreach (var ue in ueList)
+                    {
+                        if (ue.Mark != null)
+                        {
+                            finishedCount++;
+                            totalScore += ue.Mark.Value;
+                        }
+                    }
+                    if (finishedCount != 0)
+                    {
+                        avgScore = (double)totalScore / finishedCount;
+                    }
+                    return new ExamStatistics()
+                    {
+                        TotalCount = totalCount,
+                        StartCount = startCount,
+                        FinishedCount = finishedCount,
+                        AverageMark = avgScore
+                    };
+                }
+                catch (Exception e)
+                {
+                    logger.LogError(e.Message);
+                    throw new Exception("Action Failed!");
+                }
+            });
+        }
+
         public async Task<List<Question>> GetExamQuestionsAsync(int examID)
         {
             try
@@ -1014,12 +1074,157 @@ namespace OTS_API.Services
             }
         }
 
+        public async Task<List<QuestionDetail>> GetExamQuestionDetailsAsync(int examID, List<UserCourse> stuList, int finishedCount, List<Question> questions)
+        {
+            try
+            {
+                var resList = new List<QuestionDetail>();
+                foreach (var q in questions)
+                {
+                    resList.Add(new QuestionDetail()
+                    {
+                        Question = q,
+                        Statistics = await this.GetQuestionStatisticsAsync(q, stuList, finishedCount)
+                    });
+                }
+                return resList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<ExamWithQuestions> GetExamWithQuestionsAsync(Exam exam)
+        {
+            try
+            {
+                return new ExamWithQuestions()
+                {
+                    Exam = exam,
+                    Questions = await this.GetExamQuestionsAsync(exam.ExamId)
+                };
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<ExamWithQuestions> GetExamWithQuestionsAsync(int examID)
+        {
+            try
+            {
+                var exam = await this.GetExamAsync(examID);
+                return await this.GetExamWithQuestionsAsync(exam);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public Task<ExamWithQuestions> GetExamWithQuestionsAsync(Exam exam, List<Question> questions)
+        {
+            return Task.Run(() =>
+            {
+                return new ExamWithQuestions()
+                {
+                    Exam = exam,
+                    Questions = questions
+                };
+            });
+        }
+
+        public async Task<ExamWithQuestionDetails> GetExamWithQuestionDetailsAsync(Exam exam, List<UserCourse> stuList, int finishedCount)
+        {
+            try
+            {
+                return new ExamWithQuestionDetails()
+                {
+                    Exam = exam,
+                    Questions = await this.GetExamQuestionDetailsAsync(exam.ExamId, stuList, finishedCount)
+                };
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<ExamWithQuestionDetails> GetExamWithQuestionDetailsAsync(Exam exam, List<UserCourse> stuList, int finishedCount, List<Question> questions)
+        {
+            try
+            {
+                return new ExamWithQuestionDetails()
+                {
+                    Exam = exam,
+                    Questions = await this.GetExamQuestionDetailsAsync(exam.ExamId, stuList, finishedCount, questions)
+                };
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<ExamWithQuestionDetails> GetExamWithQuestionDetailsAsync(int examID, List<UserCourse> stuList, int finishedCount)
+        {
+            try
+            {
+                var exam = await this.GetExamAsync(examID);
+                return await this.GetExamWithQuestionDetailsAsync(exam, stuList, finishedCount);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
         public async Task<UserAnswer> GetStuAnswerAsync(string stuID, int examID, int qID)
         {
             try
             {
                 var ua = await dbContext.UserAnswer.FindAsync(stuID, examID, qID);
                 return ua;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<List<UserAnswer>> GetStuAnswerListAsync(string stuID, int examID)
+        {
+            try
+            {
+                var qList = await this.GetExamQuestionsAsync(examID);
+                return await this.GetStuAnswerListAsync(stuID, qList);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<List<UserAnswer>> GetStuAnswerListAsync(string stuID, List<Question> qList)
+        {
+            try
+            {
+                var resList = new List<UserAnswer>();
+                foreach(var q in qList)
+                {
+                    resList.Add(await this.GetStuAnswerAsync(stuID, q.ExamId, q.QuestionId));
+                }
+                return resList;
             }
             catch (Exception e)
             {
@@ -1122,6 +1327,124 @@ namespace OTS_API.Services
             }
         }
 
+        public async Task<UserExamOverView> GetStuExamOverviewAsync(string stuID, int examID)
+        {
+            try
+            {
+                var u = await dbContext.Users.FindAsync(stuID);
+                if (u == null)
+                {
+                    throw new Exception("User Not Found!");
+                }
+                return new UserExamOverView()
+                {
+                    UserInfo = u,
+                    Exam = await this.GetExamAsync(examID),
+                    UserExam = await this.GetStuExamAsync(stuID, examID)
+                };
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<UserExamOverView> GetStuExamOverviewAsync(string stuID, Exam exam)
+        {
+            try
+            {
+                var u = await dbContext.Users.FindAsync(stuID);
+                if (u == null)
+                {
+                    throw new Exception("User Not Found!");
+                }
+                return new UserExamOverView()
+                {
+                    UserInfo = u,
+                    Exam = exam,
+                    UserExam = await this.GetStuExamAsync(stuID, exam.ExamId)
+                };
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<UserExamOverView> GetStuExamOverviewAsync(User u, Exam exam)
+        {
+            try
+            {
+                if (u == null)
+                {
+                    throw new Exception("User Not Found!");
+                }
+                return new UserExamOverView()
+                {
+                    UserInfo = u,
+                    Exam = exam,
+                    UserExam = await this.GetStuExamAsync(u.Id, exam.ExamId)
+                };
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<List<UserExamOverView>> GetStuExamOverviewListAsync(Exam exam, List<UserCourse> ucList)
+        {
+            try
+            {
+                var resList = new List<UserExamOverView>();
+                foreach(var uc in ucList)
+                {
+                    var user = await dbContext.Users.FindAsync(uc.UserId);
+                    if(user != null)
+                    {
+                        resList.Add(new UserExamOverView()
+                        {
+                            UserInfo = user,
+                            Exam = exam,
+                            UserExam = await this.GetStuExamAsync(user.Id, exam.ExamId)
+                        });
+                    }
+                }
+                return resList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<UserExamWithAnswers> GetStuExamWithAnswersAsync(User user, Exam exam, List<Question> questions)
+        {
+            try
+            {
+                return new UserExamWithAnswers()
+                {
+                    UserInfo = user,
+                    UserExam = await this.GetStuExamAsync(user.Id, exam.ExamId),
+                    Answers = await this.GetStuAnswerListAsync(user.Id, questions)
+                };
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        /// <summary>
+        /// 教师获取课程考试列表
+        /// </summary>
+        /// <param name="courseID"></param>
+        /// <returns></returns>
         public async Task<List<ExamOverview>> GetCourseExamOverviewAsync(int courseID)
         {
             try
@@ -1142,11 +1465,94 @@ namespace OTS_API.Services
             }
         }
 
+        /// <summary>
+        /// 学生获取课程考试列表
+        /// </summary>
+        /// <param name="stuID"></param>
+        /// <param name="courseID"></param>
+        /// <returns></returns>
+        public async Task<List<UserExamOverView>> GetStuCourseExamOverviewAsync(string stuID, int courseID)
+        {
+            try
+            {
+                var resList = new List<UserExamOverView>();
+                var user = await dbContext.Users.FindAsync(stuID);
+                var examList = await dbContext.Exams.Where(e => e.CourseId == courseID).ToListAsync();
+                foreach(var exam in examList)
+                {
+                    resList.Add(await this.GetStuExamOverviewAsync(user, exam));
+                }
+                return resList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Acion Failed!");
+            }
+        }
+
+        /// <summary>
+        /// 教师获取考试详情
+        /// </summary>
+        /// <param name="examID"></param>
+        /// <returns></returns>
+        public async Task<ExamDetail> GetExamDetailAsync(int examID)
+        {
+            try
+            {
+                var exam = await this.GetExamAsync(examID);
+                var stuList = await this.GetCourseStuListAsync(exam.CourseId);
+                var stat = await this.GetExamStatisticsAsync(exam, stuList);
+                var questions = await this.GetExamQuestionsAsync(examID);
+                return new ExamDetail()
+                {
+                    ExamWithQuestions = await this.GetExamWithQuestionDetailsAsync(exam, stuList, stat.FinishedCount, questions),
+                    Statistics = stat,
+                    UserExams = await this.GetStuExamOverviewListAsync(exam, stuList)
+                };
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        /// <summary>
+        /// 学生获取考试详情
+        /// </summary>
+        /// <param name="stuID"></param>
+        /// <param name="examID"></param>
+        /// <returns></returns>
+        public async Task<UserExamDetail> GetStuExamDetailAsync(string stuID, int examID)
+        {
+            try
+            {
+                var user = await dbContext.Users.FindAsync(stuID);
+                if(user == null)
+                {
+                    throw new Exception("User Not Found!");
+                }
+                var exam = await this.GetExamAsync(examID);
+                var questions = await this.GetExamQuestionsAsync(examID);
+                return new UserExamDetail()
+                {
+                    Exam = await this.GetExamWithQuestionsAsync(exam, questions),
+                    UserExam = await this.GetStuExamWithAnswersAsync(user, exam, questions)
+                };
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
         public Task<List<string>> ProcessStuAnswerAsync(string answer)
         {
             return Task.Run(() =>
             {
-                var res = answer.Split(Question.ANSWER_SEPERATOR).ToList();
+                var res = answer.Split(Question.ANSWER_SEPARATOR).ToList();
                 return res;
             });
         }
@@ -1155,11 +1561,11 @@ namespace OTS_API.Services
         {
             return Task.Run(() =>
             {
-                var answerList = answer.Split(Question.ANSWER_SEPERATOR).ToList();
+                var answerList = answer.Split(Question.ANSWER_SEPARATOR).ToList();
                 var res = new List<List<string>>();
                 foreach (var a in answerList)
                 {
-                    res.Add(a.Split(Question.MUL_SEPERATOR).ToList());
+                    res.Add(a.Split(Question.MUL_SEPARATOR).ToList());
                 }
                 return res;
             });

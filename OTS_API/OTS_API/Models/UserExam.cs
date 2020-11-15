@@ -38,10 +38,11 @@ namespace OTS_API.Models
     }
 
     /// <summary>
-    /// 
+    /// 考试信息+本人考试信息
     /// </summary>
     public class UserExamOverView
     {
+        public User UserInfo { get; set; }
         public Exam Exam { get; set; }
         public UserExam UserExam { get; set; }
     }

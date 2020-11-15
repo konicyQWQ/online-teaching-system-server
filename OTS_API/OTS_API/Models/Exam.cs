@@ -72,5 +72,6 @@ namespace OTS_API.Models
     {
         public ExamWithQuestionDetails ExamWithQuestions { get; set; }
         public ExamStatistics Statistics { get; set; }
+        public List<UserExamOverView> UserExams { get; set; }
     }
 }

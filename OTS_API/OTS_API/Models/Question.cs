@@ -17,8 +17,8 @@ namespace OTS_API.Models
     [Table("question")]
     public class Question
     {
-        public const string ANSWER_SEPERATOR = "!&!";
-        public const string MUL_SEPERATOR = "!|!";
+        public const string ANSWER_SEPARATOR = "!&!";
+        public const string MUL_SEPARATOR = "!|!";
 
         [Key]
         [Column("question_id")]
