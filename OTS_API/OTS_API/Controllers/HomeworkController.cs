@@ -114,7 +114,7 @@ namespace OTS_API.Controllers
 
                 var homeworkInfo = await homeworkService.GetHomeworkAsync(hwID);
                 var tempFile = Path.GetTempFileName();
-                using (var sw = new StreamWriter(tempFile))
+                using (var sw = new StreamWriter(new FileStream(tempFile, FileMode.OpenOrCreate), Encoding.GetEncoding("gbk")))
                 {
                     await homeworkService.WriteHWInfoAsync(sw, homeworkInfo);
                 }
