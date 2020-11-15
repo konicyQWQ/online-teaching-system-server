@@ -788,6 +788,12 @@ namespace OTS_API.Services
             }
         }
 
+        /// <summary>
+        /// 添加考试
+        /// </summary>
+        /// <param name="exam"></param>
+        /// <param name="questions"></param>
+        /// <returns></returns>
         public async Task AddExamAsync(Exam exam, List<Question> questions)
         {
             try
@@ -808,6 +814,73 @@ namespace OTS_API.Services
             }
         }
 
+        public async Task RemoveExamQuestionsAsync(int examID)
+        {
+            try
+            {
+                var removeList = await dbContext.Questions.Where(q => q.ExamId == examID).ToListAsync();
+                dbContext.Questions.RemoveRange(removeList);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        /// <summary>
+        /// 更新考试
+        /// </summary>
+        /// <param name="exam"></param>
+        /// <param name="questions"></param>
+        /// <returns></returns>
+        public async Task UpdateExamAsync(Exam exam, List<Question> questions)
+        {
+            try
+            {
+                await this.RemoveExamQuestionsAsync(exam.ExamId);
+                dbContext.Update(exam);
+                foreach(var q in questions)
+                {
+                    q.ExamId = exam.ExamId;
+                    await dbContext.Questions.AddAsync(q);
+                }
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        /// <summary>
+        /// 删除考试
+        /// </summary>
+        /// <param name="examID"></param>
+        /// <returns></returns>
+        public async Task RemoveExamAsync(int examID)
+        {
+            try
+            {
+                var examToRemove = await this.GetExamAsync(examID);
+                dbContext.Exams.Remove(examToRemove);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        /// <summary>
+        /// 学生开始考试
+        /// </summary>
+        /// <param name="examID"></param>
+        /// <param name="userID"></param>
+        /// <returns></returns>
         public async Task StuStartExamAsync(int examID, string userID)
         {
             try
@@ -818,6 +891,176 @@ namespace OTS_API.Services
                     ExamId = examID
                 };
                 await dbContext.UserExam.AddAsync(ue);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task RemoveStuAnswersAsync(string userID, int examID)
+        {
+            try
+            {
+                var answersToRemove = await this.GetStuAnswerListAsync(userID, examID);
+                dbContext.UserAnswer.RemoveRange(answersToRemove);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        /// <summary>
+        /// 学生提交作答
+        /// </summary>
+        /// <param name="answers"></param>
+        /// <returns></returns>
+        public async Task StuSubmitAnswersAsync(List<UserAnswer> answers)
+        {
+            try
+            {
+                if(answers == null || answers.Count <= 0)
+                {
+                    throw new Exception("Answers are Not Valid!");
+                }
+                await this.RemoveStuAnswersAsync(answers[0].UserId, answers[0].ExamId);
+                foreach(var an in answers)
+                {
+                    await dbContext.UserAnswer.AddAsync(an);
+                }
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        /// <summary>
+        /// 学生交卷
+        /// </summary>
+        /// <param name="userID"></param>
+        /// <param name="examID"></param>
+        /// <returns></returns>
+        public async Task StuFinishExamAsync(string userID, int examID)
+        {
+            try
+            {
+                var ueToUpdate = await this.GetStuExamAsync(userID, examID);
+                ueToUpdate.Mark = 0;
+                dbContext.UserExam.Update(ueToUpdate);
+                await dbContext.SaveChangesAsync();
+                _ = CalculateStuScoreAsync(userID, examID);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        /// <summary>
+        /// 老师设置分数
+        /// </summary>
+        /// <param name="userID"></param>
+        /// <param name="examID"></param>
+        /// <param name="questionID"></param>
+        /// <param name="score"></param>
+        /// <returns></returns>
+        public async Task SetExamScore(string userID, int examID, int questionID, int score)
+        {
+            try
+            {
+                var uaToUpdate = await this.GetStuAnswerAsync(userID, examID, questionID);
+                uaToUpdate.Mark = score;
+                dbContext.UserAnswer.Update(uaToUpdate);
+                await dbContext.SaveChangesAsync();
+                _ = this.CalculateStuScoreAsync(userID, examID);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        /// <summary>
+        /// 客观题自动评分
+        /// </summary>
+        /// <param name="userID"></param>
+        /// <param name="examID"></param>
+        /// <returns></returns>
+        public async Task AutoSetScoreAsync(string userID, int examID)
+        {
+            try
+            {
+                var questions = await this.GetExamQuestionsAsync(examID);
+                var userAnswers = await this.GetStuAnswerListAsync(userID, examID);
+                foreach(var answer in userAnswers)
+                {
+                    var q = questions.Find(q => q.QuestionId == answer.QuestionId);
+                    switch (q.Type)
+                    {
+                        case QuestionType.True_False:
+                        case QuestionType.Single_Choice:
+                        case QuestionType.Multi_Choice:
+                            if (!string.IsNullOrEmpty(answer.Answer) && answer.Answer == q.RightAnswer)
+                            {
+                                answer.Mark = q.Mark;
+                            }
+                            else
+                            {
+                                answer.Mark = 0;
+                            }
+                            break;
+                        case QuestionType.Fill_In_Blanks:
+                            var rightAnswers = await this.ProcessAnswerAsync(q.RightAnswer);
+                            var ua = await this.ProcessStuAnswerAsync(answer.Answer);
+                            int rightCount = 0;
+                            for(int i = 0; i < ua.Count; i++)
+                            {
+                                if (!string.IsNullOrEmpty(ua[i]) && rightAnswers[i].Contains(ua[i]))
+                                {
+                                    rightCount++;
+                                }
+                            }
+                            answer.Mark = (rightCount * q.Mark) / ua.Count;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                dbContext.UserAnswer.UpdateRange(userAnswers);
+                await dbContext.SaveChangesAsync();
+                _ = this.CalculateStuScoreAsync(userID, examID);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        /// <summary>
+        /// 计算总分
+        /// </summary>
+        /// <param name="userID"></param>
+        /// <param name="examID"></param>
+        /// <returns></returns>
+        public async Task CalculateStuScoreAsync(string userID, int examID)
+        {
+            try
+            {
+                var userAnswers = await this.GetStuAnswerListAsync(userID, examID);
+                var ue = await this.GetStuExamAsync(userID, examID);
+                ue.Mark = userAnswers.Sum(ua => ua.Mark);
+                dbContext.UserExam.Update(ue);
                 await dbContext.SaveChangesAsync();
             }
             catch (Exception e)
