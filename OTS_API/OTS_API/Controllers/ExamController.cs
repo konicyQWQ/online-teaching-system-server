@@ -49,5 +49,36 @@ namespace OTS_API.Controllers
                 return new { Res = false, Error = e.Message };
             }
         }
+
+        [HttpGet]
+        [Route("GetAll")]
+        public async Task<dynamic> OnGetExamListAsync(int courseID, string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                var role = t.Role;
+                if(role != UserRole.Admin)
+                {
+                    role = await examService.GetCourseRoleAsync(courseID, t.UserID);
+                }
+                if(role == UserRole.Student)
+                {
+                    return new { Res = true, ExamList = await examService.GetStuCourseExamOverviewAsync(t.UserID, courseID) };
+                }
+                else
+                {
+                    return new { Res = true, ExamList = await examService.GetCourseExamOverviewAsync(courseID) };
+                }
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
     }
 }
