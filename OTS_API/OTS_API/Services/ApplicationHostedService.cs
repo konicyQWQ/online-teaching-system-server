@@ -30,8 +30,9 @@ namespace OTS_API.Services
             logger.LogInformation("Hosted Service Starting!");
             while (!stoppingToken.IsCancellationRequested)
             {
-                await this.CheckPendingExamsAsync();
-                await this.CheckActiveExamsAsync();
+                await CheckPendingExamsAsync();
+                await CheckActiveExamsAsync();
+                await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
             }
             logger.LogInformation("Hosted Service Stopping!");
         }
@@ -81,10 +82,9 @@ namespace OTS_API.Services
                 }
                 await dbContext.SaveChangesAsync();
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
-                throw;
+                logger.LogError(e.Message);
             }
         }
 
@@ -100,7 +100,6 @@ namespace OTS_API.Services
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new Exception("Action Failed!");
             }
         }
     }
