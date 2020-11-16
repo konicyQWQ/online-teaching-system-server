@@ -477,5 +477,150 @@ namespace OTS_API.Controllers
                 return new { Res = false, Error = e.Message };
             }
         }
+
+        [HttpPost]
+        [Route("Group")]
+        public async Task<dynamic> OnCreateGroupsAsync([FromForm] int courseID, [FromForm] int groupCount, [FromForm] int maxCount, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if (t.Role != UserRole.Admin)
+                {
+                    var uc = await courseService.GetUserCourseAsync(t.UserID, courseID);
+                    if (uc == null || uc.UserRole == UserRole.Student)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+
+                await courseService.AddCourseGroupAsync(courseID, groupCount, maxCount);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpGet]
+        [Route("Group")]
+        public async Task<dynamic> OnGetGroupsAsync(int courseID, string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if (t.Role != UserRole.Admin)
+                {
+                    var uc = await courseService.GetUserCourseAsync(t.UserID, courseID);
+                    if (uc == null)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+
+                var groupList = await courseService.GetGroupInfoListAsync(courseID);
+                return new { Res = true, GroupList = groupList };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpPost]
+        [Route("Group/Remove")]
+        public async Task<dynamic> OnRemoveGroupsAsync([FromForm] int courseID, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if (t.Role != UserRole.Admin)
+                {
+                    var uc = await courseService.GetUserCourseAsync(t.UserID, courseID);
+                    if (uc == null || uc.UserRole == UserRole.Student)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+
+                await courseService.RemoveCourseGroupAsync(courseID);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpPost]
+        [Route("Group/Join")]
+        public async Task<dynamic> OnJoinGroupAsync([FromForm] int courseID, [FromForm] int groupID, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if (t.Role != UserRole.Admin)
+                {
+                    var uc = await courseService.GetUserCourseAsync(t.UserID, courseID);
+                    if (uc == null || uc.UserRole != UserRole.Student)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+
+                await courseService.AddStuToGroup(t.UserID, courseID, groupID);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpPost]
+        [Route("Group/Exit")]
+        public async Task<dynamic> OnExitGroupAsync([FromForm] int courseID, [FromForm] int groupID, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if (t.Role != UserRole.Admin)
+                {
+                    var uc = await courseService.GetUserCourseAsync(t.UserID, courseID);
+                    if (uc == null || uc.UserRole != UserRole.Student)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+
+                await courseService.RemoveStuFromGroup(t.UserID, courseID, groupID);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
     }
 }

@@ -467,10 +467,18 @@ namespace OTS_API.Services
             }
         }
 
+        /// <summary>
+        /// 创建所有组
+        /// </summary>
+        /// <param name="courseID"></param>
+        /// <param name="groupCount"></param>
+        /// <param name="maxCount"></param>
+        /// <returns></returns>
         public async Task AddCourseGroupAsync(int courseID, int groupCount, int maxCount)
         {
             try
             {
+                await this.RemoveCourseGroupAsync(courseID);
                 for(int i = 1; i <= groupCount; i++)
                 {
                     var cg = new CourseGroup()
@@ -656,6 +664,12 @@ namespace OTS_API.Services
             }
         }
 
+        /// <summary>
+        /// 获取组信息
+        /// </summary>
+        /// <param name="courseID"></param>
+        /// <param name="groupID"></param>
+        /// <returns></returns>
         public async Task<GroupInfo> GetGroupInfoAsync(int courseID, int groupID)
         {
             try
@@ -695,6 +709,11 @@ namespace OTS_API.Services
             }
         }
 
+        /// <summary>
+        /// 获取课程所有组信息
+        /// </summary>
+        /// <param name="courseID"></param>
+        /// <returns></returns>
         public async Task<List<GroupInfo>> GetGroupInfoListAsync(int courseID)
         {
             try
