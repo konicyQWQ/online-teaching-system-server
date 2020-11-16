@@ -94,7 +94,7 @@ namespace OTS_API.Services
                 var finishedList = new List<int>();
                 foreach (var exam in examList)
                 {
-                    if (DateTime.Now >= exam.StartTime)
+                    if (DateTime.Now >= exam.StartTime.AddMinutes(exam.Duration))
                     {
                         await this.SetExamStatusAsync(exam.ID, ExamStatus.Finished);
                         await this.ForceFinishExamAsync(exam.ID);
