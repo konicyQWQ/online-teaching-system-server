@@ -20,12 +20,12 @@ namespace OTS_API
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>()
-                    .UseUrls("http://*:5000;https://*:5001");
                     webBuilder.UseKestrel(options =>
                     {
                         options.Limits.MaxRequestBodySize = int.MaxValue;
                     });
+                    webBuilder.UseStartup<Startup>()
+                    .UseUrls("http://*:5000;https://*:5001");
                 });
     }
 }

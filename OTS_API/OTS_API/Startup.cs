@@ -32,6 +32,8 @@ namespace OTS_API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options => options.AddPolicy("AllowCors", builder => builder.SetIsOriginAllowed(_ => true).AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
+
             services.AddDbContext<OTSDbContext>(options => options.UseMySQL(Config.connStr));
 
             services.AddScoped<UserService>();
@@ -43,8 +45,7 @@ namespace OTS_API
             services.AddSingleton<PasswordRetrieveService>();
 
             services.AddHostedService<ApplicationHostedService>();
-
-            services.AddCors(options => options.AddPolicy("AllowCors", builder => builder.SetIsOriginAllowed(_ => true).AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
+            
             services.AddControllers();
             
             services.Configure<FormOptions>(options =>
