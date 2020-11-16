@@ -731,7 +731,34 @@ namespace OTS_API.Services
             }
         }
 
-        public async Task WirteCourseHWInfoAsync(StreamWriter sw, Course course)
+        public async Task WriteExamInfoAsync(StreamWriter sw, Exam exam)
+        {
+            try
+            {
+                var stuList = await this.GetCourseStuInfoListAsync(exam.CourseId);
+                var course = await dbContext.Courses.FindAsync(exam.CourseId);
+                var examStat = await this.GetExamStatisticsAsync(exam);
+                await sw.WriteLineAsync("课程名称：," + course.Name + ",人数：," + examStat.TotalCount);
+                await sw.WriteLineAsync("测试名称：," + exam.Title);
+                await sw.WriteLineAsync("开始时间：," + exam.StartTime.ToUniversalTime());
+                await sw.WriteLineAsync("结束时间：," + exam.StartTime.AddMinutes(exam.Duration).ToUniversalTime());
+                await sw.WriteLineAsync("总分：," + exam.MaxMark + ",占比：," + exam.Percentage);
+                await sw.WriteLineAsync("完成情况：,参加考试人数：," + examStat.FinishedCount + ",未参加人数：," + (examStat.TotalCount - examStat.FinishedCount) + ",平均分数：," + examStat.AverageMark);
+                await sw.WriteLineAsync("学号,姓名,学院,得分");
+                foreach(var stu in stuList)
+                {
+                    await sw.WriteLineAsync(string.Join(",", stu.Id, stu.Name, stu.Department, await this.GetStuExamScoreAsync(stu.Id, exam.ExamId)));
+                }
+                await sw.FlushAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task WriteCourseHWInfoAsync(StreamWriter sw, Course course)
         {
             try
             {
@@ -759,6 +786,101 @@ namespace OTS_API.Services
                     {
                         var score = await this.GetStuHomeworkScoreAsync(stu.Id, hw.HwId);
                         totalScore += (double)score * (hw.Percentage / 100.0);
+                        buffList.Add(score.ToString());
+                    }
+                    buffList.Add(totalScore.ToString());
+                    await sw.WriteLineAsync(string.Join(',', buffList));
+                }
+                await sw.FlushAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task WriteCourseExamInfoAsync(StreamWriter sw, Course course)
+        {
+            try
+            {
+                var stuList = await this.GetCourseStuInfoListAsync(course.Id);
+                var examList = await this.GetCourseExamAsync(course.Id);
+                await sw.WriteLineAsync("课程名称：," + course.Name + ",人数：," + stuList.Count);
+                var buffList = new List<string>()
+                {
+                    "学号", "姓名", "学院"
+                };
+                foreach(var exam in examList)
+                {
+                    buffList.Add(exam.Title);
+                }
+                buffList.Add("总分");
+                await sw.WriteLineAsync(string.Join(',', buffList));
+                foreach(var stu in stuList)
+                {
+                    buffList.Clear();
+                    buffList.Add(stu.Id);
+                    buffList.Add(stu.Name);
+                    buffList.Add(stu.Department);
+                    double totalScore = 0;
+                    foreach(var exam in examList)
+                    {
+                        var score = await this.GetStuExamScoreAsync(stu.Id, exam.ExamId);
+                        totalScore += (double)score * (exam.Percentage / 100.0);
+                        buffList.Add(score.ToString());
+                    }
+                    buffList.Add(totalScore.ToString());
+                    await sw.WriteLineAsync(string.Join(',', buffList));
+                }
+                await sw.FlushAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task WriteCourseHWExamInfoAsync(StreamWriter sw, Course course)
+        {
+            try
+            {
+                var stuList = await this.GetCourseStuInfoListAsync(course.Id);
+                var hwList = await this.GetCourseHomeworkAsync(course.Id);
+                var examList = await this.GetCourseExamAsync(course.Id);
+                await sw.WriteLineAsync("课程名称：," + course.Name + ",人数：," + stuList.Count);
+                var buffList = new List<string>()
+                {
+                    "学号", "姓名", "学院"
+                };
+                foreach(var hw in hwList)
+                {
+                    buffList.Add(hw.Title);
+                }
+                foreach (var exam in examList)
+                {
+                    buffList.Add(exam.Title);
+                }
+                buffList.Add("总分");
+                await sw.WriteLineAsync(string.Join(',', buffList));
+                foreach (var stu in stuList)
+                {
+                    buffList.Clear();
+                    buffList.Add(stu.Id);
+                    buffList.Add(stu.Name);
+                    buffList.Add(stu.Department);
+                    double totalScore = 0;
+                    foreach (var hw in hwList)
+                    {
+                        var score = await this.GetStuHomeworkScoreAsync(stu.Id, hw.HwId);
+                        totalScore += (double)score * (hw.Percentage / 100.0);
+                        buffList.Add(score.ToString());
+                    }
+                    foreach (var exam in examList)
+                    {
+                        var score = await this.GetStuExamScoreAsync(stu.Id, exam.ExamId);
+                        totalScore += (double)score * (exam.Percentage / 100.0);
                         buffList.Add(score.ToString());
                     }
                     buffList.Add(totalScore.ToString());
@@ -1158,6 +1280,20 @@ namespace OTS_API.Services
             }
         }
 
+        public async Task<List<Exam>> GetCourseExamAsync(int courseID)
+        {
+            try
+            {
+                var examList = await dbContext.Exams.Where(e => e.CourseId == courseID).ToListAsync();
+                return examList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw e;
+            }
+        }
+
         /// <summary>
         /// return UserExam by stuID and examID, returns null if not found
         /// </summary>
@@ -1170,6 +1306,24 @@ namespace OTS_API.Services
             {
                 var ue = await dbContext.UserExam.FindAsync(userID, examID);
                 return ue;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw e;
+            }
+        }
+
+        public async Task<int> GetStuExamScoreAsync(string userID, int examID)
+        {
+            try
+            {
+                var ue = await this.GetStuExamAsync(userID, examID);
+                if(ue == null || ue.Mark == null)
+                {
+                    return 0;
+                }
+                return ue.Mark.Value;
             }
             catch (Exception e)
             {
@@ -1821,6 +1975,12 @@ namespace OTS_API.Services
             {
                 var resList = new List<UserExamOverView>();
                 var user = await dbContext.Users.FindAsync(stuID);
+                if(user == null)
+                {
+                    throw new Exception("User Not Found!");
+                }
+                user.Password = null;
+                user.Introduction = null;
                 var examList = await dbContext.Exams.Where(e => e.CourseId == courseID).ToListAsync();
                 foreach(var exam in examList)
                 {
@@ -1877,6 +2037,8 @@ namespace OTS_API.Services
                 {
                     throw new Exception("User Not Found!");
                 }
+                user.Password = null;
+                user.Introduction = null;
                 var exam = await this.GetExamAsync(examID);
                 var questions = await this.GetExamQuestionsAsync(examID);
                 return new UserExamDetail()
@@ -1907,6 +2069,8 @@ namespace OTS_API.Services
                 {
                     throw new Exception("User Not Found!");
                 }
+                stuInfo.Password = null;
+                stuInfo.Introduction = null;
                 var exam = await this.GetExamAsync(examID);
                 var questions = await this.GetExamQuestionsAsync(examID);
                 return await this.GetStuExamWithAnswersAsync(stuInfo, exam, questions);

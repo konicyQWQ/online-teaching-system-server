@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
 using OTS_API.Models;
 using OTS_API.Services;
 
@@ -292,6 +295,150 @@ namespace OTS_API.Controllers
                 }
                 await examService.StuFinishExamAsync(t.UserID, examID);
                 return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpGet]
+        [Route("Export")]
+        public async Task<dynamic> OnExportExamAsync(int examID, bool mode, string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Toke is Invalid!");
+                }
+                var role = t.Role;
+                if (role != UserRole.Admin)
+                {
+                    role = await examService.GetExamRoleAsync(examID, t.UserID);
+                }
+                if (role == UserRole.Student)
+                {
+                    throw new Exception("Insufficient Authority!");
+                }
+
+                var examInfo = await examService.GetExamAsync(examID);
+                var tempFile = Path.GetTempFileName();
+                using (var sw = new StreamWriter(new FileStream(tempFile, FileMode.OpenOrCreate), Encoding.GetEncoding("gbk")))
+                {
+                    await examService.WriteExamInfoAsync(sw, examInfo);
+                }
+
+                var fileName = examInfo.Title + " 测试成绩.csv";
+                new FileExtensionContentTypeProvider().TryGetContentType(fileName, out var contentType);
+                if (mode)
+                {
+                    var arr = Encoding.UTF8.GetBytes(fileName);
+                    var name = string.Empty;
+                    foreach (var b in arr)
+                    {
+                        name += string.Format("%{0:X2}", b);
+                    }
+                    HttpContext.Response.Headers.Add("Content-Disposition", new Microsoft.Extensions.Primitives.StringValues("attachment; filename = " + name));
+                }
+                return PhysicalFile(Path.GetFullPath(tempFile), contentType, fileName);
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpGet]
+        [Route("ExportAll")]
+        public async Task<dynamic> OnExportAllExamsAsync(int courseID, bool mode, string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Toke is Invalid!");
+                }
+                var role = t.Role;
+                if (role != UserRole.Admin)
+                {
+                    role = await examService.GetCourseRoleAsync(courseID, t.UserID);
+                }
+                if (role == UserRole.Student)
+                {
+                    throw new Exception("Insufficient Authority!");
+                }
+
+                var courseInfo = await examService.GetCourseAsync(courseID);
+                var tempFile = Path.GetTempFileName();
+                using (var sw = new StreamWriter(new FileStream(tempFile, FileMode.OpenOrCreate), Encoding.GetEncoding("gbk")))
+                {
+                    await examService.WriteCourseExamInfoAsync(sw, courseInfo);
+                }
+
+                var fileName = courseInfo.Name + " 课程测试成绩.csv";
+                new FileExtensionContentTypeProvider().TryGetContentType(fileName, out var contentType);
+                if (mode)
+                {
+                    var arr = Encoding.UTF8.GetBytes(fileName);
+                    var name = string.Empty;
+                    foreach (var b in arr)
+                    {
+                        name += string.Format("%{0:X2}", b);
+                    }
+                    HttpContext.Response.Headers.Add("Content-Disposition", new Microsoft.Extensions.Primitives.StringValues("attachment; filename = " + name));
+                }
+                return PhysicalFile(Path.GetFullPath(tempFile), contentType, fileName);
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpGet]
+        [Route("ExportBoth")]
+        public async Task<dynamic> OnExportBothAsync(int courseID, bool mode, string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Toke is Invalid!");
+                }
+                var role = t.Role;
+                if (role != UserRole.Admin)
+                {
+                    role = await examService.GetCourseRoleAsync(courseID, t.UserID);
+                }
+                if (role == UserRole.Student)
+                {
+                    throw new Exception("Insufficient Authority!");
+                }
+
+                var courseInfo = await examService.GetCourseAsync(courseID);
+                var tempFile = Path.GetTempFileName();
+                using (var sw = new StreamWriter(new FileStream(tempFile, FileMode.OpenOrCreate), Encoding.GetEncoding("gbk")))
+                {
+                    await examService.WriteCourseHWExamInfoAsync(sw, courseInfo);
+                }
+
+                var fileName = courseInfo.Name + " 课程作业测试成绩.csv";
+                new FileExtensionContentTypeProvider().TryGetContentType(fileName, out var contentType);
+                if (mode)
+                {
+                    var arr = Encoding.UTF8.GetBytes(fileName);
+                    var name = string.Empty;
+                    foreach (var b in arr)
+                    {
+                        name += string.Format("%{0:X2}", b);
+                    }
+                    HttpContext.Response.Headers.Add("Content-Disposition", new Microsoft.Extensions.Primitives.StringValues("attachment; filename = " + name));
+                }
+                return PhysicalFile(Path.GetFullPath(tempFile), contentType, fileName);
             }
             catch (Exception e)
             {

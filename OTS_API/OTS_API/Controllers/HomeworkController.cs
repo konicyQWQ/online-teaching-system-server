@@ -163,7 +163,7 @@ namespace OTS_API.Controllers
                 var tempFile = Path.GetTempFileName();
                 using (var sw = new StreamWriter(new FileStream(tempFile, FileMode.OpenOrCreate), Encoding.GetEncoding("gbk")))
                 {
-                    await homeworkService.WirteCourseHWInfoAsync(sw, courseInfo);
+                    await homeworkService.WriteCourseHWInfoAsync(sw, courseInfo);
                 }
                 var fileName = courseInfo.Name + " 课程作业成绩.csv";
                 new FileExtensionContentTypeProvider().TryGetContentType(fileName, out var contentType);
