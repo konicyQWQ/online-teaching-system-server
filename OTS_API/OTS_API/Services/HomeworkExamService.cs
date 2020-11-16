@@ -806,6 +806,13 @@ namespace OTS_API.Services
             {
                 var stuList = await this.GetCourseStuInfoListAsync(course.Id);
                 var examList = await this.GetCourseExamAsync(course.Id);
+                foreach(var exam in examList)
+                {
+                    if(exam.Status != ExamStatus.Finished)
+                    {
+                        examList.Remove(exam);
+                    }
+                }
                 await sw.WriteLineAsync("课程名称：," + course.Name + ",人数：," + stuList.Count);
                 var buffList = new List<string>()
                 {
@@ -849,6 +856,13 @@ namespace OTS_API.Services
                 var stuList = await this.GetCourseStuInfoListAsync(course.Id);
                 var hwList = await this.GetCourseHomeworkAsync(course.Id);
                 var examList = await this.GetCourseExamAsync(course.Id);
+                foreach (var exam in examList)
+                {
+                    if (exam.Status != ExamStatus.Finished)
+                    {
+                        examList.Remove(exam);
+                    }
+                }
                 await sw.WriteLineAsync("课程名称：," + course.Name + ",人数：," + stuList.Count);
                 var buffList = new List<string>()
                 {

@@ -5,6 +5,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OTS_API.Models
 {
+    public enum GroupIdentity
+    {
+        Member = 0,
+        Leader = 1
+    }
+
     [Table("user_group")]
     public class UserGroup
     {
@@ -14,7 +20,16 @@ namespace OTS_API.Models
         [Key]
         [Column("user_id")]
         public string UserId { get; set; }
+        [Key]
+        [Column("course_id")]
+        public int CourseId { get; set; }
         [Column("identity")]
-        public int Identity { get; set; }
+        public GroupIdentity Identity { get; set; }
+    }
+
+    public class GroupMemberInfo
+    {
+        public User UserInfo { get; set; }
+        public UserGroup UserGroup { get; set; }
     }
 }

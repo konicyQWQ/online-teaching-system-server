@@ -11,11 +11,17 @@ namespace OTS_API.Models
         [Key]
         [Column("group_id")]
         public int GroupId { get; set; }
+        [Key]
         [Column("course_id")]
         public int CourseId { get; set; }
-        [Column("pre_count")]
-        public int PreCount { get; set; }
         [Column("max_count")]
         public int MaxCount { get; set; }
+    }
+
+    public class GroupInfo
+    {
+        public CourseGroup CourseGroup { get; set; }
+        public int GroupMemberCount { get; set; }
+        public List<GroupMemberInfo> Members { get; set; }
     }
 }

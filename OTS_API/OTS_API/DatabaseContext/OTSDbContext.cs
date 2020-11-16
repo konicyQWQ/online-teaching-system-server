@@ -13,7 +13,7 @@ namespace OTS_API.DatabaseContext
         public DbSet<User> Users { get; set; }
         public DbSet<Bulletin> Bulletins { get; set; }
         public DbSet<Course> Courses { get; set; }
-        //public DbSet<CourseGroup> CourseGroup { get; set; }
+        public DbSet<CourseGroup> CourseGroups { get; set; }
         public DbSet<Courseware> Coursewares { get; set; }
         public DbSet<CoursewareFile> CoursewareFile { get; set; }
         //public DbSet<Discussion> Discussion { get; set; }
@@ -26,7 +26,7 @@ namespace OTS_API.DatabaseContext
         public DbSet<UserCourse> UserCourse { get; set; }
         //public DbSet<UserDiscussion> UserDiscussion { get; set; }
         public DbSet<UserExam> UserExam { get; set; }
-        //public DbSet<UserGroup> UserGroup { get; set; }
+        public DbSet<UserGroup> UserGroup { get; set; }
         public DbSet<UserHomework> UserHomework { get; set; }
         public DbSet<UserHomeworkFile> UserHomeworkFile { get; set; }
 
@@ -44,6 +44,8 @@ namespace OTS_API.DatabaseContext
             modelBuilder.Entity<Question>().HasKey(q => new { q.QuestionId, q.ExamId });
             modelBuilder.Entity<UserExam>().HasKey(ue => new { ue.UserId, ue.ExamId });
             modelBuilder.Entity<UserAnswer>().HasKey(ua => new { ua.UserId, ua.ExamId, ua.QuestionId });
+            modelBuilder.Entity<CourseGroup>().HasKey(cg => new { cg.GroupId, cg.CourseId });
+            modelBuilder.Entity<UserGroup>().HasKey(ug => new { ug.GroupId, ug.UserId, ug.CourseId });
         }
     }
 }

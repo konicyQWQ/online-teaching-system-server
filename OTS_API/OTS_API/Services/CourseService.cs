@@ -466,5 +466,315 @@ namespace OTS_API.Services
                 throw new Exception("Unable to Get Courseware FileList!");
             }
         }
+
+        public async Task AddCourseGroupAsync(int courseID, int groupCount, int maxCount)
+        {
+            try
+            {
+                for(int i = 1; i <= groupCount; i++)
+                {
+                    var cg = new CourseGroup()
+                    {
+                        CourseId = courseID,
+                        GroupId = i,
+                        MaxCount = maxCount
+                    };
+                    await dbContext.CourseGroups.AddAsync(cg);
+                }
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<CourseGroup> GetCourseGroupAsync(int courseID, int groupID)
+        {
+            try
+            {
+                var group = await dbContext.CourseGroups.FindAsync(groupID, courseID);
+                if(group == null)
+                {
+                    throw new Exception("Group Not Found!");
+                }
+                return group;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<UserGroup> GetUserGroupAsync(int groupID, string userID, int courseID)
+        {
+            try
+            {
+                var ug = await dbContext.UserGroup.FindAsync(groupID, userID, courseID);
+                return ug;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        /// <summary>
+        /// 获取课程的所有组列表
+        /// </summary>
+        /// <param name="courseID"></param>
+        /// <returns></returns>
+        public async Task<List<CourseGroup>> GetCourseGroupListAsync(int courseID)
+        {
+            try
+            {
+                var cgList = await dbContext.CourseGroups.Where(cg => cg.CourseId == courseID).ToListAsync();
+                return cgList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task RemoveCourseGroupAsync(int courseID)
+        {
+            try
+            {
+                var cgList = await this.GetCourseGroupListAsync(courseID);
+                dbContext.CourseGroups.RemoveRange(cgList);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        /// <summary>
+        /// 获取单组的成员列表
+        /// </summary>
+        /// <param name="courseID"></param>
+        /// <param name="groupID"></param>
+        /// <returns></returns>
+        public async Task<List<UserGroup>> GetGroupUserListAsync(int courseID, int groupID)
+        {
+            try
+            {
+                var resList = await dbContext.UserGroup.Where(ug => ug.CourseId == courseID && ug.GroupId == groupID).ToListAsync();
+                return resList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<GroupMemberInfo> GetGroupMemberAsync(int courseID, int groupID, string userID)
+        {
+            try
+            {
+                var userInfo = await dbContext.Users.FindAsync(userID);
+                if(userInfo == null)
+                {
+                    throw new Exception("User Not Found!");
+                }
+                var ug = await this.GetUserGroupAsync(groupID, userID, courseID);
+                if(ug == null)
+                {
+                    throw new Exception("User-Group is Not Valid!");
+                }
+                return new GroupMemberInfo()
+                {
+                    UserInfo = userInfo,
+                    UserGroup = ug
+                };
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        /// <summary>
+        /// 获取单组的成员信息列表
+        /// </summary>
+        /// <param name="courseID"></param>
+        /// <param name="gourpID"></param>
+        /// <returns></returns>
+        public async Task<List<GroupMemberInfo>> GetGroupMemberListAsync(int courseID, int gourpID)
+        {
+            try
+            {
+                var resList = new List<GroupMemberInfo>();
+                var ugList = await this.GetGroupUserListAsync(courseID, gourpID);
+                foreach(var ug in ugList)
+                {
+                    var userInfo = await dbContext.Users.FindAsync(ug.UserId);
+                    if(userInfo == null)
+                    {
+                        continue;
+                    }
+                    resList.Add(new GroupMemberInfo()
+                    {
+                        UserInfo = userInfo,
+                        UserGroup = ug
+                    });
+                }
+                return resList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        /// <summary>
+        /// 获取单组成员人数
+        /// </summary>
+        /// <param name="courseID"></param>
+        /// <param name="groupID"></param>
+        /// <returns></returns>
+        public async Task<int> GetGroupMemberCountAsync(int courseID, int groupID)
+        {
+            try
+            {
+                var ugList = await this.GetGroupUserListAsync(courseID, groupID);
+                return ugList.Count;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<GroupInfo> GetGroupInfoAsync(int courseID, int groupID)
+        {
+            try
+            {
+                var cg = await this.GetCourseGroupAsync(courseID, courseID);
+                var members = await this.GetGroupMemberListAsync(courseID, groupID);
+                return new GroupInfo()
+                {
+                    CourseGroup = cg,
+                    GroupMemberCount = members.Count,
+                    Members = members
+                };
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<GroupInfo> GetGroupInfoAsync(CourseGroup group)
+        {
+            try
+            {
+                var members = await this.GetGroupMemberListAsync(group.CourseId, group.GroupId);
+                return new GroupInfo()
+                {
+                    CourseGroup = group,
+                    GroupMemberCount = members.Count,
+                    Members = members
+                };
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<List<GroupInfo>> GetGroupInfoListAsync(int courseID)
+        {
+            try
+            {
+                var groups = await this.GetCourseGroupListAsync(courseID);
+                var resList = new List<GroupInfo>();
+                foreach(var group in groups)
+                {
+                    resList.Add(await this.GetGroupInfoAsync(group));
+                }
+                return resList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        /// <summary>
+        /// 添加成员到组，带人数验证
+        /// </summary>
+        /// <param name="stuID"></param>
+        /// <param name="courseID"></param>
+        /// <param name="groupID"></param>
+        /// <returns></returns>
+        public async Task AddStuToGroup(string stuID, int courseID, int groupID)
+        {
+            try
+            {
+                var count = await this.GetGroupMemberCountAsync(courseID, groupID);
+                var groupInfo = await this.GetCourseGroupAsync(courseID, groupID);
+                if(count < groupInfo.MaxCount)
+                {
+                    var ug = new UserGroup()
+                    {
+                        GroupId = groupID,
+                        UserId = stuID,
+                        CourseId = courseID,
+                        Identity = count == 0 ? GroupIdentity.Leader : GroupIdentity.Member
+                    };
+                    await dbContext.UserGroup.AddAsync(ug);
+                    await dbContext.SaveChangesAsync();
+                }
+                else
+                {
+                    throw new Exception("Group is Full!");
+                }
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        /// <summary>
+        /// 删除某组成员，带验证
+        /// </summary>
+        /// <param name="stuID"></param>
+        /// <param name="courseID"></param>
+        /// <param name="groupID"></param>
+        /// <returns></returns>
+        public async Task RemoveStuFromGroup(string stuID, int courseID, int groupID)
+        {
+            try
+            {
+                var ug = await this.GetUserGroupAsync(groupID, stuID, courseID);
+                if(ug == null)
+                {
+                    throw new Exception("User-Group Not Valid!");
+                }
+                dbContext.UserGroup.Remove(ug);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
     }
 }

@@ -324,6 +324,10 @@ namespace OTS_API.Controllers
                 }
 
                 var examInfo = await examService.GetExamAsync(examID);
+                if(examInfo.Status != ExamStatus.Finished)
+                {
+                    throw new Exception("Invalid Action!");
+                }
                 var tempFile = Path.GetTempFileName();
                 using (var sw = new StreamWriter(new FileStream(tempFile, FileMode.OpenOrCreate), Encoding.GetEncoding("gbk")))
                 {
