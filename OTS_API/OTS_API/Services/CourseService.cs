@@ -734,6 +734,44 @@ namespace OTS_API.Services
             }
         }
 
+        public async Task<GroupIdentity> GetGroupIdentityAsync(int courseID, int groupID, string userID)
+        {
+            try
+            {
+                var ug = await this.GetUserGroupAsync(groupID, userID, courseID);
+                if(ug == null)
+                {
+                    throw new Exception("User-Group Not Valid!");
+                }
+                return ug.Identity;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task SetGroupIdentityAsync(int courseID, int groupID, string userID, GroupIdentity identity)
+        {
+            try
+            {
+                var ug = await this.GetUserGroupAsync(groupID, userID, courseID);
+                if (ug == null)
+                {
+                    throw new Exception("User-Group Not Valid!");
+                }
+                ug.Identity = identity;
+                dbContext.UserGroup.Update(ug);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
         /// <summary>
         /// 添加成员到组，带人数验证
         /// </summary>
@@ -789,6 +827,17 @@ namespace OTS_API.Services
                 }
                 dbContext.UserGroup.Remove(ug);
                 await dbContext.SaveChangesAsync();
+                if (ug.Identity == GroupIdentity.Leader)
+                {
+                    var groupMembers = await this.GetGroupUserListAsync(courseID, groupID);
+                    if(groupMembers.Count > 0)
+                    {
+                        var memberToUpdate = groupMembers[0];
+                        memberToUpdate.Identity = GroupIdentity.Leader;
+                        dbContext.UserGroup.Update(memberToUpdate);
+                        await dbContext.SaveChangesAsync();
+                    }
+                }
             }
             catch (Exception e)
             {
