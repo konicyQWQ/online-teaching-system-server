@@ -1542,7 +1542,11 @@ namespace OTS_API.Services
                 var resList = new List<UserAnswer>();
                 foreach(var q in qList)
                 {
-                    resList.Add(await this.GetStuAnswerAsync(stuID, q.ExamId, q.QuestionId));
+                    var an = await this.GetStuAnswerAsync(stuID, q.ExamId, q.QuestionId);
+                    if(an != null)
+                    {
+                        resList.Add(an);
+                    }
                 }
                 return resList;
             }

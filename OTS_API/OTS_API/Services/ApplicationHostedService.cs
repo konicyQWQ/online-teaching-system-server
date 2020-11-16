@@ -33,6 +33,7 @@ namespace OTS_API.Services
                 await CheckPendingExamsAsync();
                 await CheckActiveExamsAsync();
                 await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
+                logger.LogInformation("Running");
             }
             logger.LogInformation("Hosted Service Stopping!");
         }
