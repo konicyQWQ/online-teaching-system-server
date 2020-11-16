@@ -81,6 +81,34 @@ namespace OTS_API.Controllers
         }
 
         [HttpGet]
+        [Route("GetStu")]
+        public async Task<dynamic> OnGetStuExamAsync(int examID, string stuID, string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if (t.Role != UserRole.Admin)
+                {
+                    var courseRole = await examService.GetExamRoleAsync(examID, t.UserID);
+                    if (courseRole == UserRole.Student)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+                var stuExam = await examService.GetStuExamDetialTAsync(stuID, examID);
+                return new { Res = true, StuExam = stuExam };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpGet]
         [Route("GetAll")]
         public async Task<dynamic> OnGetExamListAsync(int courseID, string token)
         {

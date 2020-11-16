@@ -991,7 +991,6 @@ namespace OTS_API.Services
                 ueToUpdate.Mark = 0;
                 dbContext.UserExam.Update(ueToUpdate);
                 await dbContext.SaveChangesAsync();
-                _ = CalculateStuScoreAsync(userID, examID);
             }
             catch (Exception e)
             {
@@ -1035,7 +1034,7 @@ namespace OTS_API.Services
                     uaToUpdate.Mark = score;
                     dbContext.UserAnswer.Update(uaToUpdate);
                     await dbContext.SaveChangesAsync();
-                    _ = this.CalculateStuScoreAsync(userID, examID);
+                    await this.CalculateStuScoreAsync(userID, examID);
                 }
                 else
                 {
@@ -1118,7 +1117,14 @@ namespace OTS_API.Services
             {
                 var userAnswers = await this.GetStuAnswerListAsync(userID, examID);
                 var ue = await this.GetStuExamAsync(userID, examID);
-                ue.Mark = userAnswers.Sum(ua => ua.Mark);
+                ue.Mark = 0;
+                foreach(var ua in userAnswers)
+                {
+                    if(ua.Mark != null)
+                    {
+                        ue.Mark += ua.Mark.Value;
+                    }
+                }
                 dbContext.UserExam.Update(ue);
                 await dbContext.SaveChangesAsync();
             }
@@ -1878,6 +1884,32 @@ namespace OTS_API.Services
                     Exam = await this.GetExamWithQuestionsAsync(exam, questions, await this.HasStuFinishedExamAsync(stuID, examID), stuID),
                     UserExam = await this.GetStuExamWithAnswersAsync(user, exam, questions)
                 };
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        /// <summary>
+        /// 教师获取学生考试详情
+        /// </summary>
+        /// <param name="stuID"></param>
+        /// <param name="examID"></param>
+        /// <returns></returns>
+        public async Task<UserExamWithAnswers> GetStuExamDetialTAsync(string stuID, int examID)
+        {
+            try
+            {
+                var stuInfo = await dbContext.Users.FindAsync(stuID);
+                if(stuInfo == null)
+                {
+                    throw new Exception("User Not Found!");
+                }
+                var exam = await this.GetExamAsync(examID);
+                var questions = await this.GetExamQuestionsAsync(examID);
+                return await this.GetStuExamWithAnswersAsync(stuInfo, exam, questions);
             }
             catch (Exception e)
             {
