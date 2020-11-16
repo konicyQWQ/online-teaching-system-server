@@ -5,6 +5,19 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OTS_API.Models
 {
+    public enum HWType
+    {
+        Individual = 0,
+        Group = 1
+    }
+
+    public enum HWStatus
+    {
+        Pending = 0,
+        Active = 1,
+        Finished = 2
+    }
+
     [Table("homework")]
     public class Homework
     {
@@ -25,11 +38,10 @@ namespace OTS_API.Models
         public int TotalMark { get; set; }
         [Column("percentage")]
         public int Percentage { get; set; }
-
-        public bool IsOpen()
-        {
-            return DateTime.Now <= EndTime && DateTime.Now >= StartTime;
-        }
+        [Column("type")]
+        public HWType Type { get; set; }
+        [Column("status")]
+        public HWStatus Status { get; set; }
     }
 
     public class HomeworkStatistics

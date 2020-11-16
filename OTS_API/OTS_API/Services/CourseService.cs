@@ -593,6 +593,8 @@ namespace OTS_API.Services
                 {
                     throw new Exception("User Not Found!");
                 }
+                userInfo.Password = null;
+                userInfo.Introduction = null;
                 var ug = await this.GetUserGroupAsync(groupID, userID, courseID);
                 if(ug == null)
                 {
@@ -630,6 +632,8 @@ namespace OTS_API.Services
                     {
                         continue;
                     }
+                    userInfo.Password = null;
+                    userInfo.Introduction = null;
                     resList.Add(new GroupMemberInfo()
                     {
                         UserInfo = userInfo,

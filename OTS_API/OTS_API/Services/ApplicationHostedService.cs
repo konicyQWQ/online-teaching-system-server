@@ -22,6 +22,14 @@ namespace OTS_API.Services
         public ExamStatus Status { get; set; }
     }
 
+    public class HWTime
+    {
+        public int ID { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
+        public HWStatus Status { get; set; }
+    }
+
     public class QuestionAnswer
     {
         public int ID { get; set; }
@@ -60,6 +68,8 @@ namespace OTS_API.Services
             logger.LogInformation("Hosted Service Starting!");
             while (!stoppingToken.IsCancellationRequested)
             {
+                await CheckPendingHWAsync();
+                await CheckActiveHWAsync();
                 await CheckPendingExamsAsync();
                 await CheckActiveExamsAsync();
                 await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
@@ -104,6 +114,44 @@ namespace OTS_API.Services
                 foreach(var examID in finishedList)
                 {
                     await this.AutoSetExamScoreAsync(examID);
+                }
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+            }
+        }
+
+        private async Task CheckPendingHWAsync()
+        {
+            try
+            {
+                var hwList = await this.GetHWTimeListAsync(HWStatus.Pending);
+                foreach(var hw in hwList)
+                {
+                    if(DateTime.Now >= hw.StartTime)
+                    {
+                        await this.SetHWStatusAsync(hw.ID, HWStatus.Active);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+            }
+        }
+
+        private async Task CheckActiveHWAsync()
+        {
+            try
+            {
+                var hwList = await this.GetHWTimeListAsync(HWStatus.Active);
+                foreach (var hw in hwList)
+                {
+                    if (DateTime.Now > hw.EndTime)
+                    {
+                        await this.SetHWStatusAsync(hw.ID, HWStatus.Finished);
+                    }
                 }
             }
             catch (Exception e)
@@ -288,6 +336,39 @@ namespace OTS_API.Services
             }
         }
 
+        private async Task<List<HWTime>> GetHWTimeListAsync(HWStatus status)
+        {
+            try
+            {
+                var cmd = this.sqlConnection.CreateCommand();
+                cmd.CommandType = System.Data.CommandType.Text;
+                cmd.CommandText = "select hw_id, startTime, endTime from homework where status = @status";
+                cmd.Parameters.Add("@status", MySqlDbType.Int16);
+                cmd.Parameters["@status"].Value = (int)status;
+                using var reader = await cmd.ExecuteReaderAsync();
+                var resList = new List<HWTime>();
+                while (await reader.ReadAsync())
+                {
+                    var id = Convert.ToInt32(reader["hw_id"]);
+                    var startTime = Convert.ToDateTime(reader["startTime"]);
+                    var endTime = Convert.ToDateTime(reader["endTime"]);
+                    resList.Add(new HWTime()
+                    {
+                        ID = id,
+                        StartTime = startTime,
+                        EndTime = endTime,
+                        Status = status
+                    });
+                }
+                return resList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
         private async Task SetExamStatusAsync(int examID, ExamStatus status)
         {
             try
@@ -299,6 +380,26 @@ namespace OTS_API.Services
                 cmd.Parameters.Add("@exam_id", MySqlDbType.Int32);
                 cmd.Parameters["@status"].Value = (int)status;
                 cmd.Parameters["@exam_id"].Value = examID;
+                await cmd.ExecuteNonQueryAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        private async Task SetHWStatusAsync(int hwID, HWStatus status)
+        {
+            try
+            {
+                var cmd = this.sqlConnection.CreateCommand();
+                cmd.CommandType = System.Data.CommandType.Text;
+                cmd.CommandText = "update homework set status = @status where hw_id = @hw_id";
+                cmd.Parameters.Add("@status", MySqlDbType.Int16);
+                cmd.Parameters.Add("@hw_id", MySqlDbType.Int32);
+                cmd.Parameters["@status"].Value = (int)status;
+                cmd.Parameters["@hw_id"].Value = hwID;
                 await cmd.ExecuteNonQueryAsync();
             }
             catch (Exception e)

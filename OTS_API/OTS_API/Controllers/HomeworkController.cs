@@ -113,6 +113,10 @@ namespace OTS_API.Controllers
                 }
 
                 var homeworkInfo = await homeworkService.GetHomeworkAsync(hwID);
+                if(homeworkInfo.Status != HWStatus.Finished)
+                {
+                    throw new Exception("作业尚未结束提交！");
+                }
                 var tempFile = Path.GetTempFileName();
                 using (var sw = new StreamWriter(new FileStream(tempFile, FileMode.OpenOrCreate), Encoding.GetEncoding("gbk")))
                 {
@@ -305,6 +309,19 @@ namespace OTS_API.Controllers
                 homework.UserId = t.UserID;
                 homework.Mark = null;
                 homework.Comment = null;
+
+                var hw = await homeworkService.GetHomeworkAsync(homework.HwId);
+                if(hw.Type == HWType.Group)
+                {
+                    if(await homeworkService.GetGroupIdentityAsync(t.UserID, hw.CourseId) != GroupIdentity.Leader)
+                    {
+                        throw new Exception("小组作业只能组长提交!");
+                    }
+                }
+                if(hw.Status != HWStatus.Active)
+                {
+                    throw new Exception("作业尚未开始提交或已经结束！");
+                }
 
                 if(await homeworkService.HasSubmittedAsync(homework.HwId, homework.UserId))
                 {

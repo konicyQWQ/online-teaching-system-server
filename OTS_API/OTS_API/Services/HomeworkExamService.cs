@@ -21,6 +21,85 @@ namespace OTS_API.Services
             this.dbContext = dbContext;
         }
 
+        public async Task<string> GetGroupLeaderIDAsync(string userID, int courseID)
+        {
+            try
+            {
+                var ug = await dbContext.UserGroup.FirstOrDefaultAsync(ug => ug.CourseId == courseID && ug.UserId == userID);
+                if(ug == null)
+                {
+                    throw new Exception("User Not in Group!");
+                }
+                if(ug.Identity == GroupIdentity.Leader)
+                {
+                    return userID;
+                }
+                var leader = await dbContext.UserGroup.FirstOrDefaultAsync(e => e.Identity == GroupIdentity.Leader && e.CourseId == courseID && e.GroupId == ug.GroupId);
+                if(leader == null)
+                {
+                    throw new Exception("Cannot Find Group Leader!");
+                }
+                return leader.UserId;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<List<UserGroup>> GetCourseGroupLeaderListAsync(int courseID)
+        {
+            try
+            {
+                var ugList = await dbContext.UserGroup.Where(ug => ug.Identity == GroupIdentity.Leader && ug.CourseId == courseID).ToListAsync();
+                return ugList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<List<UserCourse>> GetGroupLeaderListAsync(int courseID)
+        {
+            try
+            {
+                var ugList = await this.GetCourseGroupLeaderListAsync(courseID);
+                var resList = new List<UserCourse>();
+                foreach(var ug in ugList)
+                {
+                    var uc = await dbContext.UserCourse.FindAsync(ug.UserId, courseID);
+                    resList.Add(uc);
+                }
+                return resList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<GroupIdentity> GetGroupIdentityAsync(string userID, int courseID)
+        {
+            try
+            {
+                var ug = await dbContext.UserGroup.FirstOrDefaultAsync(ug => ug.CourseId == courseID && ug.UserId == userID);
+                if(ug == null)
+                {
+                    throw new Exception("User Not in Group!");
+                }
+                return ug.Identity;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
         public async Task AddHomeworkAsync(Homework homework)
         {
             try
@@ -58,11 +137,6 @@ namespace OTS_API.Services
         {
             try
             {
-                var hw = await this.GetHomeworkAsync(homework.HwId);
-                if (!hw.IsOpen())
-                {
-                    throw new Exception("Cannot Submit Closed Homework!");
-                }
                 await dbContext.UserHomework.AddAsync(homework);
                 await dbContext.SaveChangesAsync();
             }
@@ -205,6 +279,18 @@ namespace OTS_API.Services
         {
             try
             {
+                var hwInfo = await this.GetHomeworkAsync(hwID);
+                if(hwInfo.Type == HWType.Group)
+                {
+                    try
+                    {
+                        stuID = await this.GetGroupLeaderIDAsync(stuID, hwInfo.CourseId);
+                    }
+                    catch (Exception)
+                    {
+                        return 0;
+                    }
+                }
                 var hw = await this.GetStuHomeworkAsync(stuID, hwID);
                 if(hw == null)
                 {
@@ -484,7 +570,16 @@ namespace OTS_API.Services
                 var resList = new List<StuHomeworkOverview>();
                 foreach (var hw in hwList)
                 {
-                    var uh = await this.GetStuHomeworkAsync(stuID, hw.HwId);
+                    UserHomework uh = null;
+                    if(hw.Type == HWType.Individual)
+                    {
+                        uh = await this.GetStuHomeworkAsync(stuID, hw.HwId);
+                    }
+                    else
+                    {
+                        var glID = await this.GetGroupLeaderIDAsync(stuID, courseID);
+                        uh = await this.GetStuHomeworkAsync(glID, courseID);
+                    }
                     hw.Content = null;
                     resList.Add(new StuHomeworkOverview()
                     {
@@ -507,10 +602,20 @@ namespace OTS_API.Services
             {
                 var hwList = await this.GetCourseHomeworkAsync(courseID);
                 var ucList = await this.GetCourseStuListAsync(courseID);
+                var glList = await this.GetGroupLeaderListAsync(courseID);
                 var resList = new List<HomeworkOverview>();
                 foreach(var hw in hwList)
                 {
-                    var hwStat = await this.GetHomeworkStatisticsAsync(hw.HwId, ucList);
+                    HomeworkStatistics hwStat = null;
+                    if(hw.Type == HWType.Individual)
+                    {
+                        hwStat = await this.GetHomeworkStatisticsAsync(hw.HwId, ucList);
+                    }
+                    else
+                    {
+                        hwStat = await this.GetHomeworkStatisticsAsync(hw.HwId, glList);
+                    }
+                    
                     hw.Content = null;
                     resList.Add(new HomeworkOverview()
                     {
@@ -532,6 +637,10 @@ namespace OTS_API.Services
             try
             {
                 var hw = await this.GetHomeworkWithFilesAsync(hwID);
+                if(hw.Homework.Type == HWType.Group)
+                {
+                    stuID = await this.GetGroupLeaderIDAsync(stuID, hw.Homework.CourseId);
+                }
                 var stuHW = await this.GetStuHomeworkWithFilesAsync(stuID, hwID);
                 return new UserHomeworkDetail()
                 {
@@ -551,7 +660,15 @@ namespace OTS_API.Services
             try
             {
                 var hwWithFiles = await this.GetHomeworkWithFilesAsync(hwID);
-                var ucList = await this.GetCourseStuListAsync(hwWithFiles.Homework.CourseId);
+                List<UserCourse> ucList = null;
+                if(hwWithFiles.Homework.Type == HWType.Group)
+                {
+                    ucList = await this.GetGroupLeaderListAsync(hwWithFiles.Homework.CourseId);
+                }
+                else
+                {
+                    ucList = await this.GetCourseStuListAsync(hwWithFiles.Homework.CourseId);
+                }
                 var hwStatistics = await this.GetHomeworkStatisticsAsync(hwID, ucList);
                 var stuHWList = await this.GetCourseStuHomeworkWithFilesTAsync(hwWithFiles.Homework, ucList);
                 return new HomeworkDetail()
@@ -642,6 +759,15 @@ namespace OTS_API.Services
         {
             try
             {
+                var hw = await this.GetHomeworkAsync(hwID);
+                if(hw.Type == HWType.Group)
+                {
+                    if (await this.GetGroupIdentityAsync(userID, hw.CourseId) != GroupIdentity.Leader)
+                    {
+                        throw new Exception("Invalid Action!");
+                    }
+                }
+                
                 var hwToUpdate = await this.GetStuHomeworkAsync(userID, hwID);
                 if (hwToUpdate == null)
                 {
@@ -764,6 +890,13 @@ namespace OTS_API.Services
             {
                 var stuList = await this.GetCourseStuInfoListAsync(course.Id);
                 var hwList = await this.GetCourseHomeworkAsync(course.Id);
+                foreach(var hw in hwList)
+                {
+                    if(hw.Status != HWStatus.Finished)
+                    {
+                        hwList.Remove(hw);
+                    }
+                }
                 await sw.WriteLineAsync("课程名称：," + course.Name + ",人数：," + stuList.Count);
                 var buffList = new List<string>()
                 {
@@ -856,6 +989,13 @@ namespace OTS_API.Services
                 var stuList = await this.GetCourseStuInfoListAsync(course.Id);
                 var hwList = await this.GetCourseHomeworkAsync(course.Id);
                 var examList = await this.GetCourseExamAsync(course.Id);
+                foreach (var hw in hwList)
+                {
+                    if (hw.Status != HWStatus.Finished)
+                    {
+                        hwList.Remove(hw);
+                    }
+                }
                 foreach (var exam in examList)
                 {
                     if (exam.Status != ExamStatus.Finished)
