@@ -489,6 +489,7 @@ namespace OTS_API.Services
                     };
                     await dbContext.CourseGroups.AddAsync(cg);
                 }
+                await dbContext.SaveChangesAsync();
             }
             catch (Exception e)
             {
