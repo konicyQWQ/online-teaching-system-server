@@ -59,17 +59,17 @@ namespace OTS_API
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
+            //if (env.IsDevelopment())
+            //{
+            //    app.UseDeveloperExceptionPage();
+            //}
 
-            app.UseHttpsRedirection();
+            app.UseHttpsRedirection().UseCors("AllowCors");
 
             app.UseStaticFiles(new StaticFileOptions()
             {
                 FileProvider = new PhysicalFileProvider(Path.GetFullPath(Config.wwwrootPath))
-            });
+            }).UseCors("AllowCors");
 
             app.UseRouting().UseCors("AllowCors");
 
