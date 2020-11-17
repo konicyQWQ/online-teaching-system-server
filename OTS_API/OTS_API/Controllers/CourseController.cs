@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Org.BouncyCastle.Crypto.Agreement.JPake;
 using OTS_API.Models;
 using OTS_API.Services;
 
@@ -615,6 +617,190 @@ namespace OTS_API.Controllers
                 }
 
                 await courseService.RemoveStuFromGroup(t.UserID, courseID, groupID);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpPost]
+        [Route("Discussion")]
+        public async Task<dynamic> OnCreateDiscussionAsync([FromForm] Discussion discussion, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if (t.Role != UserRole.Admin)
+                {
+                    var uc = await courseService.GetUserCourseAsync(t.UserID, discussion.CourseId);
+                    if (uc == null || uc.UserRole == UserRole.Student)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+
+                await courseService.AddDiscussionAsync(discussion);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpGet]
+        [Route("Discussion")]
+        public async Task<dynamic> OnGetDiscussionListAsync(int courseID)
+        {
+            try
+            {
+                var disList = await courseService.GetDiscussionWithCInfoList(courseID);
+                return new { Res = true, DiscussionList = disList };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpGet]
+        [Route("Discussion/Detail")]
+        public async Task<dynamic> OnGetDiscussionDetailAsync(int disID)
+        {
+            try
+            {
+                var disDetail = await courseService.GetDiscussionDetailAsync(disID);
+                return new { Res = true, DiscussionDetail = disDetail };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpPost]
+        [Route("Discussion/Submit")]
+        public async Task<dynamic> OnSubmitDiscussionAsync([FromForm] UserDiscussion userDiscussion, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if (t.Role != UserRole.Admin)
+                {
+                    var uc = await courseService.GetDiscussionUCAsync(userDiscussion.DiscussionId, t.UserID);
+                    if (uc == null)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+
+                await courseService.UserSubmitDiscussionAsync(userDiscussion);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpPost]
+        [Route("Discussion/Withdraw")]
+        public async Task<dynamic> OnWithDrawDiscussionAsync([FromForm] int disID, [FromForm] int level, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                var role = t.Role;
+                if (t.Role != UserRole.Admin)
+                {
+                    var uc = await courseService.GetDiscussionUCAsync(disID, t.UserID);
+                    if (uc == null)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                    role = uc.UserRole;
+                }
+                if(role == UserRole.Student)
+                {
+                    var udToRemove = await courseService.GetUserDiscussionAsync(disID, level);
+                    if(udToRemove.UserId != t.UserID)
+                    {
+                        throw new Exception("权限不足！");
+                    }
+                }
+                await courseService.RemoveUserDiscussionAsync(disID, level);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpPost]
+        [Route("Discussion/Update")]
+        public async Task<dynamic> OnUpdateDiscussionAsync([FromForm] Discussion discussion, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if (t.Role != UserRole.Admin)
+                {
+                    var uc = await courseService.GetUserCourseAsync(t.UserID, discussion.CourseId);
+                    if (uc == null || uc.UserRole == UserRole.Student)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+
+                await courseService.UpdateDiscussionAsync(discussion);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpPost]
+        [Route("Discussion/Remove")]
+        public async Task<dynamic> OnRemoveDIscussionAsync([FromForm] int disID, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if (t.Role != UserRole.Admin)
+                {
+                    var uc = await courseService.GetDiscussionUCAsync(disID, t.UserID);
+                    if (uc == null || uc.UserRole == UserRole.Student)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+
+                await courseService.RemoveDiscussionAsync(disID);
                 return new { Res = true };
             }
             catch (Exception e)

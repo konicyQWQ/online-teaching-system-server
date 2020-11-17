@@ -47,13 +47,13 @@ namespace OTS_API.Services
             {
                 var courseList = await dbContext.Courses.ToListAsync();
                 var totalCount = courseList.Count;
-                if(limit > totalCount - start)
+                if (limit > totalCount - start)
                 {
                     limit = totalCount - start;
                 }
                 courseList = courseList.GetRange(start, limit);
                 var resList = new List<CourseWithTeachers>();
-                foreach(var course in courseList)
+                foreach (var course in courseList)
                 {
                     var teacherList = await this.GetCourseTeachersAsync(course.Id);
                     var res = new CourseWithTeachers()
@@ -117,7 +117,7 @@ namespace OTS_API.Services
             {
                 var idList = await dbContext.UserCourse.Where(uc => uc.UserRole == UserRole.Teacher && uc.CourseId == courseID).ToListAsync();
                 var teacherList = new List<User>();
-                foreach(var id in idList)
+                foreach (var id in idList)
                 {
                     var t = await dbContext.Users.FindAsync(id.UserId);
                     t.Introduction = null;
@@ -255,7 +255,7 @@ namespace OTS_API.Services
             try
             {
                 var bulletinToDelete = await dbContext.Bulletins.FindAsync(bulletinID);
-                if(bulletinToDelete == null)
+                if (bulletinToDelete == null)
                 {
                     throw new Exception("Cannot Find Bulletin(id: " + bulletinID + ")!");
                 }
@@ -320,7 +320,7 @@ namespace OTS_API.Services
             try
             {
                 var res = await dbContext.Coursewares.FindAsync(id);
-                if(res == null)
+                if (res == null)
                 {
                     throw new Exception("Unable to Find Courseware(id: " + id + ")!");
                 }
@@ -352,7 +352,7 @@ namespace OTS_API.Services
             try
             {
                 var cwToDelete = await dbContext.Coursewares.FindAsync(id);
-                if(cwToDelete == null)
+                if (cwToDelete == null)
                 {
                     throw new Exception("Unable to Find Courseware(id: " + id + ")!");
                 }
@@ -391,7 +391,7 @@ namespace OTS_API.Services
             {
                 var cfList = await dbContext.CoursewareFile.Where(cf => cf.CoursewareId == coursewareID).ToListAsync();
                 var fileList = new List<Models.File>();
-                foreach(var cf in cfList)
+                foreach (var cf in cfList)
                 {
                     var fileInfo = await dbContext.Files.FindAsync(cf.FileId);
                     fileList.Add(fileInfo);
@@ -426,7 +426,7 @@ namespace OTS_API.Services
             {
                 var coursewareList = await dbContext.Coursewares.Where(c => c.CourseId == courseID).ToListAsync();
                 var cwfList = new List<CoursewareWithFiles>();
-                foreach(var courseware in coursewareList)
+                foreach (var courseware in coursewareList)
                 {
                     var cwf = new CoursewareWithFiles()
                     {
@@ -450,7 +450,7 @@ namespace OTS_API.Services
             {
                 var ucList = await dbContext.UserCourse.Where(uc => uc.CourseId == courseID).ToListAsync();
                 var resList = new List<User>();
-                foreach(var uc in ucList)
+                foreach (var uc in ucList)
                 {
                     var userInfo = await dbContext.Users.FindAsync(uc.UserId);
                     userInfo.Password = null;
@@ -479,7 +479,7 @@ namespace OTS_API.Services
             try
             {
                 await this.RemoveCourseGroupAsync(courseID);
-                for(int i = 1; i <= groupCount; i++)
+                for (int i = 1; i <= groupCount; i++)
                 {
                     var cg = new CourseGroup()
                     {
@@ -503,7 +503,7 @@ namespace OTS_API.Services
             try
             {
                 var group = await dbContext.CourseGroups.FindAsync(groupID, courseID);
-                if(group == null)
+                if (group == null)
                 {
                     throw new Exception("Group Not Found!");
                 }
@@ -589,14 +589,14 @@ namespace OTS_API.Services
             try
             {
                 var userInfo = await dbContext.Users.FindAsync(userID);
-                if(userInfo == null)
+                if (userInfo == null)
                 {
                     throw new Exception("User Not Found!");
                 }
                 userInfo.Password = null;
                 userInfo.Introduction = null;
                 var ug = await this.GetUserGroupAsync(groupID, userID, courseID);
-                if(ug == null)
+                if (ug == null)
                 {
                     throw new Exception("User-Group is Not Valid!");
                 }
@@ -625,10 +625,10 @@ namespace OTS_API.Services
             {
                 var resList = new List<GroupMemberInfo>();
                 var ugList = await this.GetGroupUserListAsync(courseID, gourpID);
-                foreach(var ug in ugList)
+                foreach (var ug in ugList)
                 {
                     var userInfo = await dbContext.Users.FindAsync(ug.UserId);
-                    if(userInfo == null)
+                    if (userInfo == null)
                     {
                         continue;
                     }
@@ -725,7 +725,7 @@ namespace OTS_API.Services
             {
                 var groups = await this.GetCourseGroupListAsync(courseID);
                 var resList = new List<GroupInfo>();
-                foreach(var group in groups)
+                foreach (var group in groups)
                 {
                     resList.Add(await this.GetGroupInfoAsync(group));
                 }
@@ -743,7 +743,7 @@ namespace OTS_API.Services
             try
             {
                 var ug = await this.GetUserGroupAsync(groupID, userID, courseID);
-                if(ug == null)
+                if (ug == null)
                 {
                     throw new Exception("User-Group Not Valid!");
                 }
@@ -789,7 +789,7 @@ namespace OTS_API.Services
             {
                 var count = await this.GetGroupMemberCountAsync(courseID, groupID);
                 var groupInfo = await this.GetCourseGroupAsync(courseID, groupID);
-                if(count < groupInfo.MaxCount)
+                if (count < groupInfo.MaxCount)
                 {
                     var ug = new UserGroup()
                     {
@@ -825,7 +825,7 @@ namespace OTS_API.Services
             try
             {
                 var ug = await this.GetUserGroupAsync(groupID, stuID, courseID);
-                if(ug == null)
+                if (ug == null)
                 {
                     throw new Exception("User-Group Not Valid!");
                 }
@@ -834,7 +834,7 @@ namespace OTS_API.Services
                 if (ug.Identity == GroupIdentity.Leader)
                 {
                     var groupMembers = await this.GetGroupUserListAsync(courseID, groupID);
-                    if(groupMembers.Count > 0)
+                    if (groupMembers.Count > 0)
                     {
                         var memberToUpdate = groupMembers[0];
                         memberToUpdate.Identity = GroupIdentity.Leader;
@@ -842,6 +842,293 @@ namespace OTS_API.Services
                         await dbContext.SaveChangesAsync();
                     }
                 }
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task AddDiscussionAsync(Discussion discussion)
+        {
+            try
+            {
+                discussion.CreateTime = DateTime.Now;
+                await dbContext.Discussions.AddAsync(discussion);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+
+            }
+        }
+
+        public async Task UpdateDiscussionAsync(Discussion discussion)
+        {
+            try
+            {
+                dbContext.Discussions.Update(discussion);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<List<Discussion>> GetCourseDiscussionListAsync(int courseID)
+        {
+            try
+            {
+                var list = await dbContext.Discussions.Where(d => d.CourseId == courseID).ToListAsync();
+                return list;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<DiscussionWithCreatorInfo> GetDiscussionWithCreatorAsync(int disID)
+        {
+            try
+            {
+                var discussion = await dbContext.Discussions.FindAsync(disID);
+                if(discussion == null)
+                {
+                    throw new Exception("Discussion Not Found!");
+                }
+                var userInfo = await dbContext.Users.FindAsync(discussion.CourseId);
+                if(userInfo == null)
+                {
+                    throw new Exception("Creator not Found!");
+                }
+                userInfo.Password = null;
+                userInfo.Introduction = null;
+                return new DiscussionWithCreatorInfo()
+                {
+                    CreatorInfo = userInfo,
+                    Discussion = discussion
+                };
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw e;
+            }
+        }
+
+        public async Task<List<DiscussionWithCreatorInfo>> GetDiscussionWithCInfoList(int courseID)
+        {
+            try
+            {
+                var disList = await this.GetCourseDiscussionListAsync(courseID);
+                var resList = new List<DiscussionWithCreatorInfo>();
+                foreach(var dis in disList)
+                {
+                    var userInfo = await dbContext.Users.FindAsync(dis.CreatorID);
+                    if(userInfo == null)
+                    {
+                        continue;
+                    }
+                    userInfo.Password = null;
+                    userInfo.Introduction = null;
+                    resList.Add(new DiscussionWithCreatorInfo()
+                    {
+                        CreatorInfo = userInfo,
+                        Discussion = dis
+                    });
+                }
+                return resList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<UserDiscussion> GetUserDiscussionAsync(int disID, int level)
+        {
+            try
+            {
+                var ud = await dbContext.UserDiscussion.FindAsync(disID, level);
+                if(ud == null)
+                {
+                    throw new Exception("User-Discussion Not Found!");
+                }
+                return ud;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<List<UserDiscussion>> GetUserDiscussionListAsync(int disID)
+        {
+            try
+            {
+                var list = await dbContext.UserDiscussion.Where(ud => ud.DiscussionId == disID).ToListAsync();
+                return list;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<DiscussionDetail> GetDiscussionDetailAsync(int disID)
+        {
+            try
+            {
+                return new DiscussionDetail()
+                {
+                    Discussion = await this.GetDiscussionWithCreatorAsync(disID),
+                    UserDiscussionList = await this.GetUDWithUserInfoListAsync(disID)
+                };
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<int> GetUserDiscussionCountAsync(int disID)
+        {
+            try
+            {
+                var list = await this.GetUserDiscussionListAsync(disID);
+                return list.Count;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<int> GetDiscussionMaxLevelAsync(int disID)
+        {
+            try
+            {
+                var list = await this.GetUserDiscussionListAsync(disID);
+                if (list.Count == 0)
+                {
+                    return 0;
+                }
+                list.Sort((a, b) => b.Level - a.Level);
+                return list[0].Level;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task UserSubmitDiscussionAsync(UserDiscussion userDiscussion)
+        {
+            try
+            {
+                userDiscussion.Level = await this.GetDiscussionMaxLevelAsync(userDiscussion.DiscussionId) + 1;
+                userDiscussion.SubmitTime = DateTime.Now;
+                await dbContext.UserDiscussion.AddAsync(userDiscussion);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<List<UserDiscussionWithUserInfo>> GetUDWithUserInfoListAsync(int disID)
+        {
+            try
+            {
+                var udList = await this.GetUserDiscussionListAsync(disID);
+                var resList = new List<UserDiscussionWithUserInfo>();
+                foreach(var ud in udList)
+                {
+                    var userInfo = await dbContext.Users.FindAsync(ud.UserId);
+                    if(userInfo == null)
+                    {
+                        continue;
+                    }
+                    userInfo.Password = null;
+                    userInfo.Introduction = null;
+                    resList.Add(new UserDiscussionWithUserInfo()
+                    {
+                        UserInfo = userInfo,
+                        UserDiscussion = ud
+                    });
+                }
+                return resList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task RemoveDiscussionAsync(int disID)
+        {
+            try
+            {
+                var disToRemove = await dbContext.Discussions.FindAsync(disID);
+                if(disToRemove == null)
+                {
+                    throw new Exception("Unable to Find Discussion!");
+                }
+                dbContext.Discussions.Remove(disToRemove);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task RemoveUserDiscussionAsync(int disID, int level)
+        {
+            try
+            {
+                var udToRemove = await dbContext.UserDiscussion.FindAsync(disID, level);
+                if(udToRemove == null)
+                {
+                    throw new Exception("Unable to Find User-Discussion!");
+                }
+                dbContext.UserDiscussion.Remove(udToRemove);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<UserCourse> GetDiscussionUCAsync(int disID, string userID)
+        {
+            try
+            {
+                var dis = await dbContext.Discussions.FindAsync(disID);
+                if(dis == null)
+                {
+                    throw new Exception("Discussion Not Found!");
+                }
+                return await this.GetUserCourseAsync(userID, dis.CourseId);
             }
             catch (Exception e)
             {
