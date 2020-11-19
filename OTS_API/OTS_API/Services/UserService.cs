@@ -76,13 +76,17 @@ namespace OTS_API.Services
             try
             {
                 var user = await dbContext.Users.FindAsync(id);
+                if(user == null)
+                {
+                    throw new Exception("User Not Found!");
+                }
                 user.Password = null;
                 return user;
             }
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                return null;
+                throw new Exception("Action Failed!");
             }
         }
 
@@ -341,6 +345,81 @@ namespace OTS_API.Services
                     CourseList = courseList,
                     TeachList = teachList,
                     AssistList = assistList
+                };
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed");
+            }
+        }
+
+        public async Task AddTeacherPageAsync(TeacherPage teacherPage)
+        {
+            try
+            {
+                await dbContext.TeacherPages.AddAsync(teacherPage);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed");
+            }
+        }
+
+        public async Task UpdateTeacherPageAsync(TeacherPage teacherPage)
+        {
+            try
+            {
+                dbContext.TeacherPages.Update(teacherPage);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed");
+            }
+        }
+
+        public async Task RemoveTeacherPageAsync(string id)
+        {
+            try
+            {
+                var tpToReomve = await dbContext.TeacherPages.FindAsync(id);
+                dbContext.TeacherPages.Remove(tpToReomve);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed");
+            }
+        }
+
+        public async Task<TeacherPage> GetTeacherPageAsync(string id)
+        {
+            try
+            {
+                var tp = await dbContext.TeacherPages.FindAsync(id);
+                return tp;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed");
+            }
+        }
+
+        public async Task<TeacherDetail> GetTeacherDetailAsync(string id)
+        {
+            try
+            {
+                var userInfo = await this.GetUserInfoAsync(id);
+                return new TeacherDetail()
+                {
+                    TeacherInfo = userInfo,
+                    TeacherPage = await this.GetTeacherPageAsync(id)
                 };
             }
             catch (Exception e)

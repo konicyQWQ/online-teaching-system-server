@@ -406,5 +406,104 @@ namespace OTS_API.Controllers
                 return new { Res = false, Error = e.Message };
             }
         }
+
+        [HttpPost]
+        [Route("TeacherPage")]
+        public async Task<dynamic> OnAddTeacherPageAsync([FromForm] TeacherPage teacherPage, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if(t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if(t.Role != UserRole.Admin)
+                {
+                    if(t.Role != UserRole.Teacher || t.UserID != teacherPage.ID)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+
+                await userService.AddTeacherPageAsync(teacherPage);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpGet]
+        [Route("TeacherPage")]
+        public async Task<dynamic> OnGetTeacherDetailAsync(string id)
+        {
+            try
+            {
+                var td = await userService.GetTeacherDetailAsync(id);
+                return new { Res = true, TeacherDetail = td };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpPost]
+        [Route("TeacherPage/Update")]
+        public async Task<dynamic> OnUpdateTeacherPageAsync([FromForm] TeacherPage teacherPage, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if (t.Role != UserRole.Admin)
+                {
+                    if (t.Role != UserRole.Teacher || t.UserID != teacherPage.ID)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+
+                await userService.UpdateTeacherPageAsync(teacherPage);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpPost]
+        [Route("TeacherPage/Remove")]
+        public async Task<dynamic> OnRemoveTeacherPageAsync([FromForm] string id, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if (t.Role != UserRole.Admin)
+                {
+                    if (t.Role != UserRole.Teacher || t.UserID != id)
+                    {
+                        throw new Exception("Insufficient Authority!");
+                    }
+                }
+
+                await userService.RemoveTeacherPageAsync(id);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
     }
 }
