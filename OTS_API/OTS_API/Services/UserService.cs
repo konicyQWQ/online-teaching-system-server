@@ -354,6 +354,35 @@ namespace OTS_API.Services
             }
         }
 
+        public async Task<List<CourseWithTeachers>> GetTeachListAsync(string userID)
+        {
+            try
+            {
+                var ucList = await dbContext.UserCourse.Where(uc => uc.UserId == userID).ToListAsync();
+                var teachList = new List<CourseWithTeachers>();
+                foreach (var uc in ucList)
+                {
+                    var course = await dbContext.Courses.FindAsync(uc.CourseId);
+                    
+                    if (uc.UserRole == UserRole.Student)
+                    {
+                        var t = new CourseWithTeachers()
+                        {
+                            Course = course,
+                            Teachers = await this.GetCourseTeachersAsync(course.Id)
+                        };
+                        teachList.Add(t);
+                    }
+                }
+                return teachList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed");
+            }
+        }
+
         public async Task AddTeacherPageAsync(TeacherPage teacherPage)
         {
             try
@@ -419,7 +448,8 @@ namespace OTS_API.Services
                 return new TeacherDetail()
                 {
                     TeacherInfo = userInfo,
-                    TeacherPage = await this.GetTeacherPageAsync(id)
+                    TeacherPage = await this.GetTeacherPageAsync(id),
+                    TeachList = await this.GetTeachListAsync(id)
                 };
             }
             catch (Exception e)

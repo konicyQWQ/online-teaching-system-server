@@ -35,5 +35,6 @@ namespace OTS_API.Models
     {
         public User TeacherInfo { get; set; }
         public TeacherPage TeacherPage { get; set; }
+        public List<CourseWithTeachers> TeachList { get; set; }
     }
 }
