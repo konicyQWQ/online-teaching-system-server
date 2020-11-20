@@ -362,10 +362,9 @@ namespace OTS_API.Services
                 var teachList = new List<CourseWithTeachers>();
                 foreach (var uc in ucList)
                 {
-                    var course = await dbContext.Courses.FindAsync(uc.CourseId);
-                    
-                    if (uc.UserRole == UserRole.Student)
+                    if (uc.UserRole == UserRole.Teacher)
                     {
+                        var course = await dbContext.Courses.FindAsync(uc.CourseId);
                         var t = new CourseWithTeachers()
                         {
                             Course = course,
