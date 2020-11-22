@@ -410,6 +410,27 @@ namespace OTS_API.Services
             }
         }
 
+        public async Task UpdateOrAddTeacherPageAsync(TeacherPage teacherPage)
+        {
+            try
+            {
+                var teacherToUpdate = await dbContext.TeacherPages.FindAsync(teacherPage.ID);
+                if(teacherToUpdate == null)
+                {
+                    await this.AddTeacherPageAsync(teacherPage);
+                }
+                else
+                {
+                    await this.UpdateTeacherPageAsync(teacherPage);
+                }
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed");
+            }
+        }
+
         public async Task RemoveTeacherPageAsync(string id)
         {
             try

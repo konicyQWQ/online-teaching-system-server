@@ -469,7 +469,7 @@ namespace OTS_API.Controllers
                     }
                 }
 
-                await userService.UpdateTeacherPageAsync(teacherPage);
+                await userService.UpdateOrAddTeacherPageAsync(teacherPage);
                 return new { Res = true };
             }
             catch (Exception e)
