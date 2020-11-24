@@ -19,6 +19,8 @@ namespace OTS_API.Models
         public string CreatorID { get; set; }
         [Column("create_time")]
         public DateTime CreateTime { get; set; }
+        [Column("description")]
+        public string Description { get; set; }
     }
 
     public class DiscussionWithCreatorInfo
