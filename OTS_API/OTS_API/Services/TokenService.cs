@@ -30,6 +30,12 @@ namespace OTS_API.Services
         {
             return Task.Run(() =>
             {
+                var t = this.tokenMap.Values.FirstOrDefault(t => t.UserID == token.UserID);
+                if(t != null)
+                {
+                    this.tokenMap.Remove(t.ID);
+                }
+
                 var code = CodeGenerator.GetCode(15);
                 while (tokenMap.ContainsKey(code))
                 {
