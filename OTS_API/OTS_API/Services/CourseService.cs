@@ -903,7 +903,7 @@ namespace OTS_API.Services
                 {
                     throw new Exception("Discussion Not Found!");
                 }
-                var userInfo = await dbContext.Users.FindAsync(discussion.CourseId);
+                var userInfo = await dbContext.Users.FindAsync(discussion.CreatorID);
                 if(userInfo == null)
                 {
                     throw new Exception("Creator not Found!");
