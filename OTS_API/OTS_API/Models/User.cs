@@ -25,6 +25,22 @@ namespace OTS_API.Models
     [Table("user")]
     public class User
     {
+        public User(User user)
+        {
+            Id = user.Id;
+            Name = user.Name;
+            Gender = user.Gender;
+            Grade = user.Grade;
+            Department = user.Department;
+            Phone = user.Phone;
+            Email = user.Email;
+            Role = user.Role;
+            AvatarId = user.AvatarId;
+            Introduction = user.Introduction;
+        }
+
+        public User() {}
+
         [Key]
         [Column("id")]
         public string Id { get; set; }

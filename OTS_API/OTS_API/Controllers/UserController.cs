@@ -171,8 +171,10 @@ namespace OTS_API.Controllers
                 {
                     userID = t.UserID;
                 }
-                var userInfo = await userService.GetUserInfoAsync(userID);
+
+                var userInfo = new User(await userService.GetUserInfoAsync(userID));
                 var courseList = await userService.GetUserCoursesAsync(userID);
+                
                 return new { Res = true, UserInfo = userInfo, CourseList = courseList };
             }
             catch (Exception e)
