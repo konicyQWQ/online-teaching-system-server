@@ -25,7 +25,7 @@ namespace OTS_API
                         options.Limits.MaxRequestBodySize = int.MaxValue;
                     });
                     webBuilder.UseStartup<Startup>()
-                    .UseUrls("http://*:5000;https://*:5001");
+                    .UseUrls("http://*:5000");
                 });
     }
 }

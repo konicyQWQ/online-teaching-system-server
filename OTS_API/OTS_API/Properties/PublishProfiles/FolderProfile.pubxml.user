@@ -4,6 +4,6 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
 -->
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <_PublishTargetUrl>C:\Users\Stefan Chao\Desktop\OTS_API</_PublishTargetUrl>
+    <_PublishTargetUrl>C:\Users\Stefan Chao\Desktop\OTS_API Publish\Versions\v0.92b</_PublishTargetUrl>
   </PropertyGroup>
 </Project>

@@ -64,7 +64,7 @@ namespace OTS_API
             //    app.UseDeveloperExceptionPage();
             //}
 
-            app.UseHttpsRedirection().UseCors("AllowCors");
+            //app.UseHttpsRedirection().UseCors("AllowCors");
 
             app.UseStaticFiles(new StaticFileOptions()
             {

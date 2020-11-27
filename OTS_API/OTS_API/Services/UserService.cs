@@ -421,7 +421,12 @@ namespace OTS_API.Services
                 }
                 else
                 {
-                    await this.UpdateTeacherPageAsync(teacherPage);
+                    teacherToUpdate.OfficePlace = teacherPage.OfficePlace;
+                    teacherToUpdate.PersonalUrl = teacherPage.PersonalUrl;
+                    teacherToUpdate.TeachingAge = teacherPage.TeachingAge;
+                    teacherToUpdate.PosTitle = teacherPage.PosTitle;
+                    teacherToUpdate.Status = teacherPage.Status;
+                    await this.UpdateTeacherPageAsync(teacherToUpdate);
                 }
             }
             catch (Exception e)
