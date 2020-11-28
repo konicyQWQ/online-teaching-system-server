@@ -577,8 +577,12 @@ namespace OTS_API.Services
                     }
                     else
                     {
-                        var glID = await this.GetGroupLeaderIDAsync(stuID, courseID);
-                        uh = await this.GetStuHomeworkAsync(glID, courseID);
+                        try
+                        {
+                            var glID = await this.GetGroupLeaderIDAsync(stuID, courseID);
+                            uh = await this.GetStuHomeworkAsync(glID, courseID);
+                        }
+                        catch (Exception) {}
                     }
                     hw.Content = null;
                     resList.Add(new StuHomeworkOverview()
@@ -639,7 +643,11 @@ namespace OTS_API.Services
                 var hw = await this.GetHomeworkWithFilesAsync(hwID);
                 if(hw.Homework.Type == HWType.Group)
                 {
-                    stuID = await this.GetGroupLeaderIDAsync(stuID, hw.Homework.CourseId);
+                    try
+                    {
+                        stuID = await this.GetGroupLeaderIDAsync(stuID, hw.Homework.CourseId);
+                    }
+                    catch (Exception) {}
                 }
                 var stuHW = await this.GetStuHomeworkWithFilesAsync(stuID, hwID);
                 return new UserHomeworkDetail()

@@ -22,14 +22,12 @@ namespace OTS_API.Controllers
         private readonly UserService userService;
         private readonly TokenService tokenService;
         private readonly PasswordRetrieveService passwordRetrieveService;
-        private readonly ILogger<UserService> logger;
 
-        public UserController(UserService authenticateService, TokenService tokenService, PasswordRetrieveService passwordRetrieveService, ILogger<UserService> logger)
+        public UserController(UserService authenticateService, TokenService tokenService, PasswordRetrieveService passwordRetrieveService)
         {
             this.userService = authenticateService;
             this.tokenService = tokenService;
             this.passwordRetrieveService = passwordRetrieveService;
-            this.logger = logger;
         }
 
         /// <summary>
@@ -501,6 +499,93 @@ namespace OTS_API.Controllers
 
                 await userService.RemoveTeacherPageAsync(id);
                 return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpPost]
+        [Route("Anounce")]
+        public async Task<dynamic> OnSystemAnounceAsync([FromForm] string title, [FromForm] string content, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if (t.Role != UserRole.Admin)
+                {
+                    throw new Exception("权限不足");
+                }
+                await userService.AddSystemMessageAsync(title, content, t.UserID);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpPost]
+        [Route("Anounce/Update")]
+        public async Task<dynamic> OnUpdateSystemAnounceAsync([FromForm] int id, [FromForm] string title, [FromForm] string content, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if (t.Role != UserRole.Admin)
+                {
+                    throw new Exception("权限不足");
+                }
+                await userService.UpdateSystemMessageAsync(id, title, content, t.UserID);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpPost]
+        [Route("Anounce/Remove")]
+        public async Task<dynamic> OnRemoveSystemAnounceAsync([FromForm] int id, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if (t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if (t.Role != UserRole.Admin)
+                {
+                    throw new Exception("权限不足");
+                }
+                await userService.RemoveSystemMessageAsync(id);
+                return new { Res = true };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpGet]
+        [Route("Anounce")]
+        public async Task<dynamic> OnGetSystemAnounceAsync()
+        {
+            try
+            {
+                var list = await userService.GetSystemMessageListAsync();
+                return new { Res = true, List = list };
             }
             catch (Exception e)
             {

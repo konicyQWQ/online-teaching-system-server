@@ -639,7 +639,7 @@ namespace OTS_API.Controllers
                 if (t.Role != UserRole.Admin)
                 {
                     var uc = await courseService.GetUserCourseAsync(t.UserID, discussion.CourseId);
-                    if (uc == null || uc.UserRole == UserRole.Student)
+                    if (uc == null)
                     {
                         throw new Exception("Insufficient Authority!");
                     }
@@ -733,11 +733,8 @@ namespace OTS_API.Controllers
                         throw new Exception("Insufficient Authority!");
                     }
                     role = uc.UserRole;
-                }
-                if(role == UserRole.Student)
-                {
                     var udToRemove = await courseService.GetUserDiscussionAsync(disID, level);
-                    if(udToRemove.UserId != t.UserID)
+                    if (udToRemove.UserId != t.UserID)
                     {
                         throw new Exception("权限不足！");
                     }

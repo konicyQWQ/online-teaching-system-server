@@ -30,6 +30,7 @@ namespace OTS_API.DatabaseContext
         public DbSet<UserHomework> UserHomework { get; set; }
         public DbSet<UserHomeworkFile> UserHomeworkFile { get; set; }
         public DbSet<TeacherPage> TeacherPages { get; set; }
+        public DbSet<Event> Events { get; set; }
 
         public OTSDbContext(DbContextOptions<OTSDbContext> options) : base(options)
         {
