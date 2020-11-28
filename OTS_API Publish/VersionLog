@@ -3,3 +3,9 @@ v1.00
 
 v1.01
 修复了返回教师详细信息时Introduction被置null的Bug
+
+v1.02
+更换了服务器IP地址
+
+v1.03(Pending)
+修复了无法更改用户名字的Bug
