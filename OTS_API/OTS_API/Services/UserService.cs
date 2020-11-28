@@ -97,6 +97,7 @@ namespace OTS_API.Services
             {
                 throw new Exception("User Not Found");
             }
+            userToUpdate.Name = userInfo.Name;
             userToUpdate.Gender = userInfo.Gender;
             userToUpdate.Phone = userInfo.Phone;
             userToUpdate.Email = userInfo.Email;
