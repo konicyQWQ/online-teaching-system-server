@@ -17,10 +17,10 @@ namespace OTS_API.Controllers
     public class ExamController : ControllerBase
     {
         private readonly HomeworkExamService examService;
-        private readonly EventService eventService;
+        private readonly SystemService eventService;
         private readonly TokenService tokenService;
 
-        public ExamController(HomeworkExamService examService, EventService eventService, TokenService tokenService)
+        public ExamController(HomeworkExamService examService, SystemService eventService, TokenService tokenService)
         {
             this.examService = examService;
             this.eventService = eventService;

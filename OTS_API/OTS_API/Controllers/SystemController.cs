@@ -13,12 +13,12 @@ namespace OTS_API.Controllers
     [ApiController]
     public class SystemController : ControllerBase
     {
-        private readonly EventService eventService;
+        private readonly SystemService systemService;
         private readonly TokenService tokenService;
 
-        public SystemController(EventService eventService, TokenService tokenService)
+        public SystemController(SystemService eventService, TokenService tokenService)
         {
-            this.eventService = eventService;
+            this.systemService = eventService;
             this.tokenService = tokenService;
         }
 
@@ -36,7 +36,7 @@ namespace OTS_API.Controllers
                 {
                     throw new Exception("权限不足");
                 }
-                await eventService.AddSystemMessageAsync(title, content, t.UserID);
+                await systemService.AddSystemMessageAsync(title, content, t.UserID);
                 return new { Res = true };
             }
             catch (Exception e)
@@ -60,7 +60,7 @@ namespace OTS_API.Controllers
                 {
                     throw new Exception("权限不足");
                 }
-                await eventService.UpdateSystemMessageAsync(id, title, content, t.UserID);
+                await systemService.UpdateSystemMessageAsync(id, title, content, t.UserID);
                 return new { Res = true };
             }
             catch (Exception e)
@@ -84,7 +84,7 @@ namespace OTS_API.Controllers
                 {
                     throw new Exception("权限不足");
                 }
-                await eventService.RemoveSystemMessageAsync(id);
+                await systemService.RemoveSystemMessageAsync(id);
                 return new { Res = true };
             }
             catch (Exception e)
@@ -98,7 +98,7 @@ namespace OTS_API.Controllers
         {
             try
             {
-                var list = await eventService.GetSystemMessageListAsync(start, limit);
+                var list = await systemService.GetSystemMessageListAsync(start, limit);
                 return new { Res = true, List = list };
             }
             catch (Exception e)
@@ -120,11 +120,51 @@ namespace OTS_API.Controllers
                 }
                 if (t.Role != UserRole.Admin)
                 {
-                    var resList = await eventService.GetRelatedEventListAsync(t.UserID, start, limit);
+                    var resList = await systemService.GetRelatedEventListAsync(t.UserID, start, limit);
                     return new { Res = true, EventList = resList };
                 }
-                var list = await eventService.GetSystemMessageListAsync(start, limit);
+                var list = await systemService.GetSystemMessageListAsync(start, limit);
                 return new { Res = true, EventList = list };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpGet]
+        [Route("Home")]
+        public async Task<dynamic> OnGetHomePagesAsync()
+        {
+            try
+            {
+                var list = await systemService.GetHomePagesAsync();
+                return new { Res = true, Pages = list };
+            }
+            catch (Exception e)
+            {
+                return new { Res = false, Error = e.Message };
+            }
+        }
+
+        [HttpPost]
+        [Route("Home")]
+        public async Task<dynamic> OnSetHomePagesAsync([FromForm] List<HomePage> pages, [FromForm] string token)
+        {
+            try
+            {
+                var t = await tokenService.GetTokenAsync(token);
+                if(t == null)
+                {
+                    throw new Exception("Token is Invalid!");
+                }
+                if(t.Role != UserRole.Admin)
+                {
+                    throw new Exception("Insufficient Authority!");
+                }
+
+                await systemService.SetHomePagesAsync(pages);
+                return new { Res = true };
             }
             catch (Exception e)
             {

@@ -18,10 +18,10 @@ namespace OTS_API.Controllers
     public class HomeworkController : ControllerBase
     {
         private readonly TokenService tokenService;
-        private readonly EventService eventService;
+        private readonly SystemService eventService;
         private readonly HomeworkExamService homeworkService;
 
-        public HomeworkController(TokenService tokenService, EventService eventService, HomeworkExamService homeworkService)
+        public HomeworkController(TokenService tokenService, SystemService eventService, HomeworkExamService homeworkService)
         {
             this.tokenService = tokenService;
             this.eventService = eventService;

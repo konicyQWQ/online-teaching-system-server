@@ -17,11 +17,11 @@ namespace OTS_API.Controllers
     public class CourseController : ControllerBase
     {
         private readonly CourseService courseService;
-        private readonly EventService eventService;
+        private readonly SystemService eventService;
         private readonly TokenService tokenService;
         private readonly ILogger<CourseController> logger;
 
-        public CourseController(CourseService courseService, EventService eventService, TokenService tokenService, ILogger<CourseController> logger)
+        public CourseController(CourseService courseService, SystemService eventService, TokenService tokenService, ILogger<CourseController> logger)
         {
             this.courseService = courseService;
             this.eventService = eventService;

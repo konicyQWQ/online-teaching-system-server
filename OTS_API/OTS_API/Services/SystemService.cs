@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace OTS_API.Services
 {
-    public class EventService
+    public class SystemService
     {
-        private readonly ILogger<EventService> logger;
+        private readonly ILogger<SystemService> logger;
         private readonly OTSDbContext dbContext;
 
-        public EventService(ILogger<EventService> logger, OTSDbContext dbContext)
+        public SystemService(ILogger<SystemService> logger, OTSDbContext dbContext)
         {
             this.logger = logger;
             this.dbContext = dbContext;
@@ -259,6 +259,37 @@ namespace OTS_API.Services
                     throw new Exception("Uable to Find Course ID: " + courseID);
                 }
                 return course.Name;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task SetHomePagesAsync(List<HomePage> pages)
+        {
+            try
+            {
+                dbContext.HomePages.RemoveRange(dbContext.HomePages);
+                await dbContext.SaveChangesAsync();
+                await dbContext.HomePages.AddRangeAsync(pages);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task<List<HomePage>> GetHomePagesAsync()
+        {
+            try
+            {
+                var list = await dbContext.HomePages.ToListAsync();
+                list.Sort((a, b) => a.Id - b.Id);
+                return list;
             }
             catch (Exception e)
             {
