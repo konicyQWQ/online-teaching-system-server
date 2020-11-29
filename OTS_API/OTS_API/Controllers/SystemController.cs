@@ -108,6 +108,7 @@ namespace OTS_API.Controllers
         }
 
         [HttpGet]
+        [Route("User")]
         public async Task<dynamic> OnGetRelatedInfoAsync(int start, int limit, string token)
         {
             try
