@@ -379,7 +379,7 @@ namespace OTS_API.Services
                 cmd.CommandType = System.Data.CommandType.Text;
                 cmd.CommandText = "select course_id, title from exam where exam_id = @exam_id";
                 cmd.Parameters.Add("@exam_id", MySqlDbType.Int32);
-                cmd.Parameters["@status"].Value = id;
+                cmd.Parameters["@exam_id"].Value = id;
                 using var reader = await cmd.ExecuteReaderAsync();
                 if(await reader.ReadAsync())
                 {
