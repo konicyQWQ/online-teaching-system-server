@@ -75,10 +75,10 @@ namespace OTS_API.Services
                 var ugList = await dbContext.UserGroup.Where(ug => ug.CourseId == courseID && ug.GroupId == leaderUG.GroupId && ug.Identity == GroupIdentity.Member).ToListAsync();
                 return ugList.Select(ug => ug.UserId).ToList();
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
-                throw;
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
             }
         }
 
