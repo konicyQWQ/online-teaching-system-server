@@ -67,6 +67,21 @@ namespace OTS_API.Services
             }
         }
 
+        public async Task<List<string>> GetGroupMemberListAsync(string leaderID, int courseID)
+        {
+            try
+            {
+                var leaderUG = await dbContext.UserGroup.FirstOrDefaultAsync(ug => ug.Identity == GroupIdentity.Leader && ug.CourseId == courseID && ug.UserId == leaderID);
+                var ugList = await dbContext.UserGroup.Where(ug => ug.CourseId == courseID && ug.GroupId == leaderUG.GroupId && ug.Identity == GroupIdentity.Member).ToListAsync();
+                return ugList.Select(ug => ug.UserId).ToList();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         public async Task<List<UserGroup>> GetCourseGroupLeaderListAsync(int courseID)
         {
             try
@@ -805,6 +820,14 @@ namespace OTS_API.Services
                 dbContext.UserHomework.Update(hwToUpdate);
                 await dbContext.SaveChangesAsync();
                 await this.AddHWGradedEventAsync(hw, userID, mark);
+                if(hw.Type == HWType.Group)
+                {
+                    var memberList = await this.GetGroupMemberListAsync(userID, hw.CourseId);
+                    foreach(var member in memberList)
+                    {
+                        await this.AddHWGradedEventAsync(hw, member, mark);
+                    }
+                }
             }
             catch (Exception e)
             {
