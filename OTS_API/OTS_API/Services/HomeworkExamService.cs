@@ -966,13 +966,8 @@ namespace OTS_API.Services
             {
                 var stuList = await this.GetCourseStuInfoListAsync(course.Id);
                 var hwList = await this.GetCourseHomeworkAsync(course.Id);
-                foreach(var hw in hwList)
-                {
-                    if(hw.Status != HWStatus.Finished)
-                    {
-                        hwList.Remove(hw);
-                    }
-                }
+                hwList.RemoveAll(hw => hw.Status != HWStatus.Finished);
+
                 await sw.WriteLineAsync("课程名称：," + course.Name + ",人数：," + stuList.Count);
                 var buffList = new List<string>()
                 {
@@ -1015,13 +1010,8 @@ namespace OTS_API.Services
             {
                 var stuList = await this.GetCourseStuInfoListAsync(course.Id);
                 var examList = await this.GetCourseExamAsync(course.Id);
-                foreach(var exam in examList)
-                {
-                    if(exam.Status != ExamStatus.Finished)
-                    {
-                        examList.Remove(exam);
-                    }
-                }
+                examList.RemoveAll(ex => ex.Status != ExamStatus.Finished);
+
                 await sw.WriteLineAsync("课程名称：," + course.Name + ",人数：," + stuList.Count);
                 var buffList = new List<string>()
                 {
@@ -1065,20 +1055,9 @@ namespace OTS_API.Services
                 var stuList = await this.GetCourseStuInfoListAsync(course.Id);
                 var hwList = await this.GetCourseHomeworkAsync(course.Id);
                 var examList = await this.GetCourseExamAsync(course.Id);
-                foreach (var hw in hwList)
-                {
-                    if (hw.Status != HWStatus.Finished)
-                    {
-                        hwList.Remove(hw);
-                    }
-                }
-                foreach (var exam in examList)
-                {
-                    if (exam.Status != ExamStatus.Finished)
-                    {
-                        examList.Remove(exam);
-                    }
-                }
+                hwList.RemoveAll(hw => hw.Status != HWStatus.Finished);
+                examList.RemoveAll(ex => ex.Status != ExamStatus.Finished);
+
                 await sw.WriteLineAsync("课程名称：," + course.Name + ",人数：," + stuList.Count);
                 var buffList = new List<string>()
                 {
