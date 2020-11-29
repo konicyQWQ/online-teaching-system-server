@@ -75,7 +75,7 @@ namespace OTS_API.Services
                 {
                     try
                     {
-                        var pdfDoc = PdfReader.Open(fileInfo.Path);
+                        var pdfDoc = PdfReader.Open(fileInfo.Path, PdfDocumentOpenMode.Import);
                         var previewPdf = new PdfDocument();
                         previewPdf.Version = pdfDoc.Version;
                         var pageCount = (int)(pdfDoc.PageCount * 0.3 + 1);
