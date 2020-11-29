@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Http;
 using System.IO;
 using OTS_API.Utilities;
 using Microsoft.VisualBasic;
+using PdfSharpCore.Pdf.IO;
+using PdfSharpCore.Pdf;
 
 namespace OTS_API.Services
 {
@@ -69,7 +71,25 @@ namespace OTS_API.Services
                 }
                 await dbContext.Files.AddAsync(fileInfo);
                 await dbContext.SaveChangesAsync();
-
+                if (file.ContentType.Contains("pdf"))
+                {
+                    try
+                    {
+                        var pdfDoc = PdfReader.Open(fileInfo.Path);
+                        var previewPdf = new PdfDocument();
+                        previewPdf.Version = pdfDoc.Version;
+                        var pageCount = (int)(pdfDoc.PageCount * 0.3 + 1);
+                        for(int i = 0; i < pageCount; i++)
+                        {
+                            previewPdf.AddPage(pdfDoc.Pages[i]);
+                        }
+                        previewPdf.Save(fileInfo.Path + "(preview)");
+                    }
+                    catch (Exception e)
+                    {
+                        logger.LogError("Unable to Create Preview Version\n" + e.Message);
+                    }
+                }
                 return fileInfo;
             }
             catch (Exception e)

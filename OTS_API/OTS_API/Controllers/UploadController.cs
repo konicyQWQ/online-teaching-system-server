@@ -161,15 +161,23 @@ namespace OTS_API.Controllers
             {
                 var t = await tokenService.GetTokenAsync(token);
                 var courseware = await courseService.GetCoursewareAsync(coursewareID);
+                var fileInfo = await fileService.GetFileAsync(fileID);
+                bool previewMode = false;
                 if (t == null)
                 {
                     if(courseware.Privilege == Privilege.NotDownloadable)
                     {
-                        throw new Exception("Insufficient Authority!");
+                        if (fileInfo.Name.Contains("pdf"))
+                        {
+                            previewMode = true;
+                        }
+                        else
+                        {
+                            throw new Exception("Insufficient Authority!");
+                        }
                     }
                 }
 
-                var fileInfo = await fileService.GetFileAsync(fileID);
                 new FileExtensionContentTypeProvider().TryGetContentType(fileInfo.Name, out var contentType);
                 if (mode)
                 {
@@ -181,7 +189,14 @@ namespace OTS_API.Controllers
                     }
                     HttpContext.Response.Headers.Add("Content-Disposition", new Microsoft.Extensions.Primitives.StringValues("attachment; filename = " + name));
                 }
-                return PhysicalFile(Path.GetFullPath(fileInfo.Path), contentType);
+                if (previewMode)
+                {
+                    return PhysicalFile(Path.GetFullPath(fileInfo.Path + "(preview)"), contentType, fileInfo.Name);
+                }
+                else
+                {
+                    return PhysicalFile(Path.GetFullPath(fileInfo.Path), contentType, fileInfo.Name);
+                }
             }
             catch (Exception e)
             {
@@ -278,7 +293,7 @@ namespace OTS_API.Controllers
                     }
                     HttpContext.Response.Headers.Add("Content-Disposition", new Microsoft.Extensions.Primitives.StringValues("attachment; filename = " + name));
                 }
-                return PhysicalFile(Path.GetFullPath(fileInfo.Path), contentType);
+                return PhysicalFile(Path.GetFullPath(fileInfo.Path), contentType, fileInfo.Name);
             }
             catch (Exception e)
             {
