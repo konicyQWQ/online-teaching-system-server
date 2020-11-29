@@ -11,12 +11,15 @@ using OTS_API.Models;
 using OTS_API.Services;
 using MySql.Data.MySqlClient;
 using OTS_API.Utilities;
+using Newtonsoft.Json;
 
 namespace OTS_API.Services
 {
     public class ExamTime
     {
         public int ID { get; set; }
+        public string Title { get; set; }
+        public int CourseID { get; set; }
         public DateTime StartTime { get; set; }
         public int Duration { get; set; }
         public ExamStatus Status { get; set; }
@@ -25,6 +28,8 @@ namespace OTS_API.Services
     public class HWTime
     {
         public int ID { get; set; }
+        public string Title { get; set; }
+        public int CourseID { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public HWStatus Status { get; set; }
@@ -70,8 +75,11 @@ namespace OTS_API.Services
             {
                 await CheckPendingHWAsync();
                 await CheckActiveHWAsync();
+                await CheckNearDDLHWAsync();
+
                 await CheckPendingExamsAsync();
                 await CheckActiveExamsAsync();
+
                 await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
             }
             logger.LogInformation("Hosted Service Stopping!");
@@ -87,6 +95,7 @@ namespace OTS_API.Services
                     if(DateTime.Now >= exam.StartTime)
                     {
                         await this.SetExamStatusAsync(exam.ID, ExamStatus.Active);
+                        await this.AddExamOpenEventAsync(exam);
                     }
                 }
             }
@@ -132,6 +141,7 @@ namespace OTS_API.Services
                     if(DateTime.Now >= hw.StartTime)
                     {
                         await this.SetHWStatusAsync(hw.ID, HWStatus.Active);
+                        await this.AddHWOpenEventAsync(hw);
                     }
                 }
             }
@@ -146,6 +156,26 @@ namespace OTS_API.Services
             try
             {
                 var hwList = await this.GetHWTimeListAsync(HWStatus.Active);
+                foreach (var hw in hwList)
+                {
+                    if (DateTime.Now.AddHours(Config.NearWindow) > hw.EndTime)
+                    {
+                        await this.SetHWStatusAsync(hw.ID, HWStatus.NearDDL);
+                        await this.AddHWNearDDLEventAsync(hw);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+            }
+        }
+
+        private async Task CheckNearDDLHWAsync()
+        {
+            try
+            {
+                var hwList = await this.GetHWTimeListAsync(HWStatus.NearDDL);
                 foreach (var hw in hwList)
                 {
                     if (DateTime.Now > hw.EndTime)
@@ -272,6 +302,7 @@ namespace OTS_API.Services
                     Mark = totalScore
                 };
                 await this.UpdateStuExamAsync(ueToUpdate);
+                await this.AddExamGradedEventAsync(ueToUpdate);
             }
             catch (Exception e)
             {
@@ -309,7 +340,7 @@ namespace OTS_API.Services
             {
                 var cmd = this.sqlConnection.CreateCommand();
                 cmd.CommandType = System.Data.CommandType.Text;
-                cmd.CommandText = "select exam_id, start_time, duration from exam where status = @status";
+                cmd.CommandText = "select exam_id, course_id, title, start_time, duration from exam where status = @status";
                 cmd.Parameters.Add("@status", MySqlDbType.Int16);
                 cmd.Parameters["@status"].Value = (int)status;
                 using var reader = await cmd.ExecuteReaderAsync();
@@ -317,11 +348,15 @@ namespace OTS_API.Services
                 while(await reader.ReadAsync())
                 {
                     var examID = Convert.ToInt32(reader["exam_id"]);
+                    var title = Convert.ToString(reader["title"]);
+                    var courseID = Convert.ToInt32(reader["course_id"]);
                     var startTime = Convert.ToDateTime(reader["start_time"]);
                     var duration = Convert.ToInt32(reader["duration"]);
                     resList.Add(new ExamTime()
                     {
                         ID = examID,
+                        Title = title,
+                        CourseID = courseID,
                         StartTime = startTime,
                         Duration = duration,
                         Status = status
@@ -336,13 +371,43 @@ namespace OTS_API.Services
             }
         }
 
+        private async Task<ExamTime> GetExamAsync(int id)
+        {
+            try
+            {
+                var cmd = this.sqlConnection.CreateCommand();
+                cmd.CommandType = System.Data.CommandType.Text;
+                cmd.CommandText = "select course_id, title from exam where exam_id = @exam_id";
+                cmd.Parameters.Add("@exam_id", MySqlDbType.Int32);
+                cmd.Parameters["@status"].Value = id;
+                using var reader = await cmd.ExecuteReaderAsync();
+                if(await reader.ReadAsync())
+                {
+                    var title = Convert.ToString(reader["title"]);
+                    var courseID = Convert.ToInt32(reader["course_id"]);
+                    return new ExamTime()
+                    {
+                        ID = id,
+                        CourseID = courseID,
+                        Title = title
+                    };
+                }
+                throw new Exception("Unable to Find Exam ID: " + id);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
         private async Task<List<HWTime>> GetHWTimeListAsync(HWStatus status)
         {
             try
             {
                 var cmd = this.sqlConnection.CreateCommand();
                 cmd.CommandType = System.Data.CommandType.Text;
-                cmd.CommandText = "select hw_id, startTime, endTime from homework where status = @status";
+                cmd.CommandText = "select hw_id, course_id, title, startTime, endTime from homework where status = @status";
                 cmd.Parameters.Add("@status", MySqlDbType.Int16);
                 cmd.Parameters["@status"].Value = (int)status;
                 using var reader = await cmd.ExecuteReaderAsync();
@@ -350,17 +415,44 @@ namespace OTS_API.Services
                 while (await reader.ReadAsync())
                 {
                     var id = Convert.ToInt32(reader["hw_id"]);
+                    var title = Convert.ToString(reader["title"]);
+                    var courseID = Convert.ToInt32(reader["course_id"]);
                     var startTime = Convert.ToDateTime(reader["startTime"]);
                     var endTime = Convert.ToDateTime(reader["endTime"]);
                     resList.Add(new HWTime()
                     {
                         ID = id,
+                        Title = title,
+                        CourseID = courseID,
                         StartTime = startTime,
                         EndTime = endTime,
                         Status = status
                     });
                 }
                 return resList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        private async Task<string> GetCourseNameAsync(int id)
+        {
+            try
+            {
+                var cmd = this.sqlConnection.CreateCommand();
+                cmd.CommandType = System.Data.CommandType.Text;
+                cmd.CommandText = "select name from course where id = @id";
+                cmd.Parameters.Add("@id", MySqlDbType.Int32);
+                cmd.Parameters["@id"].Value = id;
+                using var reader = await cmd.ExecuteReaderAsync();
+                if(await reader.ReadAsync())
+                {
+                    return Convert.ToString(reader["name"]);
+                }
+                throw new Exception("Unable to Find Course ID: " + id);
             }
             catch (Exception e)
             {
@@ -572,6 +664,121 @@ namespace OTS_API.Services
                     });
                 }
                 return resList;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        private async Task AddEventAsync(Event ev)
+        {
+            try
+            {
+                var cmd = this.sqlConnection.CreateCommand();
+                cmd.CommandType = System.Data.CommandType.Text;
+                cmd.CommandText = "insert into event values(0, @event_type, @content, @course_id, @course_name, @related_user, @time)";
+                cmd.Parameters.Add("@event_type", MySqlDbType.Int16);
+                cmd.Parameters.Add("@content", MySqlDbType.VarChar);
+                cmd.Parameters.Add("@course_id", MySqlDbType.Int32);
+                cmd.Parameters.Add("@course_name", MySqlDbType.VarChar);
+                cmd.Parameters.Add("@related_user", MySqlDbType.VarChar);
+                cmd.Parameters.Add("@time", MySqlDbType.DateTime);
+
+                cmd.Parameters["@event_type"].Value = (int)ev.EventType;
+                cmd.Parameters["@content"].Value = ev.Content;
+                cmd.Parameters["@course_id"].Value = ev.CourseID;
+                cmd.Parameters["@course_name"].Value = ev.CourseName;
+                cmd.Parameters["@related_user"].Value = ev.RelatedUser;
+                cmd.Parameters["@time"].Value = ev.Time;
+
+                await cmd.ExecuteNonQueryAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        private async Task AddHWOpenEventAsync(HWTime hw)
+        {
+            try
+            {
+                var e = new Event()
+                {
+                    EventType = EventType.HomeworkOpen,
+                    Content = JsonConvert.SerializeObject(new { Id = hw.ID, Title = hw.Title }),
+                    CourseID = hw.CourseID,
+                    CourseName = await this.GetCourseNameAsync(hw.CourseID),
+                    Time = DateTime.Now
+                };
+                await this.AddEventAsync(e);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        private async Task AddHWNearDDLEventAsync(HWTime hw)
+        {
+            try
+            {
+                var e = new Event()
+                {
+                    EventType = EventType.HomeworkNearDDL,
+                    Content = JsonConvert.SerializeObject(new { Id = hw.ID, Title = hw.Title }),
+                    CourseID = hw.CourseID,
+                    CourseName = await this.GetCourseNameAsync(hw.CourseID),
+                    Time = DateTime.Now
+                };
+                await this.AddEventAsync(e);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        private async Task AddExamOpenEventAsync(ExamTime ex)
+        {
+            try
+            {
+                var e = new Event()
+                {
+                    EventType = EventType.ExamOpen,
+                    Content = JsonConvert.SerializeObject(new { Id = ex.ID, Title = ex.Title }),
+                    CourseID = ex.CourseID,
+                    CourseName = await this.GetCourseNameAsync(ex.CourseID),
+                    Time = DateTime.Now
+                };
+                await this.AddEventAsync(e);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        private async Task AddExamGradedEventAsync(UserExam ue)
+        {
+            try
+            {
+                var exam = await this.GetExamAsync(ue.ExamId);
+                var e = new Event()
+                {
+                    EventType = EventType.ExamGraded,
+                    Content = JsonConvert.SerializeObject(new { Id = exam.ID, Title = exam.Title, Score = ue.Mark.Value }),
+                    CourseID = exam.CourseID,
+                    CourseName = await this.GetCourseNameAsync(exam.CourseID),
+                    Time = DateTime.Now
+                };
+                await this.AddEventAsync(e);
             }
             catch (Exception e)
             {

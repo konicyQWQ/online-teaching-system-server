@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using OTS_API.DatabaseContext;
 using OTS_API.Models;
 using System;
@@ -19,6 +20,24 @@ namespace OTS_API.Services
         {
             this.logger = logger;
             this.dbContext = dbContext;
+        }
+
+        public async Task<string> GetCourseNameAsync(int courseID)
+        {
+            try
+            {
+                var course = await dbContext.Courses.FindAsync(courseID);
+                if (course == null)
+                {
+                    throw new Exception("Uable to Find Course ID: " + courseID);
+                }
+                return course.Name;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
         }
 
         public async Task<string> GetGroupLeaderIDAsync(string userID, int courseID)
@@ -785,6 +804,55 @@ namespace OTS_API.Services
                 hwToUpdate.Comment = comment;
                 dbContext.UserHomework.Update(hwToUpdate);
                 await dbContext.SaveChangesAsync();
+                await this.AddHWGradedEventAsync(hw, userID, mark);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task RemovePreviousHWGradedEventAsync(int hwID, string userID)
+        {
+            try
+            {
+                var eList = await dbContext.Events.Where(e => e.EventType == EventType.HomeworkGraded && e.RelatedUser == userID).ToListAsync();
+                var removeList = new List<Event>();
+                foreach (var e in eList)
+                {
+                    var content = JsonConvert.DeserializeObject<HWGradedEventContent>(e.Content);
+                    if (content.Id == hwID)
+                    {
+                        removeList.Add(e);
+                    }
+                }
+                dbContext.Events.RemoveRange(removeList);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task AddHWGradedEventAsync(Homework hw, string userID, int score)
+        {
+            try
+            {
+                await this.RemovePreviousHWGradedEventAsync(hw.HwId, userID);
+                var e = new Event()
+                {
+                    EventType = EventType.HomeworkGraded,
+                    Content = JsonConvert.SerializeObject(new { Id = hw.HwId, Title = hw.Title, Score = score }),
+                    CourseID = hw.CourseId,
+                    CourseName = await this.GetCourseNameAsync(hw.CourseId),
+                    RelatedUser = userID,
+                    Time = DateTime.Now
+                };
+                await dbContext.Events.AddAsync(e);
+                await dbContext.SaveChangesAsync();
             }
             catch (Exception e)
             {
@@ -1410,6 +1478,56 @@ namespace OTS_API.Services
                     }
                 }
                 dbContext.UserExam.Update(ue);
+                await dbContext.SaveChangesAsync();
+                await this.AddExamGradedEventAsync(ue);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task RemovePreviousExamGradedEventAsync(UserExam ue)
+        {
+            try
+            {
+                var eList = await dbContext.Events.Where(e => e.EventType == EventType.ExamGraded && e.RelatedUser == ue.UserId).ToListAsync();
+                var removeList = new List<Event>();
+                foreach(var e in eList)
+                {
+                    var content = JsonConvert.DeserializeObject<ExamGradedEventContent>(e.Content);
+                    if(content.Id == ue.ExamId)
+                    {
+                        removeList.Add(e);
+                    }
+                }
+                dbContext.Events.RemoveRange(removeList);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception("Action Failed!");
+            }
+        }
+
+        public async Task AddExamGradedEventAsync(UserExam ue)
+        {
+            try
+            {
+                await this.RemovePreviousExamGradedEventAsync(ue);
+                var exam = await this.GetExamAsync(ue.ExamId);
+                var e = new Event()
+                {
+                    EventType = EventType.ExamGraded,
+                    Content = JsonConvert.SerializeObject(new { Id = exam.ExamId, Title = exam.Title, Score = ue.Mark.Value }),
+                    CourseID = exam.CourseId,
+                    CourseName = await this.GetCourseNameAsync(exam.CourseId),
+                    RelatedUser = ue.UserId,
+                    Time = DateTime.Now
+                };
+                await dbContext.Events.AddAsync(e);
                 await dbContext.SaveChangesAsync();
             }
             catch (Exception e)

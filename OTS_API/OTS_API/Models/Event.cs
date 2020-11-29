@@ -9,18 +9,17 @@ namespace OTS_API.Models
 {
     /// <summary>
     /// 事件类型：
-    ///     0: SystemMessage-> content: { title, content } !with relatedUser!
-    ///     1: CourseAnnouncement-> content: { bulletinID, title, publisherID }
-    ///     2: DiscussionCreated-> content: { disID, title, publisherID }
-    ///     3: CoursewareUploaded-> content: { cwID, title, publisherID }
-    ///     4: HomeworkCreated-> content: { hwID, title, publisherID }
-    ///     5: HomeworkOpen-> content: { hwID, title }
-    ///     6: HomeworkNearDDL-> content: { hwID, title }
-    ///     7: HomeworkEnded-> content: { hwID, title }
-    ///     8: HomeworkGraded-> content: { hwID, title, score } !with relatedUser!
-    ///     9: ExamCreated-> content: { examID, title }
-    ///     10: ExamOpen-> content: { examID, title }
-    ///     11: ExamGraded-> content: { examID, title, score } !with relatedUser!
+    ///     0: SystemMessage-> content: { title, content } !with relatedUser!x
+    ///     1: CourseAnnouncement-> content: { id, title } !with relatedUser!x
+    ///     2: DiscussionCreated-> content: { id, title } !with relatedUser!x
+    ///     3: CoursewareUploaded-> content: { id, title } !with relatedUser!x
+    ///     4: HomeworkCreated-> content: { id, title } !with relatedUser!x
+    ///     5: HomeworkOpen-> content: { id, title }x
+    ///     6: HomeworkNearDDL-> content: { id, title }x
+    ///     7: ExamCreated-> content: { id, title } !with relatedUser!x
+    ///     8: ExamOpen-> content: { id, title }
+    ///     9: HomeworkGraded-> content: { id, title, score } !with relatedUser!x
+    ///     10: ExamGraded-> content: { id, title, score } !with relatedUser!
     /// </summary>
     public enum EventType
     {
@@ -31,11 +30,10 @@ namespace OTS_API.Models
         HomeworkCreated = 4,
         HomeworkOpen = 5,
         HomeworkNearDDL = 6,
-        HomeworkEnded = 7,
-        HomeworkGraded = 8,
-        ExamCreated = 9,
-        ExamOpen = 10,
-        ExamGraded = 11
+        ExamCreated = 7,
+        ExamOpen = 8,
+        HomeworkGraded = 9,
+        ExamGraded = 10
     }
 
     [Table("event")]
@@ -56,5 +54,25 @@ namespace OTS_API.Models
         public string RelatedUser { get; set; }
         [Column("time")]
         public DateTime Time { get; set; }
+    }
+
+    public class EventResList
+    {
+        public int TotalCount { get; set; }
+        public List<Event> EventList { get; set; }
+    }
+
+    public class ExamGradedEventContent
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public int Score { get; set; }
+    }
+
+    public class HWGradedEventContent
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public int Score { get; set; }
     }
 }

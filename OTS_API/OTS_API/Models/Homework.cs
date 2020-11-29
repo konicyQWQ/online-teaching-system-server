@@ -15,7 +15,8 @@ namespace OTS_API.Models
     {
         Pending = 0,
         Active = 1,
-        Finished = 2
+        NearDDL = 2,
+        Finished = 3
     }
 
     [Table("homework")]

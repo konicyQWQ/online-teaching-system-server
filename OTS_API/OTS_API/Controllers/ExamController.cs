@@ -17,11 +17,13 @@ namespace OTS_API.Controllers
     public class ExamController : ControllerBase
     {
         private readonly HomeworkExamService examService;
+        private readonly EventService eventService;
         private readonly TokenService tokenService;
 
-        public ExamController(HomeworkExamService examService, TokenService tokenService)
+        public ExamController(HomeworkExamService examService, EventService eventService, TokenService tokenService)
         {
             this.examService = examService;
+            this.eventService = eventService;
             this.tokenService = tokenService;
         }
 
@@ -45,6 +47,7 @@ namespace OTS_API.Controllers
                 }
 
                 await examService.AddExamAsync(exam, questions);
+                await eventService.AddExamCreatedEventAsync(exam.ExamId, exam.Title, t.UserID, exam.CourseId);
                 return new { Res = true };
             }
             catch (Exception e)

@@ -17,12 +17,14 @@ namespace OTS_API.Controllers
     public class CourseController : ControllerBase
     {
         private readonly CourseService courseService;
+        private readonly EventService eventService;
         private readonly TokenService tokenService;
         private readonly ILogger<CourseController> logger;
 
-        public CourseController(CourseService courseService, TokenService tokenService, ILogger<CourseController> logger)
+        public CourseController(CourseService courseService, EventService eventService, TokenService tokenService, ILogger<CourseController> logger)
         {
             this.courseService = courseService;
+            this.eventService = eventService;
             this.tokenService = tokenService;
             this.logger = logger;
         }
@@ -214,6 +216,7 @@ namespace OTS_API.Controllers
                     }
                 }
                 await courseService.AddBulletinAsync(bulletin);
+                await eventService.AddCourseAnnonceEventAsync(bulletin.BulletinId, bulletin.Title, t.UserID, bulletin.CourseId);
                 return new { Res = true };
             }
             catch (Exception e)
@@ -330,6 +333,7 @@ namespace OTS_API.Controllers
                 {
                     await courseService.AddFileToCourseware(courseware.Id, fileID);
                 }
+                await eventService.AddCWUploadedEventAsync(courseware.Id, courseware.Title, t.UserID, courseware.CourseId);
                 return new { Res = true };
             }
             catch (Exception e)
@@ -646,6 +650,7 @@ namespace OTS_API.Controllers
                 }
 
                 await courseService.AddDiscussionAsync(discussion);
+                await eventService.AddDiscussionCreatedEventAsync(discussion.DiscussionId, discussion.Title, discussion.CreatorID, discussion.CourseId);
                 return new { Res = true };
             }
             catch (Exception e)

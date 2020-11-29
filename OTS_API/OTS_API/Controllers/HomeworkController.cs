@@ -18,11 +18,13 @@ namespace OTS_API.Controllers
     public class HomeworkController : ControllerBase
     {
         private readonly TokenService tokenService;
+        private readonly EventService eventService;
         private readonly HomeworkExamService homeworkService;
 
-        public HomeworkController(TokenService tokenService, HomeworkExamService homeworkService)
+        public HomeworkController(TokenService tokenService, EventService eventService, HomeworkExamService homeworkService)
         {
             this.tokenService = tokenService;
+            this.eventService = eventService;
             this.homeworkService = homeworkService;
         }
 
@@ -213,6 +215,7 @@ namespace OTS_API.Controllers
                 {
                     await homeworkService.AddFileToHomeworkAsync(file, homework.HwId);
                 }
+                await eventService.AddHWCreatedEventAsync(homework.HwId, homework.Title, t.UserID, homework.CourseId);
                 return new { Res = true };
             }
             catch (Exception e)
@@ -318,7 +321,7 @@ namespace OTS_API.Controllers
                         throw new Exception("小组作业只能组长提交!");
                     }
                 }
-                if(hw.Status != HWStatus.Active)
+                if(hw.Status != HWStatus.Active && hw.Status != HWStatus.NearDDL)
                 {
                     throw new Exception("作业尚未开始提交或已经结束！");
                 }

@@ -13,5 +13,6 @@ namespace OTS_API.Utilities
         public static string privateFilePath = "../../FileRoot/Private/";
         public static string tempFilePath = "../../FileRoot/Temp/";
         public static string wwwrootPath = "../../wwwroot";
+        public static int NearWindow = 24;//hours
     }
 }
