@@ -776,6 +776,7 @@ namespace OTS_API.Services
                     Content = JsonConvert.SerializeObject(new { Id = exam.ID, Title = exam.Title, Score = ue.Mark.Value }),
                     CourseID = exam.CourseID,
                     CourseName = await this.GetCourseNameAsync(exam.CourseID),
+                    RelatedUser = ue.UserId,
                     Time = DateTime.Now
                 };
                 await this.AddEventAsync(e);
