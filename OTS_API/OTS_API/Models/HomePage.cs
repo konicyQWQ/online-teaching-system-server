@@ -12,7 +12,7 @@ namespace OTS_API.Models
     {
         [Key]
         [Column("id")]
-        public int Id { get; set; }
+        public string Id { get; set; }
         [Column("file_id")]
         public int FileId { get; set; }
         [Column("url")]

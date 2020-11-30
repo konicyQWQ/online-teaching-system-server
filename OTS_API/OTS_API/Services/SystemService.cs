@@ -288,7 +288,7 @@ namespace OTS_API.Services
             try
             {
                 var list = await dbContext.HomePages.ToListAsync();
-                list.Sort((a, b) => a.Id - b.Id);
+                list.Sort((a, b) => a.Id.CompareTo(b.Id));
                 return list;
             }
             catch (Exception e)
