@@ -36,7 +36,7 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Toke is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 var role = t.Role;
                 if (role != UserRole.Admin)
@@ -69,7 +69,7 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if(t == null)
                 {
-                    throw new Exception("Toke is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 var role = t.Role;
                 if(role != UserRole.Admin)
@@ -102,7 +102,7 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Toke is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 var role = t.Role;
                 if (role != UserRole.Admin)
@@ -111,7 +111,7 @@ namespace OTS_API.Controllers
                 }
                 if (role == UserRole.Student)
                 {
-                    throw new Exception("Insufficient Authority!");
+                    throw new Exception("权限不足");
                 }
 
                 var homeworkInfo = await homeworkService.GetHomeworkAsync(hwID);
@@ -154,7 +154,7 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Toke is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 var role = t.Role;
                 if (role != UserRole.Admin)
@@ -163,7 +163,7 @@ namespace OTS_API.Controllers
                 }
                 if (role == UserRole.Student)
                 {
-                    throw new Exception("Insufficient Authority!");
+                    throw new Exception("权限不足");
                 }
                 var courseInfo = await homeworkService.GetCourseAsync(courseID);
                 var tempFile = Path.GetTempFileName();
@@ -199,7 +199,7 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Toke is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 var role = t.Role;
                 if (role != UserRole.Admin)
@@ -208,7 +208,7 @@ namespace OTS_API.Controllers
                 }
                 if(role == UserRole.Student)
                 {
-                    throw new Exception("Insufficient Authority!");
+                    throw new Exception("权限不足");
                 }
                 await homeworkService.AddHomeworkAsync(homework);
                 foreach (var file in files)
@@ -233,7 +233,7 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Toke is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 var role = t.Role;
                 if (role != UserRole.Admin)
@@ -242,7 +242,7 @@ namespace OTS_API.Controllers
                 }
                 if (role == UserRole.Student)
                 {
-                    throw new Exception("Insufficient Authority!");
+                    throw new Exception("权限不足");
                 }
                 await homeworkService.RemoveHomeworkFilesAsync(homework.HwId);
                 await homeworkService.UpdateHomeworkAsync(homework);
@@ -267,7 +267,7 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Toke is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 var role = t.Role;
                 if (role != UserRole.Admin)
@@ -276,7 +276,7 @@ namespace OTS_API.Controllers
                 }
                 if (role == UserRole.Student)
                 {
-                    throw new Exception("Insufficient Authority!");
+                    throw new Exception("权限不足");
                 }
                 await homeworkService.SetStuHomeworkScoreAsync(stuID, hwID, score, comment);
                 return new { Res = true };
@@ -297,17 +297,17 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Toke is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 var role = t.Role;
                 if (role == UserRole.Admin)
                 {
-                    throw new Exception("Invalid Action!");
+                    throw new Exception("无效操作");
                 }
                 role = await homeworkService.GetHWRoleAsync(homework.HwId, t.UserID);
                 if (role != UserRole.Student)
                 {
-                    throw new Exception("Invalid Action!");
+                    throw new Exception("无效操作");
                 }
                 homework.UserId = t.UserID;
                 homework.Mark = null;
@@ -360,7 +360,7 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Toke is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 var role = t.Role;
                 if (role != UserRole.Admin)
@@ -369,7 +369,7 @@ namespace OTS_API.Controllers
                 }
                 if (role == UserRole.Student)
                 {
-                    throw new Exception("Insufficient Authority!");
+                    throw new Exception("权限不足");
                 }
                 await homeworkService.RemoveHomeworkAsync(hwID);
                 return new { Res = true };

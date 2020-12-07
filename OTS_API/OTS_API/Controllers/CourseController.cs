@@ -94,11 +94,11 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if(t == null)
                 {
-                    throw new Exception("Token is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 if(t.Role != UserRole.Admin)
                 {
-                    throw new Exception("Insufficient Authority!");
+                    throw new Exception("权限不足");
                 }
                 var id = await courseService.AddCourseAysnc(course);
                 foreach(var teacher in teachers)
@@ -129,18 +129,18 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Token is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 if (t.Role != UserRole.Admin)
                 {
                     if (t.Role == UserRole.Student)
                     {
-                        throw new Exception("Insufficient Authority!");
+                        throw new Exception("权限不足");
                     }
                     var uc = await courseService.GetUserCourseAsync(t.UserID, course.Id);
                     if (uc == null)
                     {
-                        throw new Exception("Insufficient Authority!");
+                        throw new Exception("权限不足");
                     }
                 }
 
@@ -170,14 +170,14 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Token is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 if(t.Role != UserRole.Admin)
                 {
                     var uc = await courseService.GetUserCourseAsync(t.UserID, courseID);
                     if (uc == null)
                     {
-                        throw new Exception("Insufficient Authority!");
+                        throw new Exception("权限不足");
                     }
                     return new { Res = true, Role = uc.UserRole };
                 }
@@ -201,18 +201,18 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Token is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 if(t.Role != UserRole.Admin)
                 {
                     if(t.Role == UserRole.Student)
                     {
-                        throw new Exception("Insufficient Authority!");
+                        throw new Exception("权限不足");
                     }
                     var uc = await courseService.GetUserCourseAsync(t.UserID, bulletin.CourseId);
                     if(uc == null)
                     {
-                        throw new Exception("Insufficient Authority!");
+                        throw new Exception("权限不足");
                     }
                 }
                 await courseService.AddBulletinAsync(bulletin);
@@ -234,18 +234,18 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Token is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 if (t.Role != UserRole.Admin)
                 {
                     if (t.Role == UserRole.Student)
                     {
-                        throw new Exception("Insufficient Authority!");
+                        throw new Exception("权限不足");
                     }
                     var uc = await courseService.GetUserCourseAsync(t.UserID, bulletin.CourseId);
                     if (uc == null)
                     {
-                        throw new Exception("Insufficient Authority!");
+                        throw new Exception("权限不足");
                     }
                 }
                 await courseService.UpdateBulletinAsync(bulletin);
@@ -266,19 +266,19 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Token is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 if (t.Role != UserRole.Admin)
                 {
                     if (t.Role == UserRole.Student)
                     {
-                        throw new Exception("Insufficient Authority!");
+                        throw new Exception("权限不足");
                     }
                     var bulletin = await courseService.GetBulletinAsync(bulletinID);
                     var uc = await courseService.GetUserCourseAsync(t.UserID, bulletin.CourseId);
                     if (uc == null)
                     {
-                        throw new Exception("Insufficient Authority!");
+                        throw new Exception("权限不足");
                     }
                 }
                 await courseService.DeleteBulletinAsync(bulletinID);
@@ -314,18 +314,18 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Token is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 if (t.Role != UserRole.Admin)
                 {
                     if (t.Role == UserRole.Student)
                     {
-                        throw new Exception("Insufficient Authority!");
+                        throw new Exception("权限不足");
                     }
                     var uc = await courseService.GetUserCourseAsync(t.UserID, courseware.CourseId);
                     if (uc == null)
                     {
-                        throw new Exception("Insufficient Authority!");
+                        throw new Exception("权限不足");
                     }
                 }
                 await courseService.AddCoursewareAsync(courseware);
@@ -372,14 +372,14 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Token is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 if (t.Role != UserRole.Admin)
                 {
                     var uc = await courseService.GetUserCourseAsync(t.UserID, courseId);
                     if (uc == null)
                     {
-                        throw new Exception("Insufficient Authority!");
+                        throw new Exception("权限不足");
                     }
                 }
                 var courseware = await courseService.GetCoursewareAsync(coursewareId);
@@ -400,18 +400,18 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Token is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 if (t.Role != UserRole.Admin)
                 {
                     if (t.Role == UserRole.Student)
                     {
-                        throw new Exception("Insufficient Authority!");
+                        throw new Exception("权限不足");
                     }
                     var uc = await courseService.GetUserCourseAsync(t.UserID, courseware.CourseId);
                     if (uc == null)
                     {
-                        throw new Exception("Insufficient Authority!");
+                        throw new Exception("权限不足");
                     }
                 }
                 await courseService.RemoveCoursewareFilesAsync(courseware.Id);
@@ -437,14 +437,14 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Token is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 if (t.Role != UserRole.Admin)
                 {
                     var uc = await courseService.GetUserCourseAsync(t.UserID, courseId);
                     if (uc == null)
                     {
-                        throw new Exception("Insufficient Authority!");
+                        throw new Exception("权限不足");
                     }
                 }
                 await courseService.DeleteCoursewareAsync(coursewareId);
@@ -465,14 +465,14 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if(t == null)
                 {
-                    throw new Exception("Token is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 if(t.Role != UserRole.Admin)
                 {
                     var uc = await courseService.GetUserCourseAsync(t.UserID, courseID);
                     if(uc == null)
                     {
-                        throw new Exception("Insufficient Authority!");
+                        throw new Exception("权限不足");
                     }
                 }
                 var resList = await courseService.GetCourseUsersAsync(courseID);
@@ -493,14 +493,14 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Token is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 if (t.Role != UserRole.Admin)
                 {
                     var uc = await courseService.GetUserCourseAsync(t.UserID, courseID);
                     if (uc == null || uc.UserRole == UserRole.Student)
                     {
-                        throw new Exception("Insufficient Authority!");
+                        throw new Exception("权限不足");
                     }
                 }
 
@@ -522,14 +522,14 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Token is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 if (t.Role != UserRole.Admin)
                 {
                     var uc = await courseService.GetUserCourseAsync(t.UserID, courseID);
                     if (uc == null)
                     {
-                        throw new Exception("Insufficient Authority!");
+                        throw new Exception("权限不足");
                     }
                 }
 
@@ -551,14 +551,14 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Token is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 if (t.Role != UserRole.Admin)
                 {
                     var uc = await courseService.GetUserCourseAsync(t.UserID, courseID);
                     if (uc == null || uc.UserRole == UserRole.Student)
                     {
-                        throw new Exception("Insufficient Authority!");
+                        throw new Exception("权限不足");
                     }
                 }
 
@@ -580,14 +580,14 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Token is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 if (t.Role != UserRole.Admin)
                 {
                     var uc = await courseService.GetUserCourseAsync(t.UserID, courseID);
                     if (uc == null || uc.UserRole != UserRole.Student)
                     {
-                        throw new Exception("Insufficient Authority!");
+                        throw new Exception("权限不足");
                     }
                 }
 
@@ -609,14 +609,14 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Token is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 if (t.Role != UserRole.Admin)
                 {
                     var uc = await courseService.GetUserCourseAsync(t.UserID, courseID);
                     if (uc == null || uc.UserRole != UserRole.Student)
                     {
-                        throw new Exception("Insufficient Authority!");
+                        throw new Exception("权限不足");
                     }
                 }
 
@@ -638,14 +638,14 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Token is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 if (t.Role != UserRole.Admin)
                 {
                     var uc = await courseService.GetUserCourseAsync(t.UserID, discussion.CourseId);
                     if (uc == null)
                     {
-                        throw new Exception("Insufficient Authority!");
+                        throw new Exception("权限不足");
                     }
                 }
 
@@ -698,14 +698,14 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Token is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 if (t.Role != UserRole.Admin)
                 {
                     var uc = await courseService.GetDiscussionUCAsync(userDiscussion.DiscussionId, t.UserID);
                     if (uc == null)
                     {
-                        throw new Exception("Insufficient Authority!");
+                        throw new Exception("权限不足");
                     }
                 }
 
@@ -727,7 +727,7 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Token is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 var role = t.Role;
                 if (t.Role != UserRole.Admin)
@@ -735,7 +735,7 @@ namespace OTS_API.Controllers
                     var uc = await courseService.GetDiscussionUCAsync(disID, t.UserID);
                     if (uc == null)
                     {
-                        throw new Exception("Insufficient Authority!");
+                        throw new Exception("权限不足");
                     }
                     role = uc.UserRole;
                     var udToRemove = await courseService.GetUserDiscussionAsync(disID, level);
@@ -762,14 +762,14 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Token is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 if (t.Role != UserRole.Admin)
                 {
                     var uc = await courseService.GetUserCourseAsync(t.UserID, discussion.CourseId);
                     if (uc == null || uc.UserRole == UserRole.Student)
                     {
-                        throw new Exception("Insufficient Authority!");
+                        throw new Exception("权限不足");
                     }
                 }
 
@@ -791,14 +791,14 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Token is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 if (t.Role != UserRole.Admin)
                 {
                     var uc = await courseService.GetDiscussionUCAsync(disID, t.UserID);
                     if (uc == null || uc.UserRole == UserRole.Student)
                     {
-                        throw new Exception("Insufficient Authority!");
+                        throw new Exception("权限不足");
                     }
                 }
 

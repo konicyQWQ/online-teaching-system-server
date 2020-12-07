@@ -30,7 +30,7 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Token is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 if (t.Role != UserRole.Admin)
                 {
@@ -54,7 +54,7 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Token is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 if (t.Role != UserRole.Admin)
                 {
@@ -78,7 +78,7 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Token is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 if (t.Role != UserRole.Admin)
                 {
@@ -116,7 +116,7 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if (t == null)
                 {
-                    throw new Exception("Token is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 if (t.Role != UserRole.Admin)
                 {
@@ -156,11 +156,11 @@ namespace OTS_API.Controllers
                 var t = await tokenService.GetTokenAsync(token);
                 if(t == null)
                 {
-                    throw new Exception("Token is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 if(t.Role != UserRole.Admin)
                 {
-                    throw new Exception("Insufficient Authority!");
+                    throw new Exception("权限不足");
                 }
 
                 await systemService.SetHomePagesAsync(pages);

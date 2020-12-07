@@ -46,13 +46,13 @@ namespace OTS_API.Services
             {
                 if (tokenID == null || !tokenMap.ContainsKey(tokenID))
                 {
-                    throw new Exception("Token is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 var token = tokenMap[tokenID];
                 if (!token.IsValid())
                 {
                     tokenMap.Remove(tokenID);
-                    throw new Exception("Token is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 if (token.ValidationCode != validationCode)
                 {
@@ -66,13 +66,13 @@ namespace OTS_API.Services
         {
             if (tokenID == null || !tokenMap.ContainsKey(tokenID))
             {
-                throw new Exception("Token is Invalid!");
+                throw new Exception("请先登录");
             }
             var token = tokenMap[tokenID];
             if (!token.IsValid())
             {
                 tokenMap.Remove(tokenID);
-                throw new Exception("Token is Invalid!");
+                throw new Exception("请先登录");
             }
             await SendValidatingEmailAsync(token);
         }
@@ -83,13 +83,13 @@ namespace OTS_API.Services
             {
                 if (tokenID == null || !tokenMap.ContainsKey(tokenID))
                 {
-                    throw new Exception("Token is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 var token = tokenMap[tokenID];
                 if (!token.IsValid())
                 {
                     tokenMap.Remove(tokenID);
-                    throw new Exception("Token is Invalid!");
+                    throw new Exception("请先登录");
                 }
                 if (!token.IsVerified)
                 {
