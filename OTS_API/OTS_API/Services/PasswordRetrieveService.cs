@@ -111,9 +111,9 @@ namespace OTS_API.Services
                 logger.LogInformation("Validation Code for User(id: " + token.UserID + ") is: " + token.ValidationCode);
                 var mailMsg = new MailMessage();
                 mailMsg.From = new MailAddress("446416074@qq.com", "Do-Not-Reply");
-                mailMsg.To.Add(new MailAddress("3180102973@zju.edu.cn"));
+                mailMsg.To.Add(new MailAddress(token.Email));
                 mailMsg.Subject = "线上教学系统：密码找回验证码";
-                mailMsg.Body = "请勿将验证码泄露给他人！\n验证码：K3NLAONL3";
+                mailMsg.Body = "请勿将验证码泄露给他人！\n验证码：" + token.ValidationCode;
                 var client = new SmtpClient();
                 client.Host = "smtp.qq.com";
                 client.Port = 587;
