@@ -37,12 +37,12 @@ namespace OTS_API.Services
             if(user == null)
             {
                 logger.LogError("User: " + id + " Not Found!");
-                throw new Exception("User Not Found!");
+                throw new Exception("用户名不存在");
             }
             if(user.Password != password)
             {
                 logger.LogError("User: " + id + "Wrong Password!");
-                throw new Exception("Wrong Password!");
+                throw new Exception("密码错误");
             }
             return user;
         }

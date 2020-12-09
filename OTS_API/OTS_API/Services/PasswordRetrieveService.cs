@@ -5,6 +5,8 @@ using OTS_API.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Mail;
 using System.Threading.Tasks;
 
 namespace OTS_API.Services
@@ -25,11 +27,11 @@ namespace OTS_API.Services
         {
             if (userInfo == null)
             {
-                throw new Exception("User Not Found!");
+                throw new Exception("用户不存在");
             }
             if (userInfo.Email != email)
             {
-                throw new Exception("Email is Incorrect!");
+                throw new Exception("邮箱错误");
             }
             var t = new SToken(userInfo.Id, email);
             var tID = CodeGenerator.GetCode(20);
@@ -46,17 +48,17 @@ namespace OTS_API.Services
             {
                 if (tokenID == null || !tokenMap.ContainsKey(tokenID))
                 {
-                    throw new Exception("请先登录");
+                    throw new Exception("操作失败，请重试");
                 }
                 var token = tokenMap[tokenID];
                 if (!token.IsValid())
                 {
                     tokenMap.Remove(tokenID);
-                    throw new Exception("请先登录");
+                    throw new Exception("操作失败，请重试");
                 }
                 if (token.ValidationCode != validationCode)
                 {
-                    throw new Exception("Code is Incorrect!");
+                    throw new Exception("验证码不正确");
                 }
                 token.IsVerified = true;
             });
@@ -66,13 +68,13 @@ namespace OTS_API.Services
         {
             if (tokenID == null || !tokenMap.ContainsKey(tokenID))
             {
-                throw new Exception("请先登录");
+                throw new Exception("操作失败，请重试");
             }
             var token = tokenMap[tokenID];
             if (!token.IsValid())
             {
                 tokenMap.Remove(tokenID);
-                throw new Exception("请先登录");
+                throw new Exception("操作失败，请重试");
             }
             await SendValidatingEmailAsync(token);
         }
@@ -83,17 +85,17 @@ namespace OTS_API.Services
             {
                 if (tokenID == null || !tokenMap.ContainsKey(tokenID))
                 {
-                    throw new Exception("请先登录");
+                    throw new Exception("操作失败，请重试");
                 }
                 var token = tokenMap[tokenID];
                 if (!token.IsValid())
                 {
                     tokenMap.Remove(tokenID);
-                    throw new Exception("请先登录");
+                    throw new Exception("操作失败，请重试");
                 }
                 if (!token.IsVerified)
                 {
-                    throw new Exception("Need to Verify Identity First!");
+                    throw new Exception("操作失败，请重试");
                 }
                 var userID = token.UserID;
                 tokenMap.Remove(tokenID);
@@ -107,6 +109,25 @@ namespace OTS_API.Services
             {
                 token.ValidationCode = CodeGenerator.GetCode(8);
                 logger.LogInformation("Validation Code for User(id: " + token.UserID + ") is: " + token.ValidationCode);
+                var mailMsg = new MailMessage();
+                mailMsg.From = new MailAddress("446416074@qq.com", "Do-Not-Reply");
+                mailMsg.To.Add(new MailAddress("3180102973@zju.edu.cn"));
+                mailMsg.Subject = "线上教学系统：密码找回验证码";
+                mailMsg.Body = "请勿将验证码泄露给他人！\n验证码：K3NLAONL3";
+                var client = new SmtpClient();
+                client.Host = "smtp.qq.com";
+                client.Port = 587;
+                client.EnableSsl = true;
+                client.Credentials = new NetworkCredential("446416074@qq.com", "qkjwrwnsydtsbiee");
+                try
+                {
+                    client.SendAsync(mailMsg, null);
+                }
+                catch (Exception e)
+                {
+                    logger.LogError(e.Message);
+                    throw new Exception("邮件发送失败");
+                }
             });
         }
     }
