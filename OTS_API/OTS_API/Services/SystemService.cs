@@ -26,14 +26,11 @@ namespace OTS_API.Services
             try
             {
                 var courseList = await dbContext.UserCourse.Where(ue => ue.UserId == userID).Select(ue => ue.CourseId).ToListAsync();
-                var eList = await dbContext.Events.Where(e => e.EventType == EventType.SystemMessage || ((int)e.EventType >= 1 && (int)e.EventType <= 8 && courseList.Contains(e.CourseID.Value)) || ((int)e.EventType >= 9 && e.RelatedUser == userID)).ToListAsync();
-                eList.Sort((a, b) => b.Time.CompareTo(a.Time));
-                var totalCount = eList.Count;
-                if (limit > totalCount - start)
-                {
-                    limit = totalCount - start;
-                }
-                eList = eList.GetRange(start, limit);
+                var q = dbContext.Events.OrderByDescending(e => e.Time).Where(e => e.EventType == EventType.SystemMessage || ((int)e.EventType >= 1 && (int)e.EventType <= 8 && courseList.Contains(e.CourseID.Value)) || ((int)e.EventType >= 9 && e.RelatedUser == userID));
+
+                var eList = await q.Skip(start).Take(limit).ToListAsync();
+                var totalCount = q.Count();
+
                 return new EventResList()
                 {
                     TotalCount = totalCount,
@@ -113,14 +110,10 @@ namespace OTS_API.Services
         {
             try
             {
-                var list = await dbContext.Events.Where(e => e.EventType == EventType.SystemMessage).ToListAsync();
-                list.Sort((a, b) => b.Time.CompareTo(a.Time));
-                var totalCount = list.Count;
-                if (limit > totalCount - start)
-                {
-                    limit = totalCount - start;
-                }
-                list = list.GetRange(start, limit);
+                var q = dbContext.Events.OrderByDescending(e => e.Time).Where(e => e.EventType == EventType.SystemMessage);
+                var list = await q.Skip(start).Take(limit).ToListAsync();
+                var totalCount = q.Count();
+
                 return new EventResList()
                 {
                     TotalCount = totalCount,

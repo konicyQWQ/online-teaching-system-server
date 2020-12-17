@@ -136,8 +136,8 @@ namespace OTS_API.Services
         {
             try
             {
-                var list = await dbContext.Users.Where(user => user.Role == role && user.Name.Contains(keyword)).ToListAsync();
-                var res = list.Take(limit).ToList();
+                var list = await dbContext.Users.Where(user => user.Role == role && user.Name.Contains(keyword)).Take(limit).ToListAsync();
+                var res = list.ToList();
                 foreach (var t in res)
                 {
                     t.Introduction = null;
@@ -196,22 +196,18 @@ namespace OTS_API.Services
         {
             try
             {
-                List<User> resList = await dbContext.Users.ToListAsync();
+                IQueryable<User> q = null;
                 if(keyword != null)
                 {
-                    resList = resList.Where(u => u.Name.Contains(keyword) || u.Id.Contains(keyword)).ToList();
+                    q = dbContext.Users.Where(u => u.Name.Contains(keyword) || u.Id.Contains(keyword));
                 }
                 if(roles.Count > 0)
                 {
-                    resList = resList.Where(u => roles.Contains(u.Role)).ToList();
+                    q = q.Where(u => roles.Contains(u.Role));
                 }
 
-                var totalCount = resList.Count;
-                if (limit > totalCount - start)
-                {
-                    limit = totalCount - start;
-                }
-                resList = resList.GetRange(start, limit);
+                var totalCount = q.Count();
+                var resList = await q.Skip(start).Take(limit).ToListAsync();
                 foreach(var res in resList)
                 {
                     res.Password = null;
