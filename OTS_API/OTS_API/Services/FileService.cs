@@ -11,6 +11,7 @@ using OTS_API.Utilities;
 using Microsoft.VisualBasic;
 using PdfSharpCore.Pdf.IO;
 using PdfSharpCore.Pdf;
+using Xabe.FFmpeg;
 
 namespace OTS_API.Services
 {
@@ -61,7 +62,7 @@ namespace OTS_API.Services
                 {
                     Id = 0,
                     Name = file.FileName,
-                    Path = Config.privateFilePath + desPath + DateTime.Now.ToString("yyyyMMddHHmmss") + CodeGenerator.GetCode(10),
+                    Path = Config.privateFilePath + desPath + DateTime.Now.ToString("yyyyMMddHHmmss") + CodeGenerator.GetCode(5) + Path.GetExtension(file.FileName),
                     Size = file.Length
                 };
 
@@ -87,7 +88,24 @@ namespace OTS_API.Services
                     }
                     catch (Exception e)
                     {
-                        logger.LogError("Unable to Create Preview Version\n" + e.Message);
+                        logger.LogError("Unable to Create Preview Version of file: " + fileInfo.Name + "\n" + e.Message);
+                    }
+                }
+                else if (file.ContentType.Contains("video"))
+                {
+                    try
+                    {
+                        FFmpeg.SetExecutablesPath("C:\\Program Files\\FFmpeg\\ffmpeg-n4.3.1-26-gca55240b8c-win64-lgpl-4.3\\bin");
+
+                        var destPath = fileInfo.Path + "(preview)";
+                        var sourceInfo = await FFmpeg.GetMediaInfo(fileInfo.Path);
+
+                        var spliter = await FFmpeg.Conversions.FromSnippet.Split(fileInfo.Path, destPath, TimeSpan.Zero, sourceInfo.Duration * 0.3);
+                        _ = spliter.Start();
+                    }
+                    catch (Exception e)
+                    {
+                        logger.LogError("Unable to Create Preview Version of file: " + fileInfo.Name + "\n" + e.Message);
                     }
                 }
                 return fileInfo;

@@ -163,11 +163,12 @@ namespace OTS_API.Controllers
                 var courseware = await courseService.GetCoursewareAsync(coursewareID);
                 var fileInfo = await fileService.GetFileAsync(fileID);
                 bool previewMode = false;
+                new FileExtensionContentTypeProvider().TryGetContentType(fileInfo.Name, out var contentType);
                 if (t == null)
                 {
                     if(courseware.Privilege == Privilege.NotDownloadable)
                     {
-                        if (fileInfo.Name.Contains("pdf"))
+                        if (fileInfo.Name.Contains("pdf") || contentType.Contains("video"))
                         {
                             previewMode = true;
                         }
@@ -177,8 +178,7 @@ namespace OTS_API.Controllers
                         }
                     }
                 }
-
-                new FileExtensionContentTypeProvider().TryGetContentType(fileInfo.Name, out var contentType);
+                
                 if (mode)
                 {
                     var arr = Encoding.UTF8.GetBytes(fileInfo.Name);
