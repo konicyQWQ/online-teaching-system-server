@@ -137,7 +137,7 @@ namespace OTS_API.Services
                     {
                         previewPdf.AddPage(pdfDoc.Pages[i]);
                     }
-                    previewPdf.Save(fileInfo.Path + "(preview)");
+                    previewPdf.Save(this.GetPreviewPath(fileInfo.Path));
                 }
                 catch (Exception e)
                 {
@@ -150,9 +150,9 @@ namespace OTS_API.Services
         {
             try
             {
-                FFmpeg.SetExecutablesPath("C:\\Program Files\\FFmpeg\\ffmpeg-n4.3.1-26-gca55240b8c-win64-lgpl-4.3\\bin");
+                //FFmpeg.SetExecutablesPath("C:\\Program Files\\FFmpeg\\ffmpeg-n4.3.1-26-gca55240b8c-win64-lgpl-4.3\\bin");
 
-                var destPath = fileInfo.Path + "(preview)";
+                var destPath = this.GetPreviewPath(fileInfo.Path);
                 var sourceInfo = await FFmpeg.GetMediaInfo(fileInfo.Path);
 
                 var spliter = await FFmpeg.Conversions.FromSnippet.Split(fileInfo.Path, destPath, TimeSpan.Zero, sourceInfo.Duration * 0.3);
@@ -178,7 +178,7 @@ namespace OTS_API.Services
                     {
                         previewDoc.Slides.AddClone(pptDoc.Slides[i]);
                     }
-                    previewDoc.Save(fileInfo.Path + "(preview)", Aspose.Slides.Export.SaveFormat.Pptx);
+                    previewDoc.Save(this.GetPreviewPath(fileInfo.Path), Aspose.Slides.Export.SaveFormat.Pptx);
                 }
                 catch (Exception e)
                 {
@@ -201,7 +201,7 @@ namespace OTS_API.Services
                     {
                         previewDoc.Slides.AddClone(pptDoc.Slides[i]);
                     }
-                    previewDoc.Save(fileInfo.Path + "(preview)", Aspose.Slides.Export.SaveFormat.Ppt);
+                    previewDoc.Save(this.GetPreviewPath(fileInfo.Path), Aspose.Slides.Export.SaveFormat.Ppt);
                 }
                 catch (Exception e)
                 {
@@ -219,7 +219,7 @@ namespace OTS_API.Services
                     var doc = new Document(fileInfo.Path);
                     var pageCount = doc.PageCount / 3 + 1;
                     var newDoc = doc.ExtractPages(0, pageCount);
-                    newDoc.Save(fileInfo.Path + "(preview)");
+                    newDoc.Save(this.GetPreviewPath(fileInfo.Path));
                 }
                 catch (Exception e)
                 {
@@ -228,14 +228,20 @@ namespace OTS_API.Services
             });
         }
 
-        //public Task Test()
-        //{
-        //    var doc = new Document("D://Videos//source.docx");
-        //    var pageCount = doc.PageCount / 3 + 1;
-        //    var newDoc = doc.ExtractPages(0, pageCount);
-        //    newDoc.Save("D://Videos//output.docx");
+        public string GetPreviewPath(string path)
+        {
+            var name = Path.GetFileNameWithoutExtension(path) + "(preview)" + Path.GetExtension(path);
+            var dir = Path.GetDirectoryName(path);
+            return Path.Combine(dir, name);
+        }
 
-        //    return Task.CompletedTask;
+        //public async Task Test()
+        //{
+        //    _ = GeneratePreviewVideo(new Models.File()
+        //    {
+        //        Path = "D://Videos//source.mp4"
+        //    });
+        //    await Task.Delay(10);
         //}
     }
 }

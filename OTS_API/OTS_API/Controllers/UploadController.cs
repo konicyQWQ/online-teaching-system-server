@@ -206,7 +206,7 @@ namespace OTS_API.Controllers
                 }
                 if (previewMode)
                 {
-                    return PhysicalFile(Path.GetFullPath(fileInfo.Path + "(preview)"), contentType, fileInfo.Name);
+                    return PhysicalFile(Path.GetFullPath(fileService.GetPreviewPath(fileInfo.Path)), contentType, fileInfo.Name);
                 }
                 else
                 {
