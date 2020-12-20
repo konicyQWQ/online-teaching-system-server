@@ -101,6 +101,21 @@ namespace OTS_API.Controllers
             }
         }
 
+        //[HttpGet]
+        //[Route("Test")]
+        //public async Task<dynamic> OnTestAsync()
+        //{
+        //    try
+        //    {
+        //        await fileService.Test();
+        //        return new { Res = true };
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return new { Res = false, Error = e.Message };
+        //    }
+        //}
+
         [HttpPost]
         [Route("Courseware")]
         public async Task<dynamic> OnAddCoursewareFileAsync([FromForm] int courseID, [FromForm] List<IFormFile> formFiles, [FromForm] string token)
@@ -168,7 +183,7 @@ namespace OTS_API.Controllers
                 {
                     if(courseware.Privilege == Privilege.NotDownloadable)
                     {
-                        if (fileInfo.Name.Contains("pdf") || contentType.Contains("video"))
+                        if (fileInfo.Name.ToLower().Contains("pdf") || contentType.ToLower().Contains("video") || fileInfo.Name.ToLower().Contains("ppt") || fileInfo.Name.ToLower().Contains("doc"))
                         {
                             previewMode = true;
                         }
