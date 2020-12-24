@@ -194,7 +194,7 @@ namespace OTS_API.Controllers
                     }
                 }
                 
-                if (!mode)
+                if (mode)
                 {
                     var arr = Encoding.UTF8.GetBytes(fileInfo.Name);
                     var name = string.Empty;
@@ -202,7 +202,7 @@ namespace OTS_API.Controllers
                     {
                         name += string.Format("%{0:X2}", b);
                     }
-                    HttpContext.Response.Headers.Add("Content-Disposition", new Microsoft.Extensions.Primitives.StringValues("inline; filename = " + name));
+                    HttpContext.Response.Headers.Add("Content-Disposition", new Microsoft.Extensions.Primitives.StringValues("attachment; filename = " + name));
                 }
                 if (previewMode)
                 {
@@ -298,7 +298,7 @@ namespace OTS_API.Controllers
 
                 var fileInfo = await fileService.GetFileAsync(fileID);
                 new FileExtensionContentTypeProvider().TryGetContentType(fileInfo.Name, out var contentType);
-                if (!mode)
+                if (mode)
                 {
                     var arr = Encoding.UTF8.GetBytes(fileInfo.Name);
                     var name = string.Empty;
@@ -306,9 +306,9 @@ namespace OTS_API.Controllers
                     {
                         name += string.Format("%{0:X2}", b);
                     }
-                    HttpContext.Response.Headers.Add("Content-Disposition", new Microsoft.Extensions.Primitives.StringValues("inline; filename = " + name));
+                    HttpContext.Response.Headers.Add("Content-Disposition", new Microsoft.Extensions.Primitives.StringValues("attachment; filename = " + name));
                 }
-                return PhysicalFile(Path.GetFullPath(fileInfo.Path), contentType, fileInfo.Name);
+                return PhysicalFile(Path.GetFullPath(fileInfo.Path), contentType);
             }
             catch (Exception e)
             {
