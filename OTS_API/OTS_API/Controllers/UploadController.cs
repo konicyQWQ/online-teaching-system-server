@@ -203,6 +203,14 @@ namespace OTS_API.Controllers
                         name += string.Format("%{0:X2}", b);
                     }
                     HttpContext.Response.Headers.Add("Content-Disposition", new Microsoft.Extensions.Primitives.StringValues("attachment; filename = " + name));
+                    if (previewMode)
+                    {
+                        return PhysicalFile(Path.GetFullPath(fileService.GetPreviewPath(fileInfo.Path)), contentType);
+                    }
+                    else
+                    {
+                        return PhysicalFile(Path.GetFullPath(fileInfo.Path), contentType);
+                    }
                 }
                 if (previewMode)
                 {
