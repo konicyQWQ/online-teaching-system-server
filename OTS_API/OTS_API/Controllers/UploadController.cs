@@ -206,11 +206,11 @@ namespace OTS_API.Controllers
                 }
                 if (previewMode)
                 {
-                    return PhysicalFile(Path.GetFullPath(fileService.GetPreviewPath(fileInfo.Path)), contentType, fileInfo.Name);
+                    return PhysicalFile(Path.GetFullPath(fileService.GetPreviewPath(fileInfo.Path)), contentType);
                 }
                 else
                 {
-                    return PhysicalFile(Path.GetFullPath(fileInfo.Path), contentType, fileInfo.Name);
+                    return PhysicalFile(Path.GetFullPath(fileInfo.Path), contentType);
                 }
             }
             catch (Exception e)
