@@ -196,10 +196,10 @@ namespace OTS_API.Services
         {
             try
             {
-                IQueryable<User> q = null;
+                IQueryable<User> q = dbContext.Users;
                 if(keyword != null)
                 {
-                    q = dbContext.Users.Where(u => u.Name.Contains(keyword) || u.Id.Contains(keyword));
+                    q = q.Where(u => u.Name.Contains(keyword) || u.Id.Contains(keyword));
                 }
                 if(roles.Count > 0)
                 {
