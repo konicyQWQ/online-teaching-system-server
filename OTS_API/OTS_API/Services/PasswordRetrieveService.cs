@@ -118,7 +118,7 @@ namespace OTS_API.Services
                 client.Host = "smtp.qq.com";
                 client.Port = 587;
                 client.EnableSsl = true;
-                client.Credentials = new NetworkCredential("446416074@qq.com", "qkjwrwnsydtsbiee");
+                client.Credentials = new NetworkCredential("446416074@qq.com", "dlshuyxgvyodbjbc");
                 try
                 {
                     client.SendAsync(mailMsg, null);
